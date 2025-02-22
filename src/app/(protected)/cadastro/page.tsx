@@ -42,6 +42,11 @@ export default function CadastroPage() {
       
       //setTimeout(() => router.push("/login"), 2000); // Redireciona para login após sucesso
       alert('logado com sucesso!')
+      setName('')
+      setPassword('')
+      setEmail("")
+      setConfirmEmail("")
+      setConfirmPassword("")
     } else {
       const data = await response.json();
       setError(data.message || "Erro ao cadastrar usuário.");

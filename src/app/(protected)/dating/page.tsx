@@ -11,6 +11,7 @@ interface Agendamento {
   descricao: string;
 }
 
+//definir as variaveis de url
 export default function AgendamentoPage() {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([
     { id: uuidv4(), nome: 'João Silva', horario: '10:00', descricao: 'Sessão inicial' },
@@ -98,8 +99,8 @@ export default function AgendamentoPage() {
                     Iniciar Reunião com {ag.nome}
                   </button>
                 ) : (
-                  <span>Link: <a href={`http://localhost:3000/publiccall/${ag.id}`} className="underline">
-                    localhost:3000/publiccall/{ag.id}
+                  <span>Link: <a href={`/publiccall/${ag.id}`} className="underline">
+                    /publiccall/{ag.id}
                   </a></span>
                 )}
               </p>
