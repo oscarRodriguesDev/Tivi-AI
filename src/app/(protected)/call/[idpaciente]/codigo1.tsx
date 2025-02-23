@@ -178,7 +178,7 @@ export default function Home() {
 
       {/* box transcriptio */}
       <div>
-        <LiveTranscription
+        <LiveTranscription titulo=''
         mensagem= {msg}
         />
 

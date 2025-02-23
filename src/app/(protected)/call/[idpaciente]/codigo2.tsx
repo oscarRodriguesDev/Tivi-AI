@@ -160,7 +160,7 @@ export default function Home() {
         </div>
       </div>
 
-      <LiveTranscription mensagem={msg} />
+    {/*   <LiveTranscription mensagem={msg} codigo ='' /> */}
     </div>
   );
 }
