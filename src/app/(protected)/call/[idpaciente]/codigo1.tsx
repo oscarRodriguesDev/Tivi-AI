@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from "../../components/boxTranscript";
+import LiveTranscription from "@/app/components/boxtrancriptv2";
 
 
 export default function Home() {
@@ -178,7 +178,7 @@ export default function Home() {
 
       {/* box transcriptio */}
       <div>
-        <LiveTranscription titulo=''
+        <LiveTranscription usuario=''
         mensagem= {msg}
         />
 
