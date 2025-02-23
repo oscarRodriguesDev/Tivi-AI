@@ -5,115 +5,116 @@ import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
 import LiveTranscription from "../../components/boxTranscript";
 
-
 export default function Home() {
   const [peerId, setPeerId] = useState<string>("");
   const [remoteId, setRemoteId] = useState<string>("");
-  const  [msg,setMsg] = useState<string>("Aguardando transcrição");
-  const [callActive, setCallActive] = useState<boolean>(false); // Controle da chamada ativa
+  const [msgPsicologo, setMsgPsicologo] = useState<string>("Aguardando transcrição...");
+  const [msgPaciente, setMsgPaciente] = useState<string>("Aguardando transcrição...");
+  const [callActive, setCallActive] = useState<boolean>(false);
   const peerRef = useRef<Peer | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const currentCall = useRef<MediaConnection | null>(null);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
 
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  const { idpaciente } = useParams(); // Pegando o ID da URL corretamente
-  const [id, setId] = useState<string>('');
-
-
-  // Função para monitorar o volume do microfone
-  const monitorMicrophone = (stream: MediaStream) => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext();
-    }
-
-    const audioContext = audioContextRef.current;
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256; // Definição do tamanho da análise de frequência
-    analyserRef.current = analyser;
-
-    const source = audioContext.createMediaStreamSource(stream);
-    source.connect(analyser);
-    sourceRef.current = source;
-
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-    const checkVolume = () => {
-      analyser.getByteFrequencyData(dataArray);
-      const volume = dataArray.reduce((a, b) => a + b) / dataArray.length; // Calcula o volume médio
-
-      if (remoteAudioRef.current) {
-        remoteAudioRef.current.muted = volume > 10; // Se estiver falando, muta o alto-falante
-      }
-
-      requestAnimationFrame(checkVolume);
-    };
-
-    checkVolume();
-  };
-
-
+  const { idpaciente } = useParams();
+  
+  const recognitionPsicologo = useRef<SpeechRecognition | null>(null);
+  const recognitionPaciente = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
-    if (!idpaciente) return//não faz nada
+    if (!idpaciente) return;
+    
     const peer = new Peer(uuidv4());
     peerRef.current = peer;
     peer.on("open", (id) => setPeerId(id));
- 
 
     peer.on("call", (call) => {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-        monitorMicrophone(stream);
         if (videoRef.current) videoRef.current.srcObject = stream;
         call.answer(stream);
         setCallActive(true);
-        currentCall.current = call; // Armazena a chamada ativa
+        currentCall.current = call;
 
         call.on("stream", (remoteStream) => {
+          remoteStreamRef.current = remoteStream;
           if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+          iniciarTranscricaoPaciente(remoteStream); // Inicia a transcrição do paciente
         });
 
-        call.on("close", () => endCall()); // Listener para quando a chamada for encerrada
+        call.on("close", () => endCall());
       });
     });
 
-    return () => peer.destroy(); // Limpa a instância do Peer ao desmontar
+    return () => peer.destroy();
   }, []);
 
-
   const callPeer = () => {
-
-      
-      setMsg('Trancrevendo Chamada...')
-      
-    
     if (!remoteId || !peerRef.current) return;
 
-    // No dispositivo chamador, capturar apenas o vídeo (sem áudio)
-    navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: {
-        echoCancellation: true, // Reduz eco do próprio microfone
-        noiseSuppression: true, // Ajuda a reduzir ruídos
-        autoGainControl: false  // Evita que o volume mude sozinho
-      }
-    }).then((stream) => {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
       if (videoRef.current) videoRef.current.srcObject = stream;
+      iniciarTranscricaoPsicologo(stream); // Inicia a transcrição do psicólogo
 
       const call = peerRef.current?.call(remoteId, stream);
       call?.on("stream", (remoteStream) => {
+        remoteStreamRef.current = remoteStream;
         if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+        iniciarTranscricaoPaciente(remoteStream); // Inicia a transcrição do paciente
       });
     });
+  };
 
+  const iniciarTranscricaoPsicologo = (stream: MediaStream) => {
+    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      console.error("Reconhecimento de fala não suportado no navegador.");
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionPsicologo.current = new SpeechRecognition();
+    recognitionPsicologo.current.continuous = true;
+    recognitionPsicologo.current.interimResults = true;
+    recognitionPsicologo.current.lang = "pt-BR";
+
+    recognitionPsicologo.current.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join(" ");
+      setMsgPsicologo(transcript);
+    };
+
+    recognitionPsicologo.current.start();
+  };
+
+  const iniciarTranscricaoPaciente = (stream: MediaStream) => {
+    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      console.error("Reconhecimento de fala não suportado no navegador.");
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionPaciente.current = new SpeechRecognition();
+    recognitionPaciente.current.continuous = true;
+    recognitionPaciente.current.interimResults = true;
+    recognitionPaciente.current.lang = "pt-BR";
+
+    recognitionPaciente.current.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join(" ");
+      setMsgPaciente(transcript);
+    };
+
+    recognitionPaciente.current.start();
   };
 
   const endCall = () => {
-    setMsg('')
+    setMsgPsicologo('');
+    setMsgPaciente('');
+
+    recognitionPsicologo.current?.stop();
+    recognitionPaciente.current?.stop();
 
     if (currentCall.current) {
       currentCall.current.close();
@@ -129,13 +130,10 @@ export default function Home() {
     setCallActive(false);
   };
 
-
   return (
-
     <div className="flex flex-row items-center justify-center min-h-screen bg-[#181818] text-white p-8">
       <div className="w-full max-w-4xl bg-[#202124] p-6 rounded-3xl shadow-xl">
         <h1 className="text-4xl font-semibold text-center text-indigo-500 mb-6">Video Conferência</h1>
-
         <p className="text-lg text-center text-gray-400 mb-2">Sua ID de Participante</p>
         <p className="text-2xl font-semibold text-center text-indigo-400 mb-8">{peerId}</p>
 
@@ -143,49 +141,19 @@ export default function Home() {
           <input
             type="text"
             placeholder="Digite o ID do parceiro"
-            className="w-full p-4 rounded-lg border-2 border-gray-700 bg-[#303030] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-md transition duration-200"
-             /* value={}  */
+            className="w-full p-4 rounded-lg border-2 border-gray-700 bg-[#303030] text-white"
             onChange={(e) => setRemoteId(e.target.value)}
           />
         </div>
 
         <div className="flex justify-center gap-6 mb-8">
-          <button
-            onClick={callPeer}
-            className="w-32 py-3 px-6 text-white bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-lg shadow-lg hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
-          >
-            Chamar
-          </button>
-          <button
-            onClick={endCall}
-            className="w-32 py-3 px-6 text-white bg-gradient-to-r from-red-600 to-red-400 rounded-lg shadow-lg hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
-          >
-            Finalizar
-          </button>
+          <button onClick={callPeer} className="w-32 py-3 px-6 text-white bg-indigo-600 rounded-lg">Chamar</button>
+          <button onClick={endCall} className="w-32 py-3 px-6 text-white bg-red-600 rounded-lg">Finalizar</button>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <div className="relative w-full h-80">
-            <video ref={videoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg border-4 border-indigo-500" />
-            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Você</div>
-          </div>
-          <div className="relative w-full h-80">
-            <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg border-4 border-indigo-500" />
-            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Parceiro</div>
-          </div>
-        </div>
+        
+        <LiveTranscription titulo="Psicólogo" mensagem={msgPsicologo} />
+        <LiveTranscription titulo="Paciente" mensagem={msgPaciente} />
       </div>
-
-      {/* box transcriptio */}
-      <div>
-        <LiveTranscription
-        mensagem= {msg}
-        />
-
-      </div>
-
     </div>
   );
 }
-//biblioteca de tipagem npm install --save-dev @types/dom-speech-recognition
-//baixada

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
+  titulo:string;
   mensagem: string; // Texto exibido na interface
 }
 
