@@ -14,6 +14,7 @@ export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) 
   const [listening, setListening] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [whoIsTalking, setWhoIsTalking] = useState<string>("");
+  const [titulo,setTitulo]=useState<string>("user");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
