@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
+import LiveTranscription from "@/app/components/boxtrancriptv2";
 
 export default function PublicCallPage() {
   const { iddinamico } = useParams(); // Pegando o ID da URL corretamente
@@ -98,6 +99,13 @@ export default function PublicCallPage() {
           </div>
         </div>
       </div>
+         {/* Transcrição unificada */}
+            <div>
+              <LiveTranscription 
+               usuario={'paciente'}
+               mensagem={''} // A transcrição agora é unificada         
+              />
+            </div>
     </div>
   );
 }

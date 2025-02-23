@@ -4,17 +4,17 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
-  titulo: string;
-  mensagem: string; // Texto exibido na interface
+ 
+  mensagem: string; 
+  usuario: string; // Identificador único do usuário (ex: "User1" ou "User2")
 }
 
-export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) {
+export default function LiveTranscription({ usuario,mensagem }: LiveTranscriptionProps) {
   const [transcription, setTranscription] = useState<string>("");
   const [recognition, setRecognition] = useState<any>(null);
   const [listening, setListening] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [whoIsTalking, setWhoIsTalking] = useState<string>("");
-  const [titulo,setTitulo]=useState<string>("user");
+  const [titulo,setTitulo] = useState<string>("user1");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -34,27 +34,19 @@ export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) 
 
     recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
       let transcript = "";
-      let speaker = "Outro"; // Definindo um valor padrão (outro locutor)
-
-      // Aqui, se você tiver algum critério para definir o locutor, pode ajustar
-      // No exemplo, isso é feito por uma simples alternância a cada novo bloco de fala
-      if (whoIsTalking === "Usuário") {
-        speaker = "Outro"; // Altera para "Outro" depois que o usuário fala
-      } else {
-        speaker = "Usuário"; // Se for o outro, passa a ser o "Usuário"
-      }
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          transcript += result[0].transcript + " ";
+          transcript += result[0].transcript + "\n";
         }
       }
 
-      setWhoIsTalking(speaker); // Alterna quem está falando
-      setTranscription((prev) => {
-        return prev + `${speaker}: ${transcript} \n`;
-      });
+      if (transcript.trim()) {
+        setTranscription((prev) => {
+          return prev + `${usuario}: ${transcript}\n`;
+        });
+      }
     };
 
     recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -66,7 +58,7 @@ export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) 
     return () => {
       recognitionInstance.stop();
     };
-  }, [whoIsTalking]);
+  }, []);
 
   const handleStartListening = () => {
     if (!recognition) {
@@ -74,7 +66,6 @@ export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) 
       return;
     }
     setListening(true);
-    setTranscription(""); // Limpar a transcrição anterior ao iniciar
     recognition.start();
   };
 
@@ -85,7 +76,7 @@ export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) 
   };
 
   const handleClearTranscription = () => {
-    setTranscription(""); // Limpar a transcrição
+    setTranscription("");
   };
 
   const handleSavePDF = () => {

@@ -1,9 +1,9 @@
-'use client'
+'use client';
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscriptionv2 from "../../components/boxTranscript";
+import LiveTranscription from "../../components/boxtrancriptv2";
 
 export default function Home() {
   const [peerId, setPeerId] = useState<string>("");
@@ -21,7 +21,7 @@ export default function Home() {
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const { idpaciente } = useParams(); // Pegando o ID da URL corretamente
-  const [id, setId] = useState<string>('');
+  const [titulo, setTitulo] = useState<string>('usuario');
 
   // Flag para distinguir quem está falando
   const [isPsychologist, setIsPsychologist] = useState<boolean>(false);
@@ -51,7 +51,7 @@ export default function Home() {
       if (remoteAudioRef.current) {
         remoteAudioRef.current.muted = volume > 10; // Se estiver falando, muta o alto-falante
       }
-
+      handleTranscription('text', isPsychologist);
       requestAnimationFrame(checkVolume);
     };
 
@@ -84,7 +84,7 @@ export default function Home() {
   }, []);
 
   const callPeer = () => {
-    setMsg('Trancrevendo Chamada...')
+    setMsg('Transcrevendo Chamada...');
 
     if (!remoteId || !peerRef.current) return;
 
@@ -124,7 +124,11 @@ export default function Home() {
 
   // Função de transcrição: recebe o texto e marca se é psicólogo ou paciente
   const handleTranscription = (text: string, isPsychologist: boolean) => {
-    const speaker = isPsychologist ? "Psicólogo" : "Paciente";
+    // Definindo quem está falando, psicólogo ou paciente
+    const speaker = isPsychologist ? 'psicologo' : 'paciente';
+    setTitulo(speaker);
+
+    // Atualizando a transcrição com o título correto
     setTranscription(prevTranscription => prevTranscription + `\n${speaker}: ${text}`);
   };
 
@@ -163,19 +167,20 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           <div className="relative w-full h-80">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg border-4 border-indigo-500" />
-            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Você</div>
+            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Psicologo</div>
           </div>
           <div className="relative w-full h-80">
             <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg border-4 border-indigo-500" />
-            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Parceiro</div>
+            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Paciente</div>
           </div>
         </div>
       </div>
 
       {/* Transcrição unificada */}
       <div>
-        <LiveTranscriptionv2 titulo='psicologo'
-          mensagem={transcription} // A transcrição agora é unificada
+        <LiveTranscription 
+         usuario={'Psicologo'}
+         mensagem={transcription} // A transcrição agora é unificada         
         />
       </div>
     </div>
