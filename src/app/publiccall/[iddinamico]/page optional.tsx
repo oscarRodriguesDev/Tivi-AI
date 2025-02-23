@@ -24,7 +24,7 @@ export default function Home() {
 
 
   // Flag para distinguir quem está falando
-  const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
+  const [isPsychologist, setIsPsychologist] = useState<boolean>(false);
   const [transcription, setTranscription] = useState<string>("");
 
   // Função para monitorar o volume do microfone
@@ -51,7 +51,7 @@ export default function Home() {
       if (remoteAudioRef.current) {
         remoteAudioRef.current.muted = volume > 10; // Se estiver falando, muta o alto-falante
       }
-      handleTranscription('text', isPsychologist);
+      handleTranscription('text', !isPsychologist);
       requestAnimationFrame(checkVolume);
     };
 
@@ -179,7 +179,7 @@ export default function Home() {
       {/* Transcrição unificada */}
       <div>
         <LiveTranscription 
-         usuario={'Psicologo'}
+         usuario={'Paciente'}
          mensagem={transcription} // A transcrição agora é unificada         
         />
       </div>
