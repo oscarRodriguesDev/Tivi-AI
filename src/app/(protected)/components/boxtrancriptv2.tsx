@@ -14,92 +14,107 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   const [listening, setListening] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [titulo, setTitulo] = useState<string>("user1");
-
   useEffect(() => {
     if (typeof window === "undefined") return;
-
+  
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
+  
     if (!SpeechRecognition) {
       setError("Seu navegador não suporta reconhecimento de voz.");
       return;
     }
-
+  
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.continuous = true;
     recognitionInstance.interimResults = false;
     recognitionInstance.lang = "pt-BR";
-
+  
     recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
       let transcript = "";
-
+  
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
           transcript += result[0].transcript + "\n";
         }
       }
-
+  
       if (transcript.trim()) {
         setTranscription((prev) => {
-          return prev + `${usuario}: ${transcript}\n`;
+          const updatedTranscription = prev + `${usuario}: ${transcript}`;
+          saveMessage(updatedTranscription); // Salvar transcrição na API
+          return updatedTranscription;
         });
       }
     };
-
+  
     recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
       setError(`Erro no reconhecimento: ${event.error}`);
     };
-
+  
     setRecognition(recognitionInstance);
-
+  
     // Recupera as mensagens do servidor ao carregar o componente
     fetchMessages();
-
+  
+    // Verifica as novas mensagens a cada 5 segundos
+    const intervalId = setInterval(() => {
+      //fetchMessages();
+    }, 5000); // Ajuste o intervalo conforme necessário
+  
     return () => {
       recognitionInstance.stop();
+      clearInterval(intervalId); // Limpar o intervalo quando o componente for desmontado
     };
   }, []);
+  
 
-  // Função para recuperar as mensagens do servidor
+
+
   const fetchMessages = async () => {
     try {
-      const response = await fetch('/api/chat', { method: 'GET' });
-
+      const response = await fetch('/api/message', { method: 'GET' });
+  
       if (!response.ok) {
         throw new Error("Erro ao recuperar mensagens.");
       }
-
+  
       const data = await response.json();
-      setTranscription(data.messages || "");
+      setTranscription(prev => prev  + (data.transcript || ""));
     } catch (error) {
       setError(`Erro ao carregar mensagens: ${error}`);
     }
   };
+  
 
-  // Função para salvar a mensagem no servidor
-  const saveMessage = async (message: string) => {
+
+  // Função para salvar a mensagem no servidor e atualizar as mensagens
+  const saveMessage = async (transcript: string) => {
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ mensagem: message }),
+        body: JSON.stringify({ transcript }),  // Passando a variável transcript corretamente
       });
-
+  
       if (!response.ok) {
         throw new Error("Erro ao salvar a mensagem.");
       }
-
+  
       const data = await response.json();
-      console.log("Mensagem salva com sucesso:", data.message);
+      console.log("Mensagem salva com sucesso:", data.transcript);
+  
+      // Atualiza as mensagens imediatamente após o envio
+      fetchMessages();
+  
     } catch (error) {
       setError(`Erro ao salvar a mensagem: ${error}`);
     }
   };
-
+  
   const handleStartListening = () => {
     if (!recognition) {
       console.error("Reconhecimento de voz não foi inicializado corretamente.");
@@ -123,15 +138,6 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
     const doc = new jsPDF();
     doc.text(transcription, 10, 10);
     doc.save("transcricao.pdf");
-  };
-
-  const handleSendMessage = async () => {
-    if (!transcription.trim()) return;
-    
-    // Salva a transcrição como mensagem
-    await saveMessage(transcription);
-    // Limpa a transcrição após o envio
-    setTranscription("");
   };
 
   return (
@@ -179,12 +185,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
         >
           Salvar como PDF
         </button>
-        <button
-          onClick={handleSendMessage}
-          className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition"
-        >
-          Enviar Mensagem
-        </button>
+        
       </div>
     </div>
   );

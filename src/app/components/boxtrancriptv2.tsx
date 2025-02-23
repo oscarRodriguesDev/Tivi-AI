@@ -4,153 +4,139 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
-  mensagem: string;
+  mensagem: string; 
   usuario: string; // Identificador único do usuário (ex: "User1" ou "User2")
 }
 
 export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
   const [transcription, setTranscription] = useState<string>("");
-  const [transcriptionUser2, setTranscriptionUser2] = useState<string>(""); // Transcrição para o outro usuário
   const [recognition, setRecognition] = useState<any>(null);
   const [listening, setListening] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [titulo, setTitulo] = useState<string>("user1");
-
-  // Função para salvar as mensagens na API
-  const saveMessages = async (message: string, user: string) => {
-    try {
-      await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message, user }),
-      });
-    } catch (err) {
-      console.error("Erro ao salvar mensagem:", err);
-    }
-  };
-
-  // Função para buscar as mensagens da API
-  const fetchMessages = async () => {
-    try {
-      const response = await fetch("/api/chat");
-      const data = await response.json();
-      // Aqui você pode configurar as mensagens recuperadas
-      if (data && data.messages) {
-        // Atualizar transcrições com mensagens recuperadas
-        const userMessages = data.messages.filter((msg: any) => msg.user === usuario);
-        const otherMessages = data.messages.filter((msg: any) => msg.user !== usuario);
-        setTranscription(userMessages.map((msg: any) => msg.message).join("\n"));
-        setTranscriptionUser2(otherMessages.map((msg: any) => msg.message).join("\n"));
-      }
-    } catch (err) {
-      console.error("Erro ao buscar mensagens:", err);
-    }
-  };
-
   useEffect(() => {
-    fetchMessages(); // Recupera as mensagens quando o componente é montado
-
     if (typeof window === "undefined") return;
-
+  
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
+  
     if (!SpeechRecognition) {
       setError("Seu navegador não suporta reconhecimento de voz.");
       return;
     }
-
-    // Inicialização do reconhecimento de voz para o usuário 1
-    const recognitionInstanceUser1 = new SpeechRecognition();
-    recognitionInstanceUser1.continuous = true;
-    recognitionInstanceUser1.interimResults = false;
-    recognitionInstanceUser1.lang = "pt-BR";
-
-    recognitionInstanceUser1.onresult = (event: SpeechRecognitionEvent) => {
+  
+    const recognitionInstance = new SpeechRecognition();
+    recognitionInstance.continuous = true;
+    recognitionInstance.interimResults = false;
+    recognitionInstance.lang = "pt-BR";
+  
+    recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
       let transcript = "";
-
+  
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
           transcript += result[0].transcript + "\n";
         }
       }
-
+  
       if (transcript.trim()) {
         setTranscription((prev) => {
-          return prev + `${usuario}: ${transcript}\n`;
+          const updatedTranscription = prev + `${usuario}: ${transcript}`;
+          saveMessage(updatedTranscription); // Salvar transcrição na API
+          return updatedTranscription;
         });
-        saveMessages(transcript, usuario); // Salva a mensagem de usuário 1
       }
     };
-
-    recognitionInstanceUser1.onerror = (event: SpeechRecognitionErrorEvent) => {
+  
+    recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
       setError(`Erro no reconhecimento: ${event.error}`);
     };
-
-    // Inicialização do reconhecimento de voz para o outro usuário
-    const recognitionInstanceUser2 = new SpeechRecognition();
-    recognitionInstanceUser2.continuous = true;
-    recognitionInstanceUser2.interimResults = false;
-    recognitionInstanceUser2.lang = "pt-BR";
-
-    recognitionInstanceUser2.onresult = (event: SpeechRecognitionEvent) => {
-      let transcript = "";
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          transcript += result[0].transcript + "\n";
-        }
-      }
-
-      if (transcript.trim()) {
-        setTranscriptionUser2((prev) => {
-          return prev + `Outro Usuário: ${transcript}\n`;
-        });
-        saveMessages(transcript, "Outro Usuário"); // Salva a mensagem do outro usuário
-      }
-    };
-
-    recognitionInstanceUser2.onerror = (event: SpeechRecognitionErrorEvent) => {
-      setError(`Erro no reconhecimento do outro usuário: ${event.error}`);
-    };
-
-    setRecognition({ user1: recognitionInstanceUser1, user2: recognitionInstanceUser2 });
-
+  
+    setRecognition(recognitionInstance);
+  
+    // Recupera as mensagens do servidor ao carregar o componente
+    fetchMessages();
+  
+    // Verifica as novas mensagens a cada 5 segundos
+    const intervalId = setInterval(() => {
+      //fetchMessages();
+    }, 5000); // Ajuste o intervalo conforme necessário
+  
     return () => {
-      recognitionInstanceUser1.stop();
-      recognitionInstanceUser2.stop();
+      recognitionInstance.stop();
+      clearInterval(intervalId); // Limpar o intervalo quando o componente for desmontado
     };
-  }, [usuario]);
+  }, []);
+  
 
+
+
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch('/api/message', { method: 'GET' });
+  
+      if (!response.ok) {
+        throw new Error("Erro ao recuperar mensagens.");
+      }
+  
+      const data = await response.json();
+      setTranscription(prev => prev  + (data.transcript || ""));
+    } catch (error) {
+      setError(`Erro ao carregar mensagens: ${error}`);
+    }
+  };
+  
+
+
+  // Função para salvar a mensagem no servidor e atualizar as mensagens
+  const saveMessage = async (transcript: string) => {
+    try {
+      const response = await fetch('/api/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ transcript }),  // Passando a variável transcript corretamente
+      });
+  
+      if (!response.ok) {
+        throw new Error("Erro ao salvar a mensagem.");
+      }
+  
+      const data = await response.json();
+      console.log("Mensagem salva com sucesso:", data.transcript);
+  
+      // Atualiza as mensagens imediatamente após o envio
+      fetchMessages();
+  
+    } catch (error) {
+      setError(`Erro ao salvar a mensagem: ${error}`);
+    }
+  };
+  
   const handleStartListening = () => {
-    if (!recognition || !recognition.user1 || !recognition.user2) {
+    if (!recognition) {
       console.error("Reconhecimento de voz não foi inicializado corretamente.");
       return;
     }
     setListening(true);
-    recognition.user1.start();
-    recognition.user2.start();
+    recognition.start();
   };
 
   const handleStopListening = () => {
     if (!recognition) return;
     setListening(false);
-    recognition.user1.stop();
-    recognition.user2.stop();
+    recognition.stop();
   };
 
   const handleClearTranscription = () => {
     setTranscription("");
-    setTranscriptionUser2(""); // Limpar a transcrição do outro usuário também
   };
 
   const handleSavePDF = () => {
     const doc = new jsPDF();
-    doc.text(transcription + transcriptionUser2, 10, 10);
+    doc.text(transcription, 10, 10);
     doc.save("transcricao.pdf");
   };
 
@@ -179,11 +165,8 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
       </div>
 
       <div className="flex-1 overflow-y-auto bg-gray-800 p-2 rounded-md text-sm text-white">
-        {transcription || transcriptionUser2 ? (
-          <>
-            <p className="whitespace-pre-wrap">{transcription}</p>
-            <p className="whitespace-pre-wrap mt-4">{transcriptionUser2}</p>
-          </>
+        {transcription ? (
+          <p className="whitespace-pre-wrap">{transcription}</p>
         ) : (
           <p className="text-gray-400 text-center">{mensagem || "Aguardando transcrição..."}</p>
         )}
@@ -202,6 +185,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
         >
           Salvar como PDF
         </button>
+        
       </div>
     </div>
   );
