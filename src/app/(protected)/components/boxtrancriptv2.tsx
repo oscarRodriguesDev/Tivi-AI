@@ -4,17 +4,16 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
- 
   mensagem: string; 
   usuario: string; // Identificador único do usuário (ex: "User1" ou "User2")
 }
 
-export default function LiveTranscription({ usuario,mensagem }: LiveTranscriptionProps) {
+export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
   const [transcription, setTranscription] = useState<string>("");
   const [recognition, setRecognition] = useState<any>(null);
   const [listening, setListening] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [titulo,setTitulo] = useState<string>("user1");
+  const [titulo, setTitulo] = useState<string>("user1");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -55,10 +54,51 @@ export default function LiveTranscription({ usuario,mensagem }: LiveTranscriptio
 
     setRecognition(recognitionInstance);
 
+    // Recupera as mensagens do servidor ao carregar o componente
+    fetchMessages();
+
     return () => {
       recognitionInstance.stop();
     };
   }, []);
+
+  // Função para recuperar as mensagens do servidor
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch('/api/chat', { method: 'GET' });
+
+      if (!response.ok) {
+        throw new Error("Erro ao recuperar mensagens.");
+      }
+
+      const data = await response.json();
+      setTranscription(data.messages || "");
+    } catch (error) {
+      setError(`Erro ao carregar mensagens: ${error}`);
+    }
+  };
+
+  // Função para salvar a mensagem no servidor
+  const saveMessage = async (message: string) => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mensagem: message }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao salvar a mensagem.");
+      }
+
+      const data = await response.json();
+      console.log("Mensagem salva com sucesso:", data.message);
+    } catch (error) {
+      setError(`Erro ao salvar a mensagem: ${error}`);
+    }
+  };
 
   const handleStartListening = () => {
     if (!recognition) {
@@ -83,6 +123,15 @@ export default function LiveTranscription({ usuario,mensagem }: LiveTranscriptio
     const doc = new jsPDF();
     doc.text(transcription, 10, 10);
     doc.save("transcricao.pdf");
+  };
+
+  const handleSendMessage = async () => {
+    if (!transcription.trim()) return;
+    
+    // Salva a transcrição como mensagem
+    await saveMessage(transcription);
+    // Limpa a transcrição após o envio
+    setTranscription("");
   };
 
   return (
@@ -129,6 +178,12 @@ export default function LiveTranscription({ usuario,mensagem }: LiveTranscriptio
           className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
         >
           Salvar como PDF
+        </button>
+        <button
+          onClick={handleSendMessage}
+          className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition"
+        >
+          Enviar Mensagem
         </button>
       </div>
     </div>

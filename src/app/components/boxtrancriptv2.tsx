@@ -16,7 +16,42 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   const [error, setError] = useState<string>("");
   const [titulo, setTitulo] = useState<string>("user1");
 
+  // Função para salvar as mensagens na API
+  const saveMessages = async (message: string, user: string) => {
+    try {
+      await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message, user }),
+      });
+    } catch (err) {
+      console.error("Erro ao salvar mensagem:", err);
+    }
+  };
+
+  // Função para buscar as mensagens da API
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch("/api/chat");
+      const data = await response.json();
+      // Aqui você pode configurar as mensagens recuperadas
+      if (data && data.messages) {
+        // Atualizar transcrições com mensagens recuperadas
+        const userMessages = data.messages.filter((msg: any) => msg.user === usuario);
+        const otherMessages = data.messages.filter((msg: any) => msg.user !== usuario);
+        setTranscription(userMessages.map((msg: any) => msg.message).join("\n"));
+        setTranscriptionUser2(otherMessages.map((msg: any) => msg.message).join("\n"));
+      }
+    } catch (err) {
+      console.error("Erro ao buscar mensagens:", err);
+    }
+  };
+
   useEffect(() => {
+    fetchMessages(); // Recupera as mensagens quando o componente é montado
+
     if (typeof window === "undefined") return;
 
     const SpeechRecognition =
@@ -47,6 +82,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
         setTranscription((prev) => {
           return prev + `${usuario}: ${transcript}\n`;
         });
+        saveMessages(transcript, usuario); // Salva a mensagem de usuário 1
       }
     };
 
@@ -74,6 +110,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
         setTranscriptionUser2((prev) => {
           return prev + `Outro Usuário: ${transcript}\n`;
         });
+        saveMessages(transcript, "Outro Usuário"); // Salva a mensagem do outro usuário
       }
     };
 
@@ -87,7 +124,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
       recognitionInstanceUser1.stop();
       recognitionInstanceUser2.stop();
     };
-  }, []);
+  }, [usuario]);
 
   const handleStartListening = () => {
     if (!recognition || !recognition.user1 || !recognition.user2) {
