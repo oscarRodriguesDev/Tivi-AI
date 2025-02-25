@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from "../../components/boxtrancriptv2";
+import LiveTranscription from "../../../components/boxtrancriptv4";
 
 export default function Home() {
   const [peerId, setPeerId] = useState<string>("");

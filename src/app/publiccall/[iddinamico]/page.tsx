@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from '../../components/boxtrancriptv3'
+import LiveTranscription from '../../components/boxtrancriptv4'
 
 export default function PublicCallPage() {
 
@@ -25,7 +25,7 @@ export default function PublicCallPage() {
 
 
   //flag para definir quem está falando
-  const [isPsychologist, setIsPsychologist] = useState<boolean>(false);
+  const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
   const [transcription, setTranscription] = useState<string>("fazendo um teste");
 
 

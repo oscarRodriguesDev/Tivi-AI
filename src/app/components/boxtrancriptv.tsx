@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
-  usuario: string;  // Nome do usuário que está utilizando o sistema
-  mensagem: string; // Mensagem inicial ou placeholder
+  mensagem: string; 
+  usuario: string; // Identificador único do usuário (ex: "User1" ou "User2")
 }
 
 export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
@@ -13,6 +13,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   const [recognition, setRecognition] = useState<any>(null);
   const [listening, setListening] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [titulo, setTitulo] = useState<string>("user1");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -36,16 +37,14 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          transcript += result[0].transcript.trim();
+          transcript += result[0].transcript + "\n";
         }
       }
 
-      if (transcript) {
-        setTranscription((prev) => {
-          const updatedTranscription = `${prev}\n${usuario}: ${transcript}`.trim();
-          saveMessage(usuario, transcript);
-          return updatedTranscription;
-        });
+      if (transcript.trim()) {
+        const formattedMessage = `${usuario}: ${transcript}`;
+        setTranscription((prev) => prev + formattedMessage + "\n");
+        saveMessage(formattedMessage); // Salvar no servidor
       }
     };
 
@@ -54,67 +53,76 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
     };
 
     setRecognition(recognitionInstance);
-    fetchMessages();
-    const intervalId = setInterval(fetchMessages, 5000); // Atualiza a cada 5 segundos
+
+    fetchMessages(); // Recupera mensagens ao iniciar o componente
+
+    // Atualiza as mensagens periodicamente
+    const intervalId = setInterval(() => {
+      fetchMessages();
+    }, 3000); // Atualiza a cada 3 segundos
 
     return () => {
       recognitionInstance.stop();
-      clearInterval(intervalId);
+      clearInterval(intervalId); // Limpar intervalo ao desmontar
     };
   }, []);
 
-  // Função para buscar mensagens do backend e exibir todas na transcrição
   const fetchMessages = async () => {
     try {
       const response = await fetch('/api/message', { method: 'GET' });
-      if (!response.ok) throw new Error("Erro ao recuperar mensagens.");
+  
+      if (!response.ok) {
+        throw new Error("Erro ao recuperar mensagens.");
+      }
+  
       const data = await response.json();
-
-      // Atualiza a transcrição com todas as mensagens recebidas
-      const transcriptHistory = data.messages.map((msg: { usuario: string; mensagem: string }) => 
-        `${msg.usuario}: ${msg.mensagem}`
-      ).join("\n");
-
-      setTranscription(transcriptHistory);
+  
+      if (data.transcript) {
+        // Separamos as mensagens em linhas distintas
+        setTranscription(data.transcript.split("\n").join("\n"));
+      }
     } catch (error) {
       setError(`Erro ao carregar mensagens: ${error}`);
     }
   };
-
-  // Função para salvar mensagens no backend com o nome do remetente
-  const saveMessage = async (usuario: string, mensagem: string) => {
+  
+  const saveMessage = async (transcript: string) => {
     try {
-      await fetch('/api/message', {
+      const response = await fetch('/api/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario, mensagem }),
+        body: JSON.stringify({ transcript }),
       });
-      fetchMessages(); // Atualiza a tela após salvar
+
+      if (!response.ok) {
+        throw new Error("Erro ao salvar a mensagem.");
+      }
+
+      fetchMessages(); // Atualiza mensagens imediatamente
     } catch (error) {
       setError(`Erro ao salvar a mensagem: ${error}`);
     }
   };
 
-  // Inicia o reconhecimento de voz
   const handleStartListening = () => {
-    if (!recognition) return;
+    if (!recognition) {
+      console.error("Reconhecimento de voz não foi inicializado corretamente.");
+      return;
+    }
     setListening(true);
     recognition.start();
   };
 
-  // Para o reconhecimento de voz
   const handleStopListening = () => {
     if (!recognition) return;
     setListening(false);
     recognition.stop();
   };
 
-  // Limpa a transcrição da tela (mas não do banco de dados)
   const handleClearTranscription = () => {
     setTranscription("");
   };
 
-  // Salva a transcrição como um arquivo PDF
   const handleSavePDF = () => {
     const doc = new jsPDF();
     doc.text(transcription, 10, 10);
@@ -123,27 +131,47 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
 
   return (
     <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4">
-      <h1 className="text-lg font-semibold text-center mb-2 text-white">Transcrição</h1>
+      <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
+
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
       <div className="flex gap-2 justify-center mb-2">
         {!listening ? (
-          <button onClick={handleStartListening} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
+          <button
+            onClick={handleStartListening}
+            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+          >
             Iniciar Transcrição
           </button>
         ) : (
-          <button onClick={handleStopListening} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">
+          <button
+            onClick={handleStopListening}
+            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+          >
             Parar Transcrição
           </button>
         )}
       </div>
+
       <div className="flex-1 overflow-y-auto bg-gray-800 p-2 rounded-md text-sm text-white">
-        {transcription ? <p className="whitespace-pre-wrap">{transcription}</p> : <p className="text-gray-400 text-center">{mensagem || "Aguardando transcrição..."}</p>}
+        {transcription ? (
+          <p className="whitespace-pre-wrap">{transcription}</p>
+        ) : (
+          <p className="text-gray-400 text-center">{mensagem || "Aguardando transcrição..."}</p>
+        )}
       </div>
+
       <div className="flex justify-center mt-4 gap-2">
-        <button onClick={handleClearTranscription} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+        <button
+          onClick={handleClearTranscription}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+        >
           Limpar Transcrição
         </button>
-        <button onClick={handleSavePDF} className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition">
+        <button
+          onClick={handleSavePDF}
+          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+        >
           Salvar como PDF
         </button>
       </div>
