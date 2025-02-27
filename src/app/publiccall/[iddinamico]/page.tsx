@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from '../../components/boxtrancriptv4'
+import LiveTranscription from '../../components/boxtrancriptv'
 
 export default function PublicCallPage() {
 

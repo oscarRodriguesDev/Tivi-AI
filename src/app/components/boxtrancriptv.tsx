@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
-  mensagem: string;
-  usuario: string;
+  mensagem: string; 
+  usuario: string; // Identificador único do usuário (ex: "User1" ou "User2")
 }
 
 export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
@@ -16,144 +16,141 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   const [titulo, setTitulo] = useState<string>("user1");
 
 
+  /* faz a transcrição */
   useEffect(() => {
-    const savedMessages = localStorage.getItem("transcriptions");
-    if (savedMessages) {
-      setTranscription(savedMessages);
-    }
-  }, []);
+    if (typeof window === "undefined") return;
   
-
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   
-
-
-  useEffect(() => {
-    fetchMessages(); // Atualiza as mensagens ao montar o componente
-  }, []);
-
-
-  useEffect(() => {
-    async function fetchData() {
-      const response = await fetch("/api/transcriptions");
-      const data = await response.json();
-  
-      if (data.transcript) {
-        const newMessages = data.transcript.split("\n");
-  
-        setTranscription((prev) => {
-          const allMessages = prev ? prev.split("\n") : [];
-          const combinedMessages = [...allMessages, ...newMessages];
-  
-          // Use Set para garantir mensagens únicas
-          const uniqueMessages = [...new Set(combinedMessages)];
-  
-          return uniqueMessages.join("\n");
-        });
-      }
-    }
-  
-    fetchData();
-  }, []);
-  
-
-  
-  // 🔥 Atualiza as mensagens sempre que iniciar a transcrição
-  const handleStartListening = async () => {
-    if (!recognition) {
-      console.error("Reconhecimento de voz não foi inicializado corretamente.");
+    if (!SpeechRecognition) {
+      setError("Seu navegador não suporta reconhecimento de voz.");
       return;
     }
-    await fetchMessages(); // Carrega todas as mensagens ANTES de começar a transcrição
-    setListening(true);
-    recognition.start();
-  };
-
-  // 🔥 Ao parar, garante que as mensagens estejam atualizadas
-  const handleStopListening = () => {
-    if (!recognition) return;
-    setListening(false);
-    recognition.stop();
-    
-    // Aguarde um curto tempo para garantir que todas as mensagens foram processadas antes de buscar novamente
-    setTimeout(() => {
-      fetchMessages();
-    }, 500); // Meio segundo para dar tempo da API processar a mensagem
-  };
   
+    const recognitionInstance = new SpeechRecognition();
+    recognitionInstance.continuous = true;
+    recognitionInstance.interimResults = false;
+    recognitionInstance.lang = "PT-BR";
+  
+    recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
+      let transcript = "";
+  
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+           transcript +=   result[0].transcript + "\n";
+        }
+      }
+  
+      if (transcript.trim()) {
+        setTranscription((prev) => {
+          const updatedTranscription = prev + `${usuario}: ${transcript}`;
+          saveMessage(updatedTranscription); // Salvar transcrição na API
+          return updatedTranscription;
+        });
+      }
+    };
+  
+    recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
+      setError(`Erro no reconhecimento: ${event.error}`);
+    };
+  
+    setRecognition(recognitionInstance);
+  
+   
+    //fetchMessages();
+  
+    // Verifica as novas mensagens a cada 5 segundos
+    const intervalId = setInterval(() => {
+      //fetchMessages();
+    }, 5000); // Ajuste o intervalo conforme necessário
+  
+    return () => {
+      recognitionInstance.stop();
+      clearInterval(intervalId); // Limpar o intervalo quando o componente for desmontado
+    };
+  }, []);
+  
+
+
+
   const fetchMessages = async () => {
     try {
-      const response = await fetch("/api/message", { method: "GET" });
+      const response = await fetch('/api/message', { method: 'GET' });
   
       if (!response.ok) {
         throw new Error("Erro ao recuperar mensagens.");
       }
   
       const data = await response.json();
-  
-      if (data.transcriptions && Array.isArray(data.transcriptions)) {
-        setTranscription(data.transcriptions.join("\n")); // 🔥 Junta todas as mensagens corretamente
-      } else {
-        setTranscription(""); // 🔥 Evita exibir 'undefined'
+      
+      // Verifica se a nova transcrição é diferente antes de atualizar
+      if (data.transcript && data.transcript !== transcription) {
+         
+        setTranscription(data.transcript);
       }
     } catch (error) {
       setError(`Erro ao carregar mensagens: ${error}`);
     }
   };
   
+  
+
+
+// Função para salvar a mensagem no servidor
+const saveMessage = async (transcript: string) => {
+  try {
+    const response = await fetch('/api/message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ transcript }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao salvar a mensagem.");
+    }
+
+    // Após salvar a mensagem, busca as mensagens novamente
+    handleClearTranscription()
+    await fetchMessages();
+  } catch (error) {
+    setError(`Erro ao salvar a mensagem: ${error}`);
+  }
+};
+
+
+
+  
+  const handleStartListening = () => {
+    if (!recognition) {
+      console.error("Reconhecimento de voz não foi inicializado corretamente.");
+      return;
+    }
+    setListening(true);
+    recognition.start();
+  };
+
+  const handleStopListening = () => {
+    if (!recognition) return;
+    setListening(false);
+    recognition.stop();
+  };
 
   const handleClearTranscription = () => {
     setTranscription("");
   };
 
-
-
-  const handleSavePDF = async (): Promise<void> => {
-    try {
-      const response = await fetch("/api/message", { method: "GET" });
-  
-      if (!response.ok) {
-        throw new Error("Erro ao recuperar mensagens.");
-      }
-  
-      const data: { transcriptions: string[] } = await response.json();
-  
-      if (!data.transcriptions || data.transcriptions.length === 0) {
-        alert("Nenhuma mensagem para salvar.");
-        return;
-      }
-  
-      // Usando Set para garantir que não haja duplicação de mensagens
-      const uniqueMessages = new Set(data.transcriptions);
-  
-      // Criando o PDF
-      const doc = new jsPDF();
-      let yOffset = 10; // Controla o posicionamento das mensagens no PDF
-  
-      // Adiciona apenas mensagens únicas
-      uniqueMessages.forEach((message) => {
-        doc.text(message || "Nenhuma transcrição disponível", 10, yOffset);
-        yOffset += 10; // Ajuste o espaçamento entre as mensagens
-      });
-  
-      // Salvar o PDF
-      doc.save("transcricao.pdf"); //melhorar nomeclatura desse
-  
-      // Limpar o localStorage
-      localStorage.removeItem("transcriptions");
-  
-      // Limpar o estado (opcional)
-      setTranscription("");
-  
-    } catch (error) {
-      setError(`Erro ao gerar PDF: ${error}`);
-    }
+  const handleSavePDF = () => {
+    const doc = new jsPDF();
+    doc.text(transcription, 10, 10);
+    doc.save("transcricao.pdf");
   };
-  
-
-
 
   return (
-    <div className="w-96  ml-10 pb-4 bg-slate-700 rounded-lg p-4">
+    <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4">
       <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
 
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
@@ -176,11 +173,11 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
         )}
       </div>
 
-      <div className="flex-1 h-96 overflow-y-scroll bg-gray-800 p-2 rounded-md text-sm text-white">
+      <div className="flex-1 overflow-y-auto bg-gray-800 p-2 rounded-md text-sm text-white">
         {transcription ? (
           <p className="whitespace-pre-wrap">{transcription}</p>
         ) : (
-          <p className="text-gray-400 text-center">{mensagem || "Aguardando transcrição..."}</p>
+          <p className="text-gray-400 text-center">{transcription || "Aguardando transcrição..."}</p>
         )}
       </div>
 
@@ -197,6 +194,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
         >
           Salvar como PDF
         </button>
+        
       </div>
     </div>
   );

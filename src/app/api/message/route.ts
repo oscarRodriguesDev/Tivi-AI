@@ -1,41 +1,36 @@
 import { NextResponse } from 'next/server';
 
-let transcriptionStorage: string[] = []; // 🔥 Garante que todas as mensagens estão armazenadas
+let transcriptionStorage: Set<string> = new Set(); // Usa Set diretamente para evitar duplicatas
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    // Remover duplicatas usando Set
-    const uniqueMessages = [...new Set(transcriptionStorage)];
-    
-    if (uniqueMessages.length === 0) {
+    if (transcriptionStorage.size === 0) {
       return NextResponse.json({ transcript: '' }, { status: 200 });
     }
 
-    const fullTranscription = uniqueMessages.join("\n");
-
+    const fullTranscription = Array.from(transcriptionStorage).join("\n");
+    console.log(fullTranscription)
     return NextResponse.json({ transcript: fullTranscription }, { status: 200 });
 
   } catch (error) {
-    console.error('Erro interno do servidor.');
+    console.error('Erro no GET:', error);
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
   }
 }
 
-
-
-
 export async function POST(req: Request) {
   try {
-    const { transcript } = await req.json();
-
-    if (!transcript || typeof transcript !== 'string' || transcript.trim() === '') {
+    const body = await req.json();
+    if (!body || typeof body.transcript !== 'string' || body.transcript.trim() === '') {
       return NextResponse.json({ message: 'Mensagem inválida.' }, { status: 400 });
     }
 
-    transcriptionStorage.push(transcript); // 🔥 Agora todas as mensagens são armazenadas corretamente
+    transcriptionStorage.add(body.transcript); // Evita duplicatas automaticamente
+    console.log('Nova transcrição salva:', body.transcript);
 
-    return NextResponse.json({ message: 'Mensagem salva com sucesso.', transcript }, { status: 200 });
+    return NextResponse.json({ message: 'Mensagem salva com sucesso.', transcript: body.transcript }, { status: 200 });
   } catch (error) {
+    console.error('Erro no POST:', error);
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
   }
 }
