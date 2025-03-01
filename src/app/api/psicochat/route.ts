@@ -59,6 +59,7 @@ export async function POST(req: Request) {
         });
 
         // Retornando a resposta do modelo
+        console.log(completion.choices[0])
         return NextResponse.json({ response: completion.choices[0].message.content });
 
     } catch (error) {

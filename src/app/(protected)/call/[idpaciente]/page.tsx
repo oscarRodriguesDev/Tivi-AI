@@ -126,7 +126,6 @@ export default function Home() {
   const handleTranscription = (text: string, isPsychologist: boolean) => {
     // Definindo quem está falando, psicólogo ou paciente
     const speaker = isPsychologist ? 'psicologo' : 'paciente';
-   
 
     // Atualizando a transcrição com o título correto
     setTranscription(prevTranscription => prevTranscription + `\n${speaker}: ${text}`);

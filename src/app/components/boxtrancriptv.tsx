@@ -13,7 +13,8 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   const [recognition, setRecognition] = useState<any>(null);
   const [listening, setListening] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [titulo, setTitulo] = useState<string>("user1");
+  const [titulo, setTitulo] = useState<string>("");
+  const [analise,setAnalise]= useState<string>('nenhuma analise')
 
 
   /* faz a transcrição */
@@ -145,12 +146,44 @@ const saveMessage = async (transcript: string) => {
 
   const handleSavePDF = () => {
     const doc = new jsPDF();
-    doc.text(transcription, 10, 10);
+    doc.text(`${transcription} \n\n Analise da detalhada da conversa:\n\n\n ${analise}`,1,10);
     doc.save("transcricao.pdf");
   };
 
+  const handleGetInsights = async (mensagem: string) => {
+    try {
+      const response = await fetch('/api/psicochat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          
+        },
+        body: JSON.stringify({
+         message: mensagem,
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Erro na requisição: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      console.log("Resposta do ChatGPT:", data);
+      setAnalise(data);
+      
+      return data.choices[0]?.message?.content || "Nenhuma resposta gerada.";
+    } catch (error) {
+      console.error("Erro ao buscar insights:", error);
+      return "Erro ao obter resposta.";
+    }
+  };
+  
+
+
+
+
   return (
-    <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4">
+    <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4 overflow-y-auto" >
       <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
 
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
@@ -193,6 +226,13 @@ const saveMessage = async (transcript: string) => {
           className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
         >
           Salvar como PDF
+        </button>
+
+        <button
+          onClick={()=>{handleGetInsights(transcription)}}
+          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+        >
+          GPT Analisis
         </button>
         
       </div>
