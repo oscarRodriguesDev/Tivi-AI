@@ -134,33 +134,75 @@ const saveMessage = async (transcript: string) => {
     recognition.start();
   };
 
+
   const handleStopListening = () => {
     if (!recognition) return;
     setListening(false);
     recognition.stop();
   };
 
+
   const handleClearTranscription = () => {
     setTranscription("");
   };
 
-  const handleSavePDF = () => {
-    const doc = new jsPDF();
-    doc.text(`${transcription} \n\n Analise da detalhada da conversa:\n\n\n ${analise}`,1,10);
+  
+
+
+  /* Função para salvar o pdf de forma responsiva */
+  const handleSavePDF = (): void => {
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+  
+    const marginLeft = 10;
+    const marginTop = 10;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const lineHeight = 7; // Espaçamento entre linhas
+    const maxWidth = pageWidth - marginLeft * 2;
+    
+    let yPos = marginTop;
+  
+    const wrapText = (text: string): string[] => {
+      return doc.splitTextToSize(text, maxWidth);
+    };
+  
+    const addTextToPDF = (text: string): void => {
+      const lines = wrapText(text);
+      lines.forEach((line) => {
+        if (yPos + lineHeight > pageHeight - marginTop) {
+          doc.addPage();
+          yPos = marginTop;
+        }
+        doc.text(line, marginLeft, yPos);
+        yPos += lineHeight;
+      });
+    };
+  
+    addTextToPDF(transcription);
+    yPos += lineHeight * 2;
+  
+    addTextToPDF("Análise detalhada da conversa:\n");
+    yPos += lineHeight;
+  
+    addTextToPDF(analise);
+  
     doc.save("transcricao.pdf");
   };
 
+
+  /* Função traz a resposta do chat GPT, para apresentação para o psicologo e tambem para salvar no modal */
   const handleGetInsights = async (mensagem: string) => {
     try {
       const response = await fetch('/api/psicochat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          
         },
-        body: JSON.stringify({
-         message: mensagem,
-        })
+        body: JSON.stringify({ message: mensagem }),
       });
   
       if (!response.ok) {
@@ -168,10 +210,12 @@ const saveMessage = async (transcript: string) => {
       }
   
       const data = await response.json();
-      console.log("Resposta do ChatGPT:", data);
-      setAnalise(data);
-      
-      return data.choices[0]?.message?.content || "Nenhuma resposta gerada.";
+      console.log("Resposta completa da API:", data); // <-- Adicionando para depuração
+        const respostaGPT = data.response || "Nenhuma resposta gerada.";
+        setAnalise(respostaGPT);
+        return respostaGPT;
+    
+  
     } catch (error) {
       console.error("Erro ao buscar insights:", error);
       return "Erro ao obter resposta.";
@@ -183,59 +227,57 @@ const saveMessage = async (transcript: string) => {
 
 
   return (
-    <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4 overflow-y-auto" >
-      <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
+    <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4 overflow-y-auto max-h-[80vh]">
+    <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
 
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+    {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-      <div className="flex gap-2 justify-center mb-2">
-        {!listening ? (
-          <button
-            onClick={handleStartListening}
-            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
-          >
-            Iniciar Transcrição
-          </button>
-        ) : (
-          <button
-            onClick={handleStopListening}
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
-          >
-            Parar Transcrição
-          </button>
-        )}
-      </div>
-
-      <div className="flex-1 overflow-y-auto bg-gray-800 p-2 rounded-md text-sm text-white">
-        {transcription ? (
-          <p className="whitespace-pre-wrap">{transcription}</p>
-        ) : (
-          <p className="text-gray-400 text-center">{transcription || "Aguardando transcrição..."}</p>
-        )}
-      </div>
-
-      <div className="flex justify-center mt-4 gap-2">
+    <div className="flex gap-2 justify-center mb-2">
+      {!listening ? (
         <button
-          onClick={handleClearTranscription}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+          onClick={handleStartListening}
+          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
         >
-          Limpar Transcrição
+          Iniciar Transcrição
         </button>
+      ) : (
         <button
-          onClick={handleSavePDF}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+          onClick={handleStopListening}
+          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
         >
-          Salvar como PDF
+          Parar Transcrição
         </button>
-
-        <button
-          onClick={()=>{handleGetInsights(transcription)}}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
-        >
-          GPT Analisis
-        </button>
-        
-      </div>
+      )}
     </div>
+
+    <div className="flex-1 overflow-y-auto bg-gray-800 p-2 rounded-md text-sm text-white max-h-[60vh]">
+      {transcription ? (
+        <p className="whitespace-pre-wrap">{transcription}</p>
+      ) : (
+        <p className="text-gray-400 text-center">Aguardando transcrição...</p>
+      )}
+    </div>
+
+    <div className="flex justify-center mt-4 gap-2">
+      <button
+        onClick={handleClearTranscription}
+        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+      >
+        Limpar Transcrição
+      </button>
+      <button
+        onClick={handleSavePDF}
+        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+      >
+        Salvar como PDF
+      </button>
+      <button
+        onClick={() => handleGetInsights(transcription)}
+        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+      >
+        GPT Análise
+      </button>
+    </div>
+  </div>
   );
 }
