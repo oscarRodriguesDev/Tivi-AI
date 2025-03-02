@@ -4,62 +4,117 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
-  mensagem: string; // Texto exibido na interface
+  mensagem: string; 
+  usuario: string; // Identificador único do usuário (ex: "User1" ou "User2")
 }
 
-export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) {
+export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
   const [transcription, setTranscription] = useState<string>("");
   const [recognition, setRecognition] = useState<any>(null);
   const [listening, setListening] = useState<boolean>(false);
-
+  const [error, setError] = useState<string>("");
+  const [titulo, setTitulo] = useState<string>("user1");
   useEffect(() => {
     if (typeof window === "undefined") return;
-
+  
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
+  
     if (!SpeechRecognition) {
-      alert("Seu navegador não suporta reconhecimento de voz.");
+      setError("Seu navegador não suporta reconhecimento de voz.");
       return;
     }
-
+  
     const recognitionInstance = new SpeechRecognition();
-
-    recognitionInstance.continuous = true; // Mantém o reconhecimento ativo
-    recognitionInstance.interimResults = false; // Desativa resultados parciais para evitar repetições
+    recognitionInstance.continuous = true;
+    recognitionInstance.interimResults = false;
     recognitionInstance.lang = "pt-BR";
-
+  
     recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
       let transcript = "";
+  
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        // Verifica se o resultado é final
         if (result.isFinal) {
-          transcript += result[0].transcript + " ";
+          transcript += result[0].transcript + "\n";
         }
       }
-
-      // Prevenir adicionar transcrições repetidas
-      setTranscription((prev) => {
-        // Adiciona a nova transcrição se for diferente da anterior
-        if (prev.trim() !== transcript.trim()) {
-          return prev + transcript;
-        }
-        return prev;
-      });
+  
+      if (transcript.trim()) {
+        setTranscription((prev) => {
+          const updatedTranscription = prev + `${usuario}: ${transcript}`;
+          saveMessage(updatedTranscription); // Salvar transcrição na API
+          return updatedTranscription;
+        });
+      }
     };
-
+  
     recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error("Erro no reconhecimento:", event.error);
+      setError(`Erro no reconhecimento: ${event.error}`);
     };
-
+  
     setRecognition(recognitionInstance);
-
+  
+    // Recupera as mensagens do servidor ao carregar o componente
+    fetchMessages();
+  
+    // Verifica as novas mensagens a cada 5 segundos
+    const intervalId = setInterval(() => {
+      //fetchMessages();
+    }, 5000); // Ajuste o intervalo conforme necessário
+  
     return () => {
       recognitionInstance.stop();
+      clearInterval(intervalId); // Limpar o intervalo quando o componente for desmontado
     };
   }, []);
+  
 
+
+
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch('/api/message', { method: 'GET' });
+  
+      if (!response.ok) {
+        throw new Error("Erro ao recuperar mensagens.");
+      }
+  
+      const data = await response.json();
+      setTranscription(prev => prev  + (data.transcript || ""));
+    } catch (error) {
+      setError(`Erro ao carregar mensagens: ${error}`);
+    }
+  };
+  
+
+
+  // Função para salvar a mensagem no servidor e atualizar as mensagens
+  const saveMessage = async (transcript: string) => {
+    try {
+      const response = await fetch('/api/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ transcript }),  // Passando a variável transcript corretamente
+      });
+  
+      if (!response.ok) {
+        throw new Error("Erro ao salvar a mensagem.");
+      }
+  
+      const data = await response.json();
+      console.log("Mensagem salva com sucesso:", data.transcript);
+  
+      // Atualiza as mensagens imediatamente após o envio
+      fetchMessages();
+  
+    } catch (error) {
+      setError(`Erro ao salvar a mensagem: ${error}`);
+    }
+  };
+  
   const handleStartListening = () => {
     if (!recognition) {
       console.error("Reconhecimento de voz não foi inicializado corretamente.");
@@ -76,10 +131,9 @@ export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) 
   };
 
   const handleClearTranscription = () => {
-    setTranscription(""); // Limpar a transcrição
+    setTranscription("");
   };
 
-  // Função para gerar o PDF
   const handleSavePDF = () => {
     const doc = new jsPDF();
     doc.text(transcription, 10, 10);
@@ -88,7 +142,9 @@ export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) 
 
   return (
     <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4">
-      <h1 className="text-lg font-semibold text-center mb-2 text-white">Transcrição ao Vivo</h1>
+      <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
+
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
       <div className="flex gap-2 justify-center mb-2">
         {!listening ? (
@@ -129,10 +185,8 @@ export default function LiveTranscription({ mensagem }: LiveTranscriptionProps) 
         >
           Salvar como PDF
         </button>
+        
       </div>
     </div>
   );
 }
-
-
-//coreção na tipagem do evento:" recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {"

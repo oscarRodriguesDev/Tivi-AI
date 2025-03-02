@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from "../../../components/boxtrancriptv";
+import LiveTranscription from "../../components/boxtrancriptv";
 
 export default function Home() {
   const [peerId, setPeerId] = useState<string>("");
@@ -24,7 +24,7 @@ export default function Home() {
 
 
   // Flag para distinguir quem está falando
-  const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
+  const [isPsychologist, setIsPsychologist] = useState<boolean>(false);
   const [transcription, setTranscription] = useState<string>("");
 
   // Função para monitorar o volume do microfone
@@ -51,7 +51,7 @@ export default function Home() {
       if (remoteAudioRef.current) {
         remoteAudioRef.current.muted = volume > 10; // Se estiver falando, muta o alto-falante
       }
-      handleTranscription('text', isPsychologist);
+      handleTranscription('text', !isPsychologist);
       requestAnimationFrame(checkVolume);
     };
 
@@ -126,13 +126,14 @@ export default function Home() {
   const handleTranscription = (text: string, isPsychologist: boolean) => {
     // Definindo quem está falando, psicólogo ou paciente
     const speaker = isPsychologist ? 'psicologo' : 'paciente';
+   
 
     // Atualizando a transcrição com o título correto
     setTranscription(prevTranscription => prevTranscription + `\n${speaker}: ${text}`);
   };
 
   return (
-    <div className="flex  flex-row items-center justify-center min-h-screen bg-[#181818] text-white p-8">
+    <div className="flex flex-row items-center justify-center min-h-screen bg-[#181818] text-white p-8">
       <div className="w-full max-w-4xl bg-[#202124] p-6 rounded-3xl shadow-xl">
         <h1 className="text-4xl font-semibold text-center text-indigo-500 mb-6">Video Conferência</h1>
 
@@ -178,7 +179,7 @@ export default function Home() {
       {/* Transcrição unificada */}
       <div>
         <LiveTranscription 
-         usuario={'Psicologo'}
+         usuario={'Paciente'}
          mensagem={transcription} // A transcrição agora é unificada         
         />
       </div>

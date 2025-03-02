@@ -71,7 +71,7 @@ export default function AgendamentoPage() {
           fetchPeerId(ag.id);
         }
       });
-    }, 5000);  // Requisição a cada 5 segundos
+    }, 20000);  // Requisição a cada 5 segundos
 
     // Limpeza do intervalo ao desmontar o componente
     return () => clearInterval(intervalId);
