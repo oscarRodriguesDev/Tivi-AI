@@ -1,19 +1,35 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { PrismaClient, UserRole } from "@prisma/client";
 import { compare } from "bcryptjs";
+import { useSession } from "next-auth/react";
 
 const prisma = new PrismaClient();
 
+export function usePermission() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return "carregando"; // Evita "guest" antes de carregar
+  }
+
+  console.log(session?.user?.role);
+  return session?.user?.role || "guest"; // Retorna o role ou "guest" se não houver sessão
+}
+
+
+
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
+
   providers: [
     CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "exemplo@email.com" },
-        password: { label: "Senha", type: "password" }
+        password: { label: "Senha", type: "password" },
+        role: { label: "role", type:'UserRole'}
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -21,10 +37,10 @@ const handler = NextAuth({
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         });
 
-        if (!user || !user.password) {
+        if (!user) {
           throw new Error("Usuário não encontrado.");
         }
 
@@ -33,18 +49,41 @@ const handler = NextAuth({
           throw new Error("Senha incorreta.");
         }
 
+        if (![UserRole.ADMIN, UserRole.PSYCHOLOGIST, UserRole.COMMON].includes(user.role)) {
+          throw new Error("Acesso negado: este usuário não tem permissão.");
+        }
+
         return user;
-      }
-    })
+      },
+    }),
   ],
+
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
   },
+
+  callbacks: {
+    async jwt({ token, user }) {
+      // Adiciona `role` ao token quando o usuário faz login
+      if (user) {
+        token.role = user.role; // Adiciona o role do usuário ao token
+      }
+      return token;
+    },
+  
+    async session({ session, token }) {
+      // Passa o `role` do token para a sessão
+      if (token) {
+        session.user.role = token.role as UserRole; // Faz o cast para UserRole
+      }
+      return session;
+    },
+  },
+
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/login"
-  }
+    signIn: "/login",
+  },
 });
 
-// Exporte os manipuladores diretamente
 export { handler as GET, handler as POST };
