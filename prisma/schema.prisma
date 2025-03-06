@@ -1,45 +1,36 @@
 datasource db {
-  provider = "postgresql"  // ou outro banco de dados como MySQL, SQLite, etc.
-  url      = env("DATABASE_URL")  // A URL do seu banco de dados que está definida no .env
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
+// Tipos de usuário
+enum UserRole {
+  ADMIN
+  PSYCHOLOGIST
+  COMMON
+}
+
+// Usuários do sistema (Admin e Psicólogo)
 model User {
-  id            String  @id @default(uuid())
-  name          String?
-  email         String  @unique
-  emailVerified DateTime?
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
   password      String
-  image         String?
+  role          UserRole
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  accounts      Account[]
-  sessions      Session[]
+  registro      String?  // Campo opcional
 }
-
-model Account {
-  id                String  @id @default(uuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Session {
-  id           String   @id @default(uuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+model Paciente {
+   id             String @id @default(uuid())
+   nome           String 
+   cpf            String @unique
+   idade          String
+   sintomas       String
+   telefone       String
 }

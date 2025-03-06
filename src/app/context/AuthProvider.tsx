@@ -15,6 +15,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -23,15 +24,16 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [status, router]);
 
-  if (status === "loading") return <p>Carregando...</p>; // Pode adicionar um spinner aqui
+  // Durante o carregamento da sessão, mostramos uma mensagem de espera
+  if (status === "loading") return <p>Carregando...</p>; 
 
-  return(
+  // Caso a sessão não esteja presente e o status não seja "loading", garantimos que o usuário será redirecionado
+  if (status === "unauthenticated") return null; 
+
+  return (
     <>
-    <Menu/>
-   {children}
-   </>
-  )
- }
-
-  
-  
+      <Menu />
+      {children}
+    </>
+  );
+}

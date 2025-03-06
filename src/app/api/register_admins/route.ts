@@ -9,10 +9,12 @@ export async function POST(req: Request) {
     // Extraindo os dados do corpo da requisição
     const { name, email, password, confirmPassword } = await req.json();
 
-
     // Verifica se os campos obrigatórios foram fornecidos
     if (!name || !email || !password || !confirmPassword) {
-      return NextResponse.json({ message: "Nome, email, senha e confirmação de senha são obrigatórios" }, { status: 400 });
+      return NextResponse.json(
+        { message: "Nome, email, senha e confirmação de senha são obrigatórios" }, 
+        { status: 400 }
+      );
     }
 
     // Verifica se as senhas coincidem
@@ -20,7 +22,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "As senhas não coincidem" }, { status: 400 });
     }
 
-    // Verifica se o usuário já existe
+    // Verifica se o email já está cadastrado
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json({ message: "Usuário já cadastrado" }, { status: 400 });
@@ -29,20 +31,24 @@ export async function POST(req: Request) {
     // Hash da senha antes de salvar
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Cria o usuário no banco de dados
-    const newUser = await prisma.user.create({
+    // Criação do usuário ADMIN
+    const newAdmin = await prisma.user.create({
       data: {
-        name: name,  // Salvando o nome do usuário
+        name,
         email,
         password: hashedPassword,
+        role: "ADMIN", // Definindo o papel como ADMIN
       },
     });
 
     // Resposta de sucesso
-    return NextResponse.json({ message: "Usuário cadastrado com sucesso", user: newUser }, { status: 201 });
+    return NextResponse.json(
+      { message: "Admin cadastrado com sucesso", user: newAdmin }, 
+      { status: 201 }
+    );
+
   } catch (error) {
-    // Erro genérico caso ocorra algum problema na API
-    console.error("Erro ao cadastrar usuário:", error);
-    return NextResponse.json({ message: "Erro ao cadastrar usuário" }, { status: 500 });
+    console.error("Erro ao cadastrar admin:", error);
+    return NextResponse.json({ message: "Erro ao cadastrar admin" }, { status: 500 });
   }
 }

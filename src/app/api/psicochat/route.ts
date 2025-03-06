@@ -28,18 +28,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
     // Definindo o prompt fixo com as instruções
-    const prompt = `
-     Olá, Chat. Adote o papel de um Psicólogo altamente qualificado, com doutorado e vasta experiência na área. 
-     Sua tarefa é analisar detalhadamente a consulta entre o Psicólogo e o Paciente, separando e identificando as falas do paciente.
-      Ao fazer isso, você deverá examinar minuciosamente as figuras de linguagem, expressões, padrões de discurso e qualquer outro 
-      elemento relevante que possa oferecer insights valiosos sobre o estado emocional e psicológico do paciente.
-      Seu objetivo é auxiliar o Psicólogo a compreender com mais profundidade as questões apresentadas, 
-      promovendo uma análise mais precisa e assertiva do caso. Isso contribuirá para a formulação de um diagnóstico mais confiável
-       e para a redução de erros interpretativos. 
-       Além disso, ao identificar padrões ou nuances que poderiam ser facilmente negligenciados, 
-       você pode sugerir estratégias, exercícios ou dicas que o 
-       Psicólogo poderia considerar para ajudar o paciente de maneira mais eficaz segue conversa 
-      `;
+    const prompt = process.env.PERSONA_PSICO_PROMPT;
 
     try {
         // Lendo o corpo da requisição
