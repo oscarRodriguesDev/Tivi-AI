@@ -5,7 +5,7 @@ import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
   mensagem: string; 
-  usuario: string; // Identificador único do usuário (ex: "User1" ou "User2")
+  usuario: string; 
 }
 
 export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
@@ -40,7 +40,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-           transcript +=   result[0].transcript + "\n";
+           transcript =   result[0].transcript + "\n";
         }
       }
   
@@ -58,13 +58,8 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
     };
   
     setRecognition(recognitionInstance);
-  
-   
-    //fetchMessages();
-  
     // Verifica as novas mensagens a cada 5 segundos
     const intervalId = setInterval(() => {
-      //fetchMessages();
     }, 5000); // Ajuste o intervalo conforme necessário
   
     return () => {
@@ -73,7 +68,6 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
     };
   }, []);
   
-
 
 
   const fetchMessages = async () => {
@@ -86,10 +80,13 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   
       const data = await response.json();
       
-      // Verifica se a nova transcrição é diferente antes de atualizar
-      if (data.transcript && data.transcript !== transcription) {
-         
-        setTranscription(data.transcript);
+      if (data.transcript) {
+        const cleanedTranscript = data.transcript;
+  
+        // Só atualiza se o texto limpo for realmente novo
+        if (cleanedTranscript !== transcription) {
+          setTranscription(cleanedTranscript);
+        }
       }
     } catch (error) {
       setError(`Erro ao carregar mensagens: ${error}`);
@@ -123,8 +120,6 @@ const saveMessage = async (transcript: string) => {
 };
 
 
-
-  
   const handleStartListening = () => {
     if (!recognition) {
       console.error("Reconhecimento de voz não foi inicializado corretamente.");
