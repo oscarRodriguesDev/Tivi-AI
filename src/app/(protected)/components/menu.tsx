@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react"; // Importe o hook useSession e signOut
-import { usePermission } from "@/app/api/auth/[...nextauth]/route";
+
 
 
 
@@ -14,7 +14,7 @@ const Menu = () => {
   const { data: session, status } = useSession(); // Obtém os dados da sessão
 
 
-  const papel = usePermission();
+
   // Função de Logout usando o signOut do NextAuth
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" }); // Redireciona para /login após sair
