@@ -41,9 +41,9 @@ export default function CadastroPaciente() {
         },
         body: JSON.stringify({
           nome: formData.nome,
+          cpf: formData.cpf,
           idade: idadeNumber, // Convertido para número
           telefone: formData.telefone,
-          cpf: formData.cpf,
           sintomas: formData.sintomas,
         }),
       });
