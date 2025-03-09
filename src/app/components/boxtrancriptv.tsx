@@ -46,7 +46,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   
       if (transcript.trim()) {
         setTranscription((prev) => {
-          const updatedTranscription = prev + `${usuario}: ${transcript}`;
+          const updatedTranscription = /* prev +  */`${usuario}: ${transcript}`; //solução para não repetir a transcrição foi tirar a prev
           saveMessage(updatedTranscription); // Salvar transcrição na API
           return updatedTranscription;
         });
@@ -141,30 +141,28 @@ const saveMessage = async (transcript: string) => {
     setTranscription("");
   };
 
-  
-
 
   /* Função para salvar o pdf de forma responsiva */
-  const handleSavePDF = (): void => {
+  function handleSavePDF(): void {
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
-  
+
     const marginLeft = 10;
     const marginTop = 10;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const lineHeight = 7; // Espaçamento entre linhas
     const maxWidth = pageWidth - marginLeft * 2;
-    
+
     let yPos = marginTop;
-  
+
     const wrapText = (text: string): string[] => {
       return doc.splitTextToSize(text, maxWidth);
     };
-  
+
     const addTextToPDF = (text: string): void => {
       const lines = wrapText(text);
       lines.forEach((line) => {
@@ -176,17 +174,17 @@ const saveMessage = async (transcript: string) => {
         yPos += lineHeight;
       });
     };
-  
+
     addTextToPDF(transcription);
     yPos += lineHeight * 2;
-  
+
     addTextToPDF("Análise detalhada da conversa:\n");
     yPos += lineHeight;
-  
+
     addTextToPDF(analise);
-  
+
     doc.save("transcricao.pdf");
-  };
+  }
 
 
   /* Função traz a resposta do chat GPT, para apresentação para o psicologo e tambem para salvar no modal */

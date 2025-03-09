@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 let transcriptionStorage: Set<string> = new Set(); // Usa Set diretamente para evitar duplicatas
 
-export async function GET() {
+export async function GET() { 
   try {
     if (transcriptionStorage.size === 0) {
       return NextResponse.json({ transcript: '' }, { status: 200 });
