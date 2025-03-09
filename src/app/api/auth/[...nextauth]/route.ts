@@ -7,19 +7,6 @@ import { useSession } from "next-auth/react";
 
 const prisma = new PrismaClient();
 
-export function usePermission() {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return "carregando"; // Evita "guest" antes de carregar
-  }
-
-  console.log(session?.user?.role);
-  return session?.user?.role || "guest"; // Retorna o role ou "guest" se não houver sessão
-}
-
-
-
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
 

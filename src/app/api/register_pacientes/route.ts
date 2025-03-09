@@ -18,6 +18,7 @@ export async function POST(req: Request) {
   try {
     const body: PatientData = await req.json();
     const { nome, idade, telefone, cpf, sintomas } = body;
+    console.log(body)
 
     // Validação dos campos obrigatórios
     if (!nome || !idade || !telefone || !cpf || !sintomas) {
@@ -34,11 +35,12 @@ export async function POST(req: Request) {
     // Criando paciente no banco de dados
     const novoPaciente = await prisma.paciente.create({
       data: {
+       
         nome,        // Nome do paciente
         cpf,         // CPF do paciente
         idade: String(idade), // Idade como string (mantendo a coerência com o modelo)
         sintomas,    // Sintomas do paciente
-        telefone,    // Telefone do paciente
+        telefone,    // Telefone do paciente 
       },
     });
 
@@ -47,6 +49,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error: any) {
+    console.log(error)
     return NextResponse.json(
       { error: "Erro ao processar a requisição", details: error.message },
       { status: 500 }
