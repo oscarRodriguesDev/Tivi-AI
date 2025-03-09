@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tivi AI - Inteligência para suas Reuniões",
+  title: "Tivi AI - Consultas Inteligentes",
   description: "Tivi AI é um sistema inteligente que transforma suas cosnultas online com transcrição, trazendo insights com inteligencia artificial",
   keywords: "inteligência artificial, reuniões, transcrição automática, agendamento inteligente, produtividade, assistente virtual",
   robots: "index, follow",

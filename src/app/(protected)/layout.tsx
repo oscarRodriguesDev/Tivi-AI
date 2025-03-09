@@ -5,7 +5,7 @@ import AuthProvider from "../context/AuthProvider";
 
 
 export const metadata: Metadata = {
-  title: "Tivi AI - Inteligência para suas Reuniões",
+  title: "Tivi AI",
   description: "Tivi AI é um sistema inteligente que transforma suas cosnultas online com transcrição, trazendo insights com inteligencia artificial",
   keywords: "inteligência artificial, reuniões, transcrição automática, agendamento inteligente, produtividade, assistente virtual",
   robots: "index, follow",
