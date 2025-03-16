@@ -3,7 +3,7 @@
 import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Menu from "../(protected)/components/menu";
+
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -32,7 +32,6 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <Menu />
       {children}
     </>
   );

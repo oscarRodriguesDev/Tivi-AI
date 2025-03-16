@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
 import AuthProvider from "../context/AuthProvider";
+import CardUser from "./components/cardUser";
+import Menu from "./components/menuLateral";
+
 
 
 
@@ -29,7 +32,11 @@ export default function RootLayout({
     <html lang="pt">
       <body>
         <AuthProvider>
+          <Menu/>
+          <div className="flex-1 ml-[244px] mt-2">{/* Todo conteúdo  */}
+          <CardUser/>
           {children}
+          </div>
         </AuthProvider>
       </body>
     </html>
