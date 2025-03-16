@@ -18,6 +18,15 @@ export default {
         "98": "500px", // Exemplo: Personalizado
         "100":"600px",
       },
+      spacing: {
+        'ml-perc-1': '10%',
+        'ml-perc-2': '15%',
+        'ml-perc-3': '30%',
+        'ml-perc-4': '40%',
+        'ml-perc-5': '50%',
+        'ml-perc-6': '80%',
+      },
+
     },
   },
   plugins: [],
