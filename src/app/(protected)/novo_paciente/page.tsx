@@ -8,6 +8,9 @@ export default function CadastroPaciente() {
     telefone: "",
     cpf: "",
     sintomas: "",
+    fantasy_name: "",
+    psicoloId: "",
+    convenio: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -45,6 +48,9 @@ export default function CadastroPaciente() {
           idade: idadeNumber, // Convertido para número
           telefone: formData.telefone,
           sintomas: formData.sintomas,
+          fantasy_name: formData.fantasy_name,
+          psicoloId: formData.psicoloId,
+          convenio: formData.convenio
         }),
       });
 
@@ -58,6 +64,9 @@ export default function CadastroPaciente() {
           telefone: "",
           cpf: "",
           sintomas: "",
+          fantasy_name: "",
+          psicoloId: "",
+          convenio: ""
         });
       } else {
         alert(`Erro: ${data.error}`);
@@ -109,6 +118,40 @@ export default function CadastroPaciente() {
           className="input-style"
           required
         />
+
+        <input
+          type="text"
+          name="fantasy_name"
+          placeholder="Fantasy Name"
+          value={formData.fantasy_name}
+          onChange={handleChange}
+          className="input-style"
+          required
+        />
+
+        <input
+          type="text"
+          name="psicoloId"
+          placeholder="Medico Psicologo"
+          value={formData.psicoloId} //esse id não vai pegar por campo de texto e sim pelo perfil de quem esta cadastrando
+          onChange={handleChange}
+          className="input-style"
+          required
+        />
+
+        <input
+          type="text"
+          name="convenio"
+          placeholder="Convenio"
+          value={formData.convenio}
+          onChange={handleChange}
+          className="input-style"
+          required
+        />
+
+
+
+
         <textarea
           name="sintomas"
           placeholder="Sintomas"
