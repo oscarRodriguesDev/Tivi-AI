@@ -44,8 +44,6 @@ const ListaPsicologos = () => {
   }, []);  // A dependência vazia garante que a requisição seja feita uma vez na montagem do componente
 
 
-
-
   //habilitando o psicologo
   const habilitarPsicologo = async (cpf: string) => {
     try {
