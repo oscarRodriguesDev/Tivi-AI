@@ -20,3 +20,5 @@ return(
     </>
 )
 }
+
+export default FinalizaCadastro

@@ -112,7 +112,7 @@ function gerarSenhaAleatoria(tamanho: number = 8): string {
 async function efetivarPsicologo(nome: string, email_confirm: string) {
   // Criando o objeto do psicólogo
   nome = nome.replace(/\s+/g, "")
-  const senha = gerarSenhaAleatoria()
+  const senha = gerarSenhaAleatoria().toLowerCase()
   const hashedPassword = await bcrypt.hash(senha, 10);
   const psicologo = await prisma.user.create({
     data: {
