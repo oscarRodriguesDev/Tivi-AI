@@ -66,6 +66,7 @@ const handleSubmit = async (event:React.FormEvent) => {
 function clearInputs(){
     setCPF('')
     setCFP('')
+    setCRP('')
     setRG('')
     setNasc('')
     setEmail('')
