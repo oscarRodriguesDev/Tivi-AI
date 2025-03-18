@@ -19,6 +19,7 @@ model User {
   id            String   @id @default(uuid())
   name          String
   email         String   @unique
+  email_confirm String?   
   password      String
   role          UserRole
   createdAt     DateTime @default(now())

@@ -7,10 +7,10 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     // Extraindo os dados do corpo da requisição
-    const { name, email, password, confirmPassword } = await req.json();
+    const { name, email, password, confirmPassword,role } = await req.json();
 
     // Verifica se os campos obrigatórios foram fornecidos
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword || !role) {
       return NextResponse.json(
         { message: "Nome, email, senha e confirmação de senha são obrigatórios" }, 
         { status: 400 }
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
-        role: "ADMIN", // Definindo o papel como ADMIN
+        role: role, // Definindo o papel como ADMIN
       },
     });
 
