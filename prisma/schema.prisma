@@ -24,13 +24,49 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   registro      String?  // Campo opcional
+  cfp           String?
+  crp           String?
+  celular       String?
+  telefone      String?
+  rg            String?
+  cpf           String?
+  idade         String?
+  fantasy_name  String? //caso um dia paciente tenha login no sistema
+  creditos      String?
+  credit_card   String?
+  bandeira      String?
+  cvc           String?
+  cep           String?
+  rua           String?
+  cidade        String?
+  uf            String?
+  psicologoid   String? //id do psicologo responsavel especifico para pacientes
+}
+
+//pré cadastro de Psicologos
+model PrePsicologo {
+ id            String   @id @default(uuid())
+ cpf           String   @unique
+ cfp           String   @unique
+ crp           String   @unique
+ nome          String
+ rg            String
+ email         String  
+ data_nasc     String
+ celular       String  
+ telefone      String
+ habilitado    Boolean
 }
  
+ //se um dia model fizer login será como common user
 model Paciente {
    id             String @id @default(uuid())
    nome           String 
+   fantasy_name   String
    cpf            String @unique
    idade          String
    sintomas       String
    telefone       String
+   convenio       String 
+   psicoloId      String //id do psicologo responsavel
 }

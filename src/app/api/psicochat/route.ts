@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { prompt } from "@/app/util/prompt";
 
 
 
@@ -27,9 +28,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    // Definindo o prompt fixo com as instruções
-    const prompt = process.env.PERSONA_PSICO_PROMPT;
-
+    //const prompt = process.env.PERSONA_PSICO_PROMPT;
     try {
         // Lendo o corpo da requisição
         const { message } = await req.json();
@@ -40,6 +39,7 @@ export async function POST(req: Request) {
 
         // Combinando o prompt com a mensagem do paciente
         const promptMessage = `${prompt} ${message}`;
+        console.log('starting analize gpt')
 
         // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida
         const completion = await openai.chat.completions.create({

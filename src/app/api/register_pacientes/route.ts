@@ -11,17 +11,20 @@ interface PatientData {
   idade: number; // Alterado para number
   sintomas: string;
   telefone: string;
+  psicoloId:string,
+  convenio:string,
+  fantasy_name:string
 }
 
 // Cadastrar um novo paciente
 export async function POST(req: Request) {
   try {
     const body: PatientData = await req.json();
-    const { nome, idade, telefone, cpf, sintomas } = body;
+    const { nome, idade, telefone, cpf, sintomas,psicoloId,convenio,fantasy_name} = body;
     console.log(body)
 
     // Validação dos campos obrigatórios
-    if (!nome || !idade || !telefone || !cpf || !sintomas) {
+    if (!nome || !idade || !telefone || !cpf || !sintomas || !psicoloId || !convenio || !fantasy_name) {
       return NextResponse.json(
         { error: "Todos os campos obrigatórios devem ser preenchidos" },
         { status: 400 }
@@ -35,12 +38,14 @@ export async function POST(req: Request) {
     // Criando paciente no banco de dados
     const novoPaciente = await prisma.paciente.create({
       data: {
-       
         nome,        // Nome do paciente
         cpf,         // CPF do paciente
         idade: String(idade), // Idade como string (mantendo a coerência com o modelo)
         sintomas,    // Sintomas do paciente
         telefone,    // Telefone do paciente 
+        psicoloId,
+        fantasy_name,
+        convenio
       },
     });
 
