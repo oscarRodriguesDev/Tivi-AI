@@ -97,6 +97,10 @@ async function notificar(email: string, nome: string, email_system: string, senh
   } catch (error) {
     console.error('Erro ao enviar e-mail:', error);
   }
+
+  //enviar o link no formato para que ele possa entrar na plataforma como primerio acesso:
+  //http://localhost:3000/user-profile/acess=0/id=123: primeiro acesso na plataforma
+  //depois disso http://localhost:3000/user-profile/acess=1/id=123 //acessos posteriores 
 }
 
 

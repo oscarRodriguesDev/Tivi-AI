@@ -39,17 +39,34 @@ const Perfil = () => {
             id: id as string,
             name: "Dra. Mariana Silva",
             email: "mariana.silva@tiviai.com.br",
-            registro: "12345-SP",
-            crp: "06/123456",
+            email_confirm: 'mariana@gmail.com',
+            senha: "",
+            role:'psicologo',
+            created:'10/01/2025',
+            update:'11/01/2025',
+            registro: "12345-SP", //crp
+            cpf: "000.000.000-00",
             celular: "(11) 99999-9999",
             telefone: "(11) 3456-7890",
-            cpf: "000.000.000-00",
+            rg:'12313',
+            cfp: '12345678',
             idade: "40",
+            creditos:'10',
+            cartao:'000',
+            bandeira:'visa',
+            cvc:'123',
+            cep:'444444',
             cidade: "São Paulo",
             uf: "SP",
-            foto:profilePhoto.src,
             descricao: "Profissional com mais de 10 anos de experiência em psicoterapia e saúde mental.",
-            senha: "",
+            banner:'',
+            photprofile:profilePhoto.src,
+            linkedin:'teste.linkedin',
+            instagram: 'link instagram0',
+            facebook:'link do face',
+            whatsapp:'000000',
+            psicologoid:'teste'
+
         };
         setPsicologo(dadosMock);
         setFormData(dadosMock);
@@ -116,6 +133,7 @@ const Perfil = () => {
                         <input type="text" name="Estado" value={formData.uf || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Cidade" />
                         <input type="text" name="Idade" value={formData.idade || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Idade" />
                         <input type="text" name="Email" value={formData.email || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Email" />
+                        <input type="text" name="Email" value={formData.email || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Email" />
 
                         <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg mt-6 p-6 ">
                             <h2 className="text-xl font-semibold text-gray-700 mb-4">Alterar Senha</h2>
@@ -126,17 +144,15 @@ const Perfil = () => {
                     </>
                 ) : (
                     <>
-                        <p><strong>Registro:</strong> {psicologo.registro || "Não informado"}</p>
-                        <p><strong>CRP:</strong> {psicologo.crp || "Não informado"}</p>
-                        <p><strong>Celular:</strong> {psicologo.celular || "Não informado"}</p>
-                        <p><strong>Telefone:</strong> {psicologo.cidade || "Não informado"}, {psicologo.uf || ""}</p>
-                        <p><strong>idade:</strong> {psicologo.registro || "Não informado"}</p>
-                        <p><strong>CRP:</strong> {psicologo.crp || "Não informado"}</p>
-                        <p><strong>CFP:</strong> {psicologo.cfp || "Não informado"}</p>
-                        <p><strong>Cidade:</strong> {psicologo.cidade || "Não informado"}, {psicologo.uf || ""}</p>
-                        <p><strong>Estado:</strong> {psicologo.uf || "Não informado"}, {psicologo.uf || ""}</p>
-                       
-                    </>
+                    <p><strong>Registro:</strong> {psicologo.registro || "Não informado"}</p>
+                    <p><strong>CRP:</strong> {psicologo.crp || "Não informado"}</p>
+                    <p><strong>CFP:</strong> {psicologo.cfp || "Não informado"}</p>
+                    <p><strong>Idade:</strong> {psicologo.idade || "Não informado"}</p>
+                    <p><strong>Celular:</strong> {psicologo.celular || "Não informado"}</p>
+                    <p><strong>Telefone:</strong> {psicologo.telefone || "Não informado"}</p>
+                    <p><strong>Cidade:</strong> {psicologo.cidade || "Não informado"}, {psicologo.uf || "Não informado"}</p>
+                    <p><strong>Estado:</strong> {psicologo.uf || "Não informado"}</p>
+                </>
                 )}
             </div>
 
