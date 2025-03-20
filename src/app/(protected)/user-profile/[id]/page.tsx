@@ -150,7 +150,7 @@ const Perfil = () => {
                     <>
                     <textarea
                         name="descricao"
-                        value={formData.description||'sem descrição'}
+                        value={formData.description}
                         onChange={handleChange}
                         className="w-full border p-2 mt-2"
                     />
