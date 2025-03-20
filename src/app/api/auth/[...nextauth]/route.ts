@@ -14,6 +14,7 @@ const handler = NextAuth({
     CredentialsProvider({
       name: "credentials",
       credentials: {
+        id:{label:'Id',type:'id'},
         email: { label: "Email", type: "email", placeholder: "exemplo@email.com" },
         password: { label: "Senha", type: "password" },
         role: { label: "role", type:'UserRole'}
@@ -53,6 +54,7 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       // Adiciona `role` ao token quando o usuário faz login
       if (user) {
+        token.id = user.id
         token.role = user.role; // Adiciona o role do usuário ao token
       }
       return token;
@@ -62,6 +64,7 @@ const handler = NextAuth({
       // Passa o `role` do token para a sessão
       if (token) {
         session.user.role = token.role as UserRole; // Faz o cast para UserRole
+        session.user.id =  token.id as string;
       }
       return session;
     },

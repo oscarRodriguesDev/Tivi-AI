@@ -41,7 +41,7 @@ model User {
   rua           String?
   cidade        String?
   uf            String?
-  descritpion   String?   //bio do psicologo
+  description   String?   //bio do psicologo
   banner        String?  //foto de capa do psicolog
   photoprofile  String? //foto de perfil do pisicologo
   linkedin      String? //
