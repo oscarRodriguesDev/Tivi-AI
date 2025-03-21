@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import tiviai from "../../../../../public/patern_capa/tivia.jpg";
+import userDefault from "../../../../../public/profile_pictures_ps/userdefault.png";
+
 import { IoCloudUploadSharp } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 
@@ -22,7 +24,7 @@ interface Psicologo {
     idade?: string; //ok
     cidade?: string;
     uf?: string;
-    foto?: string;
+    photoprofile?: string;
     description?: string; //ok
     password?: string;
 }
@@ -53,10 +55,6 @@ const Perfil = () => {
     }
 
 
-
-
-
-
     //chamadno os dados do banco de dados
     useEffect(() => {
         if (id) {
@@ -66,11 +64,13 @@ const Perfil = () => {
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+
         if (!formData) return;
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSave = async () => {
+
         setPsicologo(formData);
         await handleUpdate()
         setEditando(false);
@@ -95,6 +95,7 @@ const Perfil = () => {
 
     //função para edição
 
+    // Função para atualizar os dados do psicólogo
     const handleUpdate = async () => {
         if (!formData) return;
 
@@ -104,19 +105,13 @@ const Perfil = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    id: psicologo?.id,
-                    ...formData,
-                }),
+                body: JSON.stringify({ id: psicologo?.id, ...formData }),
             });
 
-            if (!res.ok) {
-                throw new Error("Erro ao atualizar perfil");
-            }
+            if (!res.ok) throw new Error("Erro ao atualizar perfil");
 
             const updatedUser = await res.json();
-            setPsicologo(updatedUser); // Atualiza o estado com os novos dados
-            setEditando(false); // Sai do modo de edição
+            setPsicologo(updatedUser);
             alert("Perfil atualizado com sucesso!");
         } catch (error) {
             console.error("Erro ao atualizar perfil:", error);
@@ -124,40 +119,40 @@ const Perfil = () => {
         }
     };
 
-
-    //funcionalidade do input
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]; // Acessa o primeiro arquivo selecionado
-        if (file) {
-            console.log('Arquivo selecionado:', file.name);
+        const file = e.target.files?.[0];
+        if (!file || !formData) return;
 
-            try {
-                // Criar o FormData
-                const formData = new FormData();
-                formData.append('file', file);
+        try {
+            const fileData = new FormData();
+            fileData.append('file', file);
 
-                // Chamar a API POST para fazer o upload
-                const res = await fetch('/api/uploads', {
-                    method: 'POST',
-                    body: formData,
-                });
+            const res = await fetch('/api/uploads', {
+                method: 'POST',
+                body: fileData,
+            });
 
-                const data = await res.json(); // Converte a resposta da API para JSON
-
-                if (res.ok) {
-                    // Sucesso, a URL da imagem foi retornada
-                    console.log('Upload realizado com sucesso!');
-                    setFoto(data.url); // Atualiza o estado com a URL do arquivo
-                } else {
-                    // Se houver erro
-                    console.error('Erro no upload:', data.error);
-
-                }
-            } catch (error) {
-                console.error('Erro inesperado:', error);
-
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || 'Erro no upload');
             }
+
+            const data = await res.json();
+            console.log('Upload realizado com sucesso!', data.url);
+
+            // Atualiza com a URL correta
+            setFormData((prevFormData) => prevFormData ? { ...prevFormData, photoprofile: data.url } : null);
+
+        } catch (error) {
+            console.error('Erro no upload:', error);
+            alert('Erro ao enviar a foto. Tente novamente.');
         }
+    };
+
+
+
+    function escolherImagem() {
+
     }
 
 
@@ -171,21 +166,34 @@ const Perfil = () => {
             {/* Perfil */}
             <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg -mt-16 p-6 flex flex-col items-center">
 
-                {/* sempre editando por enquanto */}
+                {editando ? (
+                    <>
+                        <label htmlFor="foto">Escolha uma foto de perfil</label>
+                        <input
+                            name="foto"
+                            id="file-input"
 
-                <label htmlFor="file-input">
-                    <IoCloudUploadSharp size={75} />
-                </label>
-                <input
-                    name="foto"
-                    id="file-input"
-                    type="file"
-                    style={{ display: 'none' }} // Esconde o input de arquivo
-                    value={formData.foto}
-                    onChange={handleFileChange}
-                    placeholder="Foto de perfil"
-                />
-                
+                            type="file"
+                            onChange={handleFileChange} // Atualiza a foto ao selecionar
+                            placeholder="Foto de perfil"
+
+                        />
+                    </>
+                ) : (
+
+                    //testar psicologo foto
+                    <Image
+                    src={formData.photoprofile || userDefault}
+                    alt="imagem de perfil"
+                    width={75}
+                    height={75}
+                    className="w-20 h-20 rounded-full object-cover"  // Usando as classes Tailwind
+                  />
+                  
+
+
+                )}
+
                 <h1 className="text-2xl font-bold text-gray-800 mt-4">{psicologo.name}</h1>
                 <p className="text-gray-600">{psicologo.email}</p>
 

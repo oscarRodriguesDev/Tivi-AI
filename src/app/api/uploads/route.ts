@@ -5,7 +5,6 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // Função para fazer upload de arquivo no Supabase Storage
-// Função para fazer upload de arquivo no Supabase Storage
 async function uploadFile(file: File) {
   const fileName = `${Date.now()}-${file.name}`; // Garante um nome único
   console.log(`esse é o nome do arquivo:${fileName}`)
@@ -20,7 +19,7 @@ async function uploadFile(file: File) {
   // Faz o upload do arquivo no bucket "tiviai-images"
   const { data, error } = await supabase.storage
     .from('tiviai-images')
-    .upload(`users/${fileName}`, file, {
+    .upload(`profile-pictures/${fileName}`, file, {
       cacheControl: '3600', 
       upsert: false,
     });
@@ -36,7 +35,7 @@ async function uploadFile(file: File) {
   const { data: publicUrl } = supabase
     .storage
     .from('tiviai-images')
-    .getPublicUrl(`users/${fileName}`);
+    .getPublicUrl(`profile-pictures/${fileName}`);
 
   return publicUrl.publicUrl; // Retorna a URL pública do arquivo salvo
 }
