@@ -4,24 +4,27 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import tiviai from "../../../../../public/patern_capa/tivia.jpg";
-import profilePhoto from "../../../../../public/profile_pictures_ps/img_perfil.jpg";
+import { IoCloudUploadSharp } from "react-icons/io5";
+import { FaUserCircle } from "react-icons/fa";
+
+
+
 
 interface Psicologo {
-    id: string;
-    name: string;
-    email: string;
-    registro?: string;
-    cfp?: string;
-    crp?: string;
-    celular?: string;
-    telefone?: string;
-    cpf?: string;
-    idade?: string;
+    id: string; //ok
+    name: string; //ok
+    email: string //ok
+    registro?: string; //ok
+    cfp?: string; //ok
+    crp?: string; //ok
+    celular?: string; //ok
+    telefone?: string; //ok
+    idade?: string; //ok
     cidade?: string;
     uf?: string;
     foto?: string;
-    description?: string;
-    senha?: string;
+    description?: string; //ok
+    password?: string;
 }
 
 const Perfil = () => {
@@ -31,6 +34,7 @@ const Perfil = () => {
     const [formData, setFormData] = useState<Psicologo | null>(null);
     const [novaSenha, setNovaSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
+    const [foto, setFoto] = useState<string>('')
 
     // Função para buscar os dados reais do banco
     async function fetchUserData(userId: string) {
@@ -47,6 +51,10 @@ const Perfil = () => {
             console.error("Erro ao buscar dados do psicólogo:", error);
         }
     }
+
+
+
+
 
 
     //chamadno os dados do banco de dados
@@ -84,11 +92,12 @@ const Perfil = () => {
     }
 
 
+
     //função para edição
 
     const handleUpdate = async () => {
         if (!formData) return;
-    
+
         try {
             const res = await fetch(`/api/user-profile`, {
                 method: "PUT",
@@ -100,11 +109,11 @@ const Perfil = () => {
                     ...formData,
                 }),
             });
-    
+
             if (!res.ok) {
                 throw new Error("Erro ao atualizar perfil");
             }
-    
+
             const updatedUser = await res.json();
             setPsicologo(updatedUser); // Atualiza o estado com os novos dados
             setEditando(false); // Sai do modo de edição
@@ -114,7 +123,43 @@ const Perfil = () => {
             alert("Falha ao atualizar perfil. Tente novamente.");
         }
     };
-    
+
+
+    //funcionalidade do input
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]; // Acessa o primeiro arquivo selecionado
+        if (file) {
+            console.log('Arquivo selecionado:', file.name);
+
+            try {
+                // Criar o FormData
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // Chamar a API POST para fazer o upload
+                const res = await fetch('/api/uploads', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await res.json(); // Converte a resposta da API para JSON
+
+                if (res.ok) {
+                    // Sucesso, a URL da imagem foi retornada
+                    console.log('Upload realizado com sucesso!');
+                    setFoto(data.url); // Atualiza o estado com a URL do arquivo
+                } else {
+                    // Se houver erro
+                    console.error('Erro no upload:', data.error);
+
+                }
+            } catch (error) {
+                console.error('Erro inesperado:', error);
+
+            }
+        }
+    }
+
 
     return (
         <div className="w-full min-h-screen bg-gray-100 flex flex-col items-center">
@@ -125,14 +170,25 @@ const Perfil = () => {
 
             {/* Perfil */}
             <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg -mt-16 p-6 flex flex-col items-center">
-                <img
-                    src={psicologo.foto || profilePhoto.src}
-                    alt="Foto de perfil"
-                    className="w-32 h-32 rounded-full border-4 border-white"
+
+                {/* sempre editando por enquanto */}
+
+                <label htmlFor="file-input">
+                    <IoCloudUploadSharp size={75} />
+                </label>
+                <input
+                    name="foto"
+                    id="file-input"
+                    type="file"
+                    style={{ display: 'none' }} // Esconde o input de arquivo
+                    value={formData.foto}
+                    onChange={handleFileChange}
+                    placeholder="Foto de perfil"
                 />
+                
                 <h1 className="text-2xl font-bold text-gray-800 mt-4">{psicologo.name}</h1>
                 <p className="text-gray-600">{psicologo.email}</p>
-               
+
                 <button onClick={() => setEditando(!editando)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded">
                     {editando ? "Cancelar" : "Editar Perfil"}
                 </button>
@@ -148,25 +204,36 @@ const Perfil = () => {
                 <h2 className="text-xl font-semibold text-gray-700 mb-4">Informações Profissionais</h2>
                 {editando ? (
                     <>
-                    <textarea
-                        name="descricao"
-                        value={formData.description}
-                        onChange={handleChange}
-                        className="w-full border p-2 mt-2"
-                    />
-                        
-                        <input type="text" name="registro" value={formData.description || 'Descrição do Psicologo'} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Descrição" />
+                        <label htmlFor="description">Bio</label>
+                        <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            className="w-full border p-2 mt-2"
+                        />
+
+                        <button>Alterar senha</button>
+                        <label htmlFor="registro">Registro</label>
                         <input type="text" name="registro" value={formData.registro || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Registro" />
+                        <label htmlFor="crp">CRP</label>
                         <input type="text" name="crp" value={formData.crp || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="CRP" />
+                        <label htmlFor="cfp">CFP</label>
                         <input type="text" name="cfp" value={formData.cfp || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="CFP" />
+                        <label htmlFor="idade">Idade</label>
+                        <input type="text" name='idade' value={formData.idade || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="idade" />
+                        <label htmlFor="celular">Celular</label>
                         <input type="text" name="celular" value={formData.celular || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Celular" />
+                        <label htmlFor="telefone">Telefone</label>
                         <input type="text" name="telefone" value={formData.telefone || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Telefone" />
+                        <label htmlFor="cidade">Cidade</label>
                         <input type="text" name="cidade" value={formData.cidade || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Cidade" />
+                        <label htmlFor="UF">UF</label>
                         <input type="text" name="uf" value={formData.uf || ''} onChange={handleChange} className="w-full border p-2 mb-2" placeholder="Estado" />
+
                     </>
                 ) : (
                     <>
-                        <p className="text-gray-500 mt-2 text-center">{psicologo.descritpion||'descrição de psicologo'}</p>
+                        <p className="text-gray-500 mt-2 text-center">{psicologo.description || 'descrição de psicologo'}</p>
                         <p><strong>Registro:</strong> {psicologo.registro || "Não informado"}</p>
                         <p><strong>CRP:</strong> {psicologo.crp || "Não informado"}</p>
                         <p><strong>CFP:</strong> {psicologo.cfp || "Não informado"}</p>
