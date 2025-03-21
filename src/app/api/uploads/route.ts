@@ -5,11 +5,21 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // Função para fazer upload de arquivo no Supabase Storage
+// Função para fazer upload de arquivo no Supabase Storage
 async function uploadFile(file: File) {
   const fileName = `${Date.now()}-${file.name}`; // Garante um nome único
+  console.log(`esse é o nome do arquivo:${fileName}`)
 
+/*   // Verifica se o usuário está autenticado
+  const { data: user, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    console.error('Usuário não autenticado ou erro ao obter usuário:', authError);
+    return null;
+  }
+ */
+  // Faz o upload do arquivo no bucket "tiviai-images"
   const { data, error } = await supabase.storage
-    .from('profile-pictures') // Nome do bucket
+    .from('tiviai-images')
     .upload(`users/${fileName}`, file, {
       cacheControl: '3600', 
       upsert: false,
@@ -21,11 +31,15 @@ async function uploadFile(file: File) {
   }
 
   console.log('Arquivo enviado com sucesso:', data);
-  
-  // Retorna a URL pública do arquivo salvo
-  return `${process.env.SUPABASE_URL}/storage/v1/object/public/profile-pictures/${file.name}`;
-}
 
+  // Obtém a URL pública do arquivo
+  const { data: publicUrl } = supabase
+    .storage
+    .from('tiviai-images')
+    .getPublicUrl(`users/${fileName}`);
+
+  return publicUrl.publicUrl; // Retorna a URL pública do arquivo salvo
+}
 
 // Função que recebe a requisição POST e chama `uploadFile`
 export async function POST(req: Request) {
