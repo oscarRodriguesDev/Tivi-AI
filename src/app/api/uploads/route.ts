@@ -7,15 +7,7 @@ const prisma = new PrismaClient();
 // Função para fazer upload de arquivo no Supabase Storage
 async function uploadFile(file: File) {
   const fileName = `${Date.now()}-${file.name}`; // Garante um nome único
-  console.log(`esse é o nome do arquivo:${fileName}`)
-
-/*   // Verifica se o usuário está autenticado
-  const { data: user, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    console.error('Usuário não autenticado ou erro ao obter usuário:', authError);
-    return null;
-  }
- */
+  
   // Faz o upload do arquivo no bucket "tiviai-images"
   const { data, error } = await supabase.storage
     .from('tiviai-images')

@@ -248,7 +248,8 @@ const Perfil = () => {
                         <p><strong>Idade:</strong> {psicologo.idade || "Não informado"}</p>
                         <p><strong>Celular:</strong> {psicologo.celular || "Não informado"}</p>
                         <p><strong>Telefone:</strong> {psicologo.telefone || "Não informado"}</p>
-                        <p><strong>Cidade:</strong> {psicologo.cidade || "Não informado"}, {psicologo.uf || "Não informado"}</p>
+                        <p><strong>Cidade:</strong> {psicologo.cidade || "Não informado"}</p>
+                        <p><strong>Estado:</strong> {psicologo.uf || "Não informado"}</p>
                     </>
                 )}
             </div>
@@ -258,4 +259,3 @@ const Perfil = () => {
 
 export default Perfil;
 
-// atualizando dependencias
