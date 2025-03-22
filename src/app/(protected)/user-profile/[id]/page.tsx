@@ -258,4 +258,3 @@ const Perfil = () => {
 
 export default Perfil;
 
-/* tirando o problema do yarn */
