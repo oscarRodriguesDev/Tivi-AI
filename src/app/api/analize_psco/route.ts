@@ -3,10 +3,13 @@ import { PrismaClient } from "@prisma/client";
 import nodemailer from 'nodemailer';
 import cryptoRandomString from 'crypto-random-string';
 import bcrypt from 'bcrypt';
-
-
+import Error from "next/error";
 
 const prisma = new PrismaClient();
+
+
+
+
 
 //retorna todos os psicologos
 export async function GET() {
@@ -24,19 +27,15 @@ export async function GET() {
 
 
 
-//criar um novo pre cadastro do psicologo
+/*Esse endpoint cria um novo pré cadastro do psicologo, com os dados enviados pelo formulario de pré cadastro*/
 export async function POST(req: Request) {
   try {
-    const body = await req.json(); // Pega os dados do corpo da requisição
-
-    // Verifica se todos os campos necessários estão preenchidos
+    const body = await req.json();
     const { cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone } = body;
 
     if (!cpf || !cfp || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone) {
       return NextResponse.json({ error: "Todos os campos são obrigatórios!" }, { status: 400 });
     }
-
-    // Cadastra no banco
     const newPrePsicologo = await prisma.prePsicologo.create({
       data: {
         cpf,
@@ -48,11 +47,13 @@ export async function POST(req: Request) {
         data_nasc,
         celular,
         telefone,
+        //habilitado define que o psicologo ainda não foi habilitado no sistema
         habilitado: false
       },
     });
-
+    //retorno caso sucesso
     return NextResponse.json({ message: "Pré-cadastro realizado com sucesso!", data: newPrePsicologo }, { status: 201 });
+
   } catch (error: any) {
     console.error("Erro ao cadastrar:", error);
 
@@ -67,123 +68,175 @@ export async function POST(req: Request) {
 
 
 
+/**
+ * Notifica por e-mail que o usuário foi habilitado com sucesso.
+ * 
+ * @param {string} email - E-mail do usuário que será notificado.
+ * @param {string} nome - Nome do usuário habilitado.
+ * @param {string} email_system - E-mail gerado para acessar a plataforma.
+ * @param {string} senha - Senha temporária gerada para o primeiro acesso.
+ */
 async function notificar(email: string, nome: string, email_system: string, senha: string) {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',  // Usando o serviço do Gmail
+    service: 'gmail',
     auth: {
-      user: 'oskharm12@gmail.com',  // Seu endereço de e-mail do Gmail
-      pass: 'oger kdri xfhj wgvj',   // Sua senha do Gmail ou App Password (recomendado)
+      user: process.env.EMAIL_RESPONSE,
+      pass: process.env.KEY_EMAIL_RESPONSE,
     },
-
-    //vou chamar a rota pra criar o usuario com regra de psicologo
-    //e enviar o email de confirmação
-
   });
 
   const mailOptions = {
-    from: 'oskharm12@gmail.com',  // O e-mail que está enviando a mensagem
+    from: 'oskharm12@gmail.com',
     to: email,
     subject: 'Cadastro habilitado no Tivi AI',
     text: `Olá ${nome},\n\n Seu cadastro como psicólogo foi habilitado com sucesso no Tivi AI! \n\n 
     estamos enviando seus dados de acesso para que você consiga completar seu cadastro!\n\n
-    email: ${email_system}
+    email: ${email_system} 
     senha: ${senha}
     `,
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('E-mail enviado: ', info.response);
   } catch (error) {
     console.error('Erro ao enviar e-mail:', error);
   }
-
-  //enviar o link no formato para que ele possa entrar na plataforma como primerio acesso:
-  //http://localhost:3000/user-profile/acess=0/id=123: primeiro acesso na plataforma
-  //depois disso http://localhost:3000/user-profile/acess=1/id=123 //acessos posteriores 
 }
 
 
 
-// Função para gerar uma senha aleatória
+/**
+ * Gera uma senha aleatória composta por caracteres alfanuméricos.
+ * 
+ * @param {number} [tamanho=8] - O comprimento da senha a ser gerada (valor padrão: 8).
+ * @returns {string} - Retorna a senha gerada em formato de string.
+ */
 function gerarSenhaAleatoria(tamanho: number = 8): string {
   const senha = cryptoRandomString({ length: tamanho, type: 'alphanumeric' });
   return senha
 }
 
 
-//essa função efetiva o cadastro do psicologo no banco de dados
-async function efetivarPsicologo(nome: string, email_confirm: string) {
-  // Criando o objeto do psicólogo
-  nome = nome.replace(/\s+/g, "")
+/**
+ * Efetiva o cadastro do psicólogo no banco de dados.
+ * 
+ * @param {string} nome - Nome completo do psicólogo.
+ * @param {string} email_confirm - E-mail do psicólogo para confirmação e comunicação.
+ * @param {string} cpf - CPF do psicólogo (Cadastro de Pessoa Física).
+ * @param {string} cfp - Código de identificação profissional do psicólogo.
+ * @param {string} crp - Número do registro no Conselho Regional de Psicologia (CRP).
+ * @param {string} telefone - Telefone fixo do psicólogo.
+ * @param {string} celular - Número de celular do psicólogo.
+ * @param {string} data_nasc - Data de nascimento do psicólogo no formato "aaaa-mm-dd".
+ * 
+ * @returns {Promise<void>} - Retorna uma Promise que não resolve nenhum valor explícito.
+ */
+async function efetivarPsicologo(nome: string, email_confirm: string, cpf: string, cfp: string, crp: string, telefone: string, celular: string, data_nasc: string) {
+  let cname = nome.replace(/\s+/g, "")
   const senha = gerarSenhaAleatoria().toLowerCase()
   const hashedPassword = await bcrypt.hash(senha, 10);
+
+  /**
+ * Calcula a idade com base em uma data de nascimento fornecida.
+ * 
+ * @param {string} data - Data de nascimento no formato "mm/dd/aaaa" ou "aaaa-mm-dd".
+ * @returns {number} - Retorna a idade em anos completos.
+ * 
+ * @example
+ * const idade = calcularIdade("03/22/2000");
+ * console.log(idade); // Saída: 25 (se o ano atual for 2025)
+ */
+  const calcularIdade = (data: string) => Math.floor((new Date().getTime() - new Date(data).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
   const psicologo = await prisma.user.create({
     data: {
       name: nome,
-      email: `${nome}@tiviai.com.br`,
+      email: `${cname}@tiviai.com.br`,
       email_confirm: email_confirm,
       password: hashedPassword,
-      role: 'PSYCHOLOGIST'
+      role: 'PSYCHOLOGIST',
+      cpf: cpf,
+      cfp: cfp,
+      crp: crp,
+      telefone: telefone,
+      celular: celular,
+      idade: String(calcularIdade(data_nasc)) //passamos a idade para o objeto a ser salvo
     }
   });
 
   try {
-    // Enviando a requisição POST para outro endpoint
+    /*  Enviando a requisição POST para outro endpoint */
     const apiUrl = `${process.env.NEXTAUTH_URL}/api/register_admins`
     const response = await fetch(apiUrl, {
-      method: 'POST', // Definindo o método da requisição
+      method: 'POST', 
       headers: {
-        'Content-Type': 'application/json' // Informando que estamos enviando JSON
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(psicologo) // Convertendo o objeto psicologo para uma string JSON
+      body: JSON.stringify(psicologo) 
     });
 
-
     if (!psicologo.email_confirm) {
-      throw new Error("E-mail de confirmação é obrigatório para notificar o psicólogo.");
+      return NextResponse.json(
+        { error: "E-mail de confirmação é obrigatório para notificar o psicólogo." },
+        { status: 400 }
+      );
     }
-    // Opcional: Pode retornar a resposta da API ou um status de sucesso
-    const data = await response.json();
-    console.log('Psicólogo cadastrado com sucesso:', data);
 
-    await  notificar(email_confirm,nome,psicologo.email, senha)
-    console.log(`use a senha: ${senha}`)
-    return data; // Retorna os dados da resposta
+    const data = await response.json();
+    /* Aqui estamos efetivando o psicologo caso seu cadastro seja aprovado */
+    await notificar(email_confirm, nome, psicologo.email, senha)
+    return data; 
   } catch (error) {
-    console.error('Erro ao tentar cadastrar psicólogo:', error);
-    throw error; // Lançar o erro novamente para que possa ser tratado em outro lugar
+    console.error('Erro ao tentar confirmar cadastro do psicólogo:', error);
+    throw error; 
   }
 }
 
 
 
-//habilitar psicologo informando o cpf
+/* Nesse endpoint salvamos o novo psicologo no sisteam pelo cpf informado */
 export async function PUT(req: Request) {
   try {
-    const { cpf } = await req.json(); // Pega o CPF do psicólogo que será habilitado
-
+    const { cpf } = await req.json(); 
     if (!cpf) {
       return NextResponse.json({ error: "CPF é obrigatório" }, { status: 400 });
     }
 
-    // Atualiza o campo 'habilitado' para 'true' no banco
-    const updatedPsicologo = await prisma.prePsicologo.update({
-      where: {
-        cpf: cpf, // Encontra o psicólogo pelo CPF
-      },
-      data: {
-        habilitado: true, // Define como 'habilitado' verdadeiro
-
-      },
+   //busca o psicologo que vai ser autorizado
+    const prePsicologo = await prisma.prePsicologo.findUnique({
+      where: { cpf },
     });
 
-    // Depois de habilitar o psicólogo, enviar e-mail de notificação
-    await efetivarPsicologo(updatedPsicologo.nome, updatedPsicologo.email)
+    if (!prePsicologo) {
+      return NextResponse.json({ error: "Psicólogo não encontrado" }, { status: 404 });
+    }
 
-    return NextResponse.json({ message: "Psicólogo habilitado com sucesso", data: updatedPsicologo }, { status: 200 });
+    // Atualiza o campo 'habilitado' para 'true' no banco
+    const updatedPsicologo = await prisma.prePsicologo.update({
+      where: { cpf },
+      data: { habilitado: true },
+    });
+
+    // Efetiva o psicólogo no sistema e envia e-mail de notificação
+    await efetivarPsicologo(
+      updatedPsicologo.nome,
+      updatedPsicologo.email,
+      updatedPsicologo.cfp,
+      updatedPsicologo.cfp,
+      updatedPsicologo.crp,
+      updatedPsicologo.telefone,
+      updatedPsicologo.celular,
+      updatedPsicologo.data_nasc
+    );
+
+    // Retorna todos os dados disponíveis do psicólogo após habilitação
+    return NextResponse.json({
+      message: "Psicólogo habilitado com sucesso",
+      data: updatedPsicologo, 
+    }, { status: 200 });
+
   } catch (error: any) {
     console.error("Erro ao habilitar psicólogo:", error);
     return NextResponse.json({ error: "Erro interno do servidor!" }, { status: 500 });
   }
 }
+

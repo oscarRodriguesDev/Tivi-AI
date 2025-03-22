@@ -19,7 +19,7 @@ const Cadastro = () => {
     const [telefone, setTelefone] = useState<string>('')
     const [celular, setCelular] = useState<string>('')
     const [nome, setNome] = useState<string>('')
-    const [crp,setCRP]=useState<string>('')
+    const [crp,setCRP]=useState<string>('') 
 
 
 const handleSubmit = async (event:React.FormEvent) => {
