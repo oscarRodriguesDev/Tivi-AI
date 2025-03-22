@@ -105,7 +105,7 @@ const Perfil = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ id: psicologo?.id, ...formData }),
+                body: JSON.stringify({ id1: psicologo?.id, ...formData }),
             });
 
             if (!res.ok) throw new Error("Erro ao atualizar perfil");
