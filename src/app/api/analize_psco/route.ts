@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import nodemailer from 'nodemailer';
 import cryptoRandomString from 'crypto-random-string';
 import bcrypt from 'bcrypt';
-import Error from "next/error";
+
 
 const prisma = new PrismaClient();
 
@@ -136,6 +136,8 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
   const senha = gerarSenhaAleatoria().toLowerCase()
   const hashedPassword = await bcrypt.hash(senha, 10);
 
+  const first_acess = false
+
   /**
  * Calcula a idade com base em uma data de nascimento fornecida.
  * 
@@ -159,7 +161,9 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
       crp: crp,
       telefone: telefone,
       celular: celular,
-      idade: String(calcularIdade(data_nasc)) //passamos a idade para o objeto a ser salvo
+      idade: String(calcularIdade(data_nasc)), //passamos a idade para o objeto a ser salvo
+      first_acess:false,
+     
     }
   });
 
@@ -225,7 +229,7 @@ export async function PUT(req: Request) {
       updatedPsicologo.crp,
       updatedPsicologo.telefone,
       updatedPsicologo.celular,
-      updatedPsicologo.data_nasc
+      updatedPsicologo.data_nasc,
     );
 
     // Retorna todos os dados disponíveis do psicólogo após habilitação

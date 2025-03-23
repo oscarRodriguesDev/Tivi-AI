@@ -49,6 +49,7 @@ model User {
   facebook      String?
   whatsapp      String?
   psicologoid   String? //id do psicologo responsavel especifico para pacientes
+  first_acess   Boolean? // vamos utilizar esse boolean para que o usuario troque sua senha
 }
 
 //pré cadastro de Psicologos

@@ -33,6 +33,7 @@ export async function GET(req: Request) {
 export async function PUT(req:Request) {
   try {
       const { id, ...updates } = await req.json();
+      console.log(updates)
 
       if (!id) {
           return NextResponse.json({ error: "ID do usuário é obrigatório." }, { status: 400 });

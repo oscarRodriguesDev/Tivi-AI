@@ -39,7 +39,7 @@ export default function LoginPage() {
           </button>
 
           <button
-            onClick={() => router.push('/cadastro')}
+            onClick={() => router.push('/pre-cadastro')}
             className="w-full py-3 text-green-600 border-2 border-green-600 rounded-lg hover:bg-green-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             Cadastre-se
@@ -47,7 +47,7 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <a href="#" className="text-sm text-green-600 hover:text-green-700">
+          <a href="/recupera" className="text-sm text-green-600 hover:text-green-700">
             Esqueceu a senha?
           </a>
         </div>

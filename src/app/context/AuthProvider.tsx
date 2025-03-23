@@ -20,7 +20,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login"); // Redireciona se não estiver logado
+      router.push("/"); // Redireciona se não estiver logado
     }
   }, [status, router]);
 

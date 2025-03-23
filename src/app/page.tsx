@@ -31,7 +31,7 @@ export default function LandingPage() {
                         Transforme seu atendimento com videochamadas, transcrição automática e insights baseados em IA, ajudando psicólogos a melhorar diagnósticos e prescrições.
                     </p>
                     <div className="mt-14 p-5">
-                        <Link href="/pre_cadastro" className="inline-block px-6 py-3 bg-blue-500 text-white font-bold rounded-full transform transition duration-300 hover:scale-105 hover:bg-blue-600 animate-pulse">
+                        <Link href="/pre-cadastro" className="inline-block px-6 py-3 bg-blue-500 text-white font-bold rounded-full transform transition duration-300 hover:scale-105 hover:bg-blue-600 animate-pulse">
                             Entrar como Psicologo
                         </Link>
                     </div>
