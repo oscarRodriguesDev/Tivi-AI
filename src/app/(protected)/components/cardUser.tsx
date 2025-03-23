@@ -29,7 +29,7 @@ const urlPerfil= `/user-profile/${id}`
 
   // Função de Logout usando o signOut do NextAuth
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/login" }); // Redireciona para /login após sair
+    await signOut({ callbackUrl: "/" }); // Redireciona para /login após sair
   };
 
   return (

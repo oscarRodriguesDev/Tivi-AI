@@ -1,18 +1,14 @@
 'use client'
 import { useEffect, useState } from "react"; // Importando useEffect
-import { signIn } from "next-auth/react"; 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LandingPage() {
     const [isClient, setIsClient] = useState(false); // Controlar a renderização do cliente
     const router = useRouter();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        setIsClient(true); // Marca que a renderização do lado do cliente começou
+        setIsClient(true); 
     }, []);
 
     if (!isClient) {

@@ -1,16 +1,30 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { redirect, RedirectType, useRouter } from 'next/navigation';
+import { SessionProvider, useSession } from "next-auth/react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const session= useSession()
+  const [logado,setLogado]=useState<boolean>(false)
+
+  useEffect(() => {
+   if(session.status==='unauthenticated'){
+  return
+   }else{
+  redirect('/common-page')
+   }
+  }, [session]); 
+
+
 
   return (
     <>
+
     <div className="min-h-screen bg-gradient-to-br from-green-400 via-green-600 to-gray-100 flex items-center justify-center">
       <div className="w-full max-w-sm p-10 bg-white rounded-3xl shadow-lg border border-gray-100">
         <h1 className="text-3xl font-semibold text-center text-green-600 mb-6">Login</h1>
