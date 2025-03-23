@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AuthProvider from "./context/AuthProvider";
+import { useSession } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",
@@ -23,10 +25,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+ 
+
   return (
     <html lang="pt">
       <body>
+        <AuthProvider>
+
      {children}
+
+        </AuthProvider>
       </body>
     </html>
   );

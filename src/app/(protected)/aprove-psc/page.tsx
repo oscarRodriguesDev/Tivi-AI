@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
+import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
 
 // Definindo o tipo dos dados que vamos receber da API
 type Psicologo = {
@@ -11,6 +12,9 @@ type Psicologo = {
 };
 
 const ListaPsicologos = () => {
+
+  const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
+
   const [psicologos, setPsicologos] = useState<Psicologo[]>([]);  // Estado para armazenar psicólogos
   const [loading, setLoading] = useState<boolean>(true);  // Estado de carregamento
   const [error, setError] = useState<string | null>(null);  // Estado para armazenar erros
@@ -48,7 +52,7 @@ const ListaPsicologos = () => {
   const habilitarPsicologo = async (cpf: string) => {
     try {
       console.log(`Habilitar psicólogo com CPF: ${cpf}`);
-  
+
       // Envia uma requisição PUT para a API, passando o CPF no corpo da requisição
       const response = await fetch('/api/analize_psco', {
         method: 'PUT', // Método de requisição PUT
@@ -57,7 +61,7 @@ const ListaPsicologos = () => {
         },
         body: JSON.stringify({ cpf }), // Envia o CPF como parte do corpo da requisição
       });
-  
+
       // Verifica se a resposta da requisição foi bem-sucedida
       if (response.ok) {
         const data = await response.json(); // A resposta será convertida para JSON
@@ -73,7 +77,7 @@ const ListaPsicologos = () => {
       alert('Erro ao conectar com o servidor');
     }
   };
-  
+
 
   // Função para "Rejeitar Cadastro" (exemplo de implementação)
   const rejeitarCadastro = (id: string) => {
@@ -81,53 +85,64 @@ const ListaPsicologos = () => {
   };
 
   return (
-    <div className="container">
-      <h1 className="text-2xl font-bold">Lista de Psicólogos Cadastrados</h1>
+    <>
 
-      {loading && <p>Carregando...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {role === 'ADMIN' ? (
+        <div className="container">
+          <h1 className="text-2xl font-bold">Lista de Psicólogos Cadastrados</h1>
 
-      {!loading && !error && psicologos.length === 0 && (
-        <p>Nenhum psicólogo encontrado.</p>
+          {loading && <p>Carregando...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+
+          {!loading && !error && psicologos.length === 0 && (
+            <p>Nenhum psicólogo encontrado.</p>
+          )}
+
+          {/* Tabela de psicólogos */}
+          {!loading && !error && psicologos.length > 0 && (
+            <table className="table-auto w-full mt-4 border-collapse">
+              <thead>
+                <tr>
+                  <th className="border p-2">Nome</th>
+                  <th className="border p-2">CPF</th>
+                  <th className="border p-2">CFP</th>
+                  <th className="border p-2">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {psicologos.map((psicologo) => (
+                  <tr key={psicologo.id}>
+                    <td className="border p-2">{psicologo.nome}</td>
+                    <td className="border p-2">{psicologo.cpf}</td>
+                    <td className="border p-2">{psicologo.cfp}</td>
+                    <td className="border p-2 flex space-x-2">
+                      <button
+                        onClick={() => habilitarPsicologo(psicologo.cpf)}
+                        className="bg-green-500 text-white px-4 py-2 rounded"
+                      >
+                        Habilitar Psicólogo
+                      </button>
+                      <button
+                        onClick={() => rejeitarCadastro(psicologo.id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded"
+                      >
+                        Rejeitar Cadastro
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+      ) : (
+        <div className="flex justify-center items-center h-screen">Essa pagina é acessivel apenas para administradores</div>
       )}
 
-      {/* Tabela de psicólogos */}
-      {!loading && !error && psicologos.length > 0 && (
-        <table className="table-auto w-full mt-4 border-collapse">
-          <thead>
-            <tr>
-              <th className="border p-2">Nome</th>
-              <th className="border p-2">CPF</th>
-              <th className="border p-2">CFP</th>
-              <th className="border p-2">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {psicologos.map((psicologo) => (
-              <tr key={psicologo.id}>
-                <td className="border p-2">{psicologo.nome}</td>
-                <td className="border p-2">{psicologo.cpf}</td>
-                <td className="border p-2">{psicologo.cfp}</td>
-                <td className="border p-2 flex space-x-2">
-                  <button
-                    onClick={() => habilitarPsicologo(psicologo.cpf)}
-                    className="bg-green-500 text-white px-4 py-2 rounded"
-                  >
-                    Habilitar Psicólogo
-                  </button>
-                  <button
-                    onClick={() => rejeitarCadastro(psicologo.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    Rejeitar Cadastro
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+
+    </>
+
   );
 };
 

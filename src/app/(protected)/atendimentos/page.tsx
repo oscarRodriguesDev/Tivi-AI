@@ -1,14 +1,12 @@
 
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
-import { useRouter } from "next/navigation"; // Para redirecionamento
+
 
 
 const MeusAtendimentos = () => {
   const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
-  const router = useRouter();
-
-
+ 
 
 
 return(
