@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import AuthProvider from "../context/AuthProvider";
 import CardUser from "./components/cardUser";
 import Menu from "./components/menuLateral";
+import { AccessControlProvider } from "../context/AcessControl";
 
 
 
@@ -19,9 +20,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     siteName: "Tivi AI",
-    
+
   },
- 
+
 };
 export default function RootLayout({
   children,
@@ -32,11 +33,13 @@ export default function RootLayout({
     <html lang="pt">
       <body>
         <AuthProvider>
-          <Menu/>
+            <AccessControlProvider>
+          <Menu />
           <div className="flex-1 ml-[244px] mt-2">{/* Todo conteúdo  */}
-          <CardUser/>
-          {children}
+            <CardUser />
+              {children}  {/* Aqui você passa o children para que o conteúdo da página seja renderizado */}
           </div>
+            </AccessControlProvider>
         </AuthProvider>
       </body>
     </html>

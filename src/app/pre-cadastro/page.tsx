@@ -3,11 +3,8 @@
 
 import { BsFillFileEarmarkMedicalFill } from "react-icons/bs";
 import { IoIosInformationCircle } from "react-icons/io";
-import { FaHouse } from "react-icons/fa6";
-import { FaPhoneSquareAlt } from "react-icons/fa";
-import { PiSirenFill } from "react-icons/pi";
-import { TbLockSquareRoundedFilled } from "react-icons/tb";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 const Cadastro = () => {
 
@@ -20,6 +17,8 @@ const Cadastro = () => {
     const [celular, setCelular] = useState<string>('')
     const [nome, setNome] = useState<string>('')
     const [crp,setCRP]=useState<string>('') 
+
+    const router =  useRouter()
 
 
 const handleSubmit = async (event:React.FormEvent) => {
@@ -76,6 +75,7 @@ function clearInputs(){
 }
 
 //função para envio dos dados
+
 
 
 
@@ -155,7 +155,12 @@ function clearInputs(){
 
                 <div className="flex flex-row justify-end w-4/5 p-2">
                     <input type="submit" className="border border-gray-300 bg-blue-600 rounded-lg w-44 text-white font-bold mx-1" value="Enviar solicitação" />
-                    <input type="button" className="border border-gray-300 bg-lime-600 rounded-lg w-44 text-white font-bold mx-1" value="Cancelar" />
+                    <input
+                     type="button" 
+                     className="border border-gray-300 bg-lime-600 rounded-lg w-44 text-white font-bold mx-1" 
+                     value="Cancelar" 
+                     onClick={() => router.push('/')}
+                     />
                 </div>
 
 

@@ -15,6 +15,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
+
+  /* definir o que admin e psicologo podem acessar */
   
   const router = useRouter();
 

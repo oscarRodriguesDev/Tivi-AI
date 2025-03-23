@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-body{
+/* Remove o caret de toda a página */
+* {
+    caret-color: transparent;
+  }
   
-}
+  /* Mantém o caret visível em campos de texto */
+  input, textarea {
+    caret-color: auto;
+  }
