@@ -5,8 +5,7 @@ import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone, FaExclamationTriangle } f
 import { ChangeEvent, useState } from "react";
 import { useParams } from "next/navigation";
 import { Paciente } from "../../../../../types/paciente";
-
-
+import { Endereco } from "../../../../../types/adress";
 
 const Pacientes = () => {
     const { psc } = useParams()
@@ -30,6 +29,8 @@ const Pacientes = () => {
     const [estado,setEstado]=useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [rg, setRg] = useState<string>(String(''))
+    const [dados, setDados] = useState<Endereco | null>(null);
+
     
 
     const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
@@ -123,10 +124,14 @@ const buscaAdress = async (cep: string) => {
         throw new Error('Erro ao buscar o endereço');
       }
   
-      const data = await res.json();
+      const data: Endereco = await res.json();
+      setBairro(data.bairro)
+      setCity(data.localidade)
+      setRua(data.logradouro)
+      setEstado(data.estado)
+      setCep(data.cep)
       
-      // Exibindo os dados retornados
-      console.log(data);
+     
       return data; // Retorna os dados caso queira usá-los em outro lugar
   
     } catch (error) {
@@ -139,9 +144,9 @@ const buscaAdress = async (cep: string) => {
 
     return (
         <>
-        {/* Verificação do Role */}
+        {/* Verificação do Role aqui vai mudar para role=== 'PSYCHOLOGIST'*/}
         {role !== 'PSYCHOLOGIST' ? (
-            <div className="relative w-full max-w-screen-xl h-auto bg-white p-5">
+            <div className=" relative w-full max-w-screen-xl h-auto bg-white p-5">
                 {/* Header */}
                 <div className="w-full h-16 bg-[#F9FAFC] border border-[#D9D9D9] rounded-lg flex items-center px-6 mb-8">
                     <FaCalendarAlt className="text-black text-2xl mr-4" />
