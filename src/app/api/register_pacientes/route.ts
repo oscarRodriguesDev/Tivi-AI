@@ -1,51 +1,49 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { Paciente } from "../../../../types/paciente";
 
 const prisma = new PrismaClient();
 
-// Interface para a estrutura de dados do paciente
-interface PatientData {
-  id: string;
-  nome: string;
-  cpf: string;
-  idade: number; // Alterado para number
-  sintomas: string;
-  telefone: string;
-  psicoloId:string,
-  convenio:string,
-  fantasy_name:string
-}
 
-// Cadastrar um novo paciente
 export async function POST(req: Request) {
   try {
-    const body: PatientData = await req.json();
-    const { nome, idade, telefone, cpf, sintomas,psicoloId,convenio,fantasy_name} = body;
+    const body: Paciente = await req.json();
+    const {id, nome,fantasy_name, idade,sintomas, telefone,convenio, cpf, sexo,cep,cidade,bairro,rua,numero,pais,complemento,estado,email,rg,psicoloId} = body;
     console.log(body)
 
     // Validação dos campos obrigatórios
-    if (!nome || !idade || !telefone || !cpf || !sintomas || !psicoloId || !convenio || !fantasy_name) {
+    if ( !nome || !fantasy_name  || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg ||!psicoloId) {
       return NextResponse.json(
         { error: "Todos os campos obrigatórios devem ser preenchidos" },
         { status: 400 }
       );
     }
 
-    // Convertendo a idade para data de nascimento (considerando o início do ano como base)
-    const anoAtual = new Date().getFullYear();
-    const dataNascimento = new Date(anoAtual - idade, 0, 1); // Idade para data de nascimento
+
 
     // Criando paciente no banco de dados
     const novoPaciente = await prisma.paciente.create({
       data: {
-        nome,        // Nome do paciente
-        cpf,         // CPF do paciente
-        idade: String(idade), // Idade como string (mantendo a coerência com o modelo)
-        sintomas,    // Sintomas do paciente
-        telefone,    // Telefone do paciente 
-        psicoloId,
+        nome,               // Nome do paciente
+        cpf,                // CPF do paciente
+        idade, // Idade como string (mantendo a coerência com o modelo)
+        sintomas,           // Sintomas do paciente
+        telefone,           // Telefone do paciente
+        id,          // ID do psicólogo
         fantasy_name,
-        convenio
+        psicoloId,       // Nome fantasia
+        convenio,           // Convênio
+        sexo,               // Sexo do paciente
+        cep,                // CEP do paciente
+        cidade,             // Cidade do paciente
+        bairro,             // Bairro do paciente
+        rua,                // Rua do paciente
+        numero,             // Número do endereço
+        pais,               // País do paciente
+        complemento,        // Complemento do endereço
+        estado,             // Estado do paciente
+        email,              // E-mail do paciente
+        rg       
       },
     });
 
