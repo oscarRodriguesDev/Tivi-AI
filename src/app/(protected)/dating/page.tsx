@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { redirect } from 'next/navigation';
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
+import { FaCalendarAlt } from 'react-icons/fa';
 
 interface Agendamento {
   id: string;
@@ -26,7 +27,7 @@ export default function AgendamentoPage() {
     horario: '',
   });
   const [peerIds, setPeerIds] = useState<{ [key: string]: string }>({}); // Armazena o peerId por agendamento
-  const [idUser,setIdUser] =  useState<string>("");
+  const [idUser, setIdUser] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);     // Para controle de loading
   const hoje = format(new Date(), 'dd/MM/yyyy');
   const [error, setError] = useState<string | null>(null);     // Para mostrar erros
@@ -82,84 +83,94 @@ export default function AgendamentoPage() {
 
   return (
 
-    
-  
-    <>
-    {role==='PSYCHOLOGIST' ?(
- <div className="flex min-h-screen p-8 bg-gray-900 text-white">
- {/* Lista de Agendamentos */}
- <div className="w-1/2 p-6 bg-gray-800 rounded-xl shadow-xl">
-   <h2 className="text-2xl font-semibold mb-4">Reuniões de Hoje - {hoje}</h2>
-   <ul>
-     {agendamentos.map((ag) => (
-       <li key={ag.id} className="p-3 bg-gray-700 rounded-lg mb-3">
-         <p className="text-lg font-bold">{ag.nome}</p>
-         <p className="text-sm">Horário: {ag.horario}</p>
-         <p className="text-sm">{ag.descricao}</p>
-         <p className="text-sm text-blue-400">
-           {loading ? (
-             <span>Carregando...</span>
-           ) : peerIds[ag.id] ? (
-             <button
-               onClick={() => redirect(`/call/${idUser}`)}
-               className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
-             >
-               Iniciar Reunião com {ag.nome}
-             </button>
-           ) : (
-             <span>Link: <a href={`/publiccall/${ag.id}`} className="underline">
-               /publiccall/{ag.id}
-             </a></span>
-           )}
-         </p>
-        {/*  {error && <p className="text-red-500">{error}</p>} */}
-       </li>
-     ))}
-   </ul>
- </div>
 
- {/* Formulário de Agendamento */}
- <div className="w-1/2 p-6 bg-gray-800 ml-6 rounded-xl shadow-xl">
-   <h2 className="text-2xl font-semibold mb-4">Agendar Nova Reunião</h2>
-   <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-     <input
-       type="text"
-       name="nome"
-       value={novoAgendamento.nome}
-       onChange={handleChange}
-       placeholder="Nome do Paciente"
-       className="p-3 rounded bg-gray-700 text-white"
-       required
-     />
-     <input
-       type="time"
-       name="horario"
-       value={novoAgendamento.horario}
-       onChange={handleChange}
-       className="p-3 rounded bg-gray-700 text-white"
-       required
-     />
-     <textarea
-       name="descricao"
-       value={novoAgendamento.descricao}
-       onChange={handleChange}
-       placeholder="Descrição da reunião"
-       className="p-3 rounded bg-gray-700 text-white"
-     ></textarea>
-     <button type="submit" className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-semibold">
-       Agendar
-     </button>
-   </form>
- </div>
-</div>
-    ):(
-      <div className="flex justify-center items-center h-screen">Essa pagina é acessivel apenas para psicologos</div>
-    )}
-   
+
+    <>
+<div className=" relative w-full max-w-screen-xl h-auto bg-white p-5">
+        {/* Header */}
+        <div className="w-full h-16 bg-[#F9FAFC] border border-[#D9D9D9] rounded-lg flex items-center px-6 mb-8">
+          <FaCalendarAlt className="text-black text-2xl mr-4" />
+          <h1 className="text-black font-extrabold text-2xl">Agendamentos</h1>
+        </div>
+      </div>
+
     
+
+      {role === 'PSYCHOLOGIST' ? (
+        <div className="flex min-h-screen p-8 bg-gray-900 text-white">
+          {/* Lista de Agendamentos */}
+          <div className="w-1/2 p-6 bg-gray-800 rounded-xl shadow-xl">
+            <h2 className="text-2xl font-semibold mb-4">Reuniões de Hoje - {hoje}</h2>
+            <ul>
+              {agendamentos.map((ag) => (
+                <li key={ag.id} className="p-3 bg-gray-700 rounded-lg mb-3">
+                  <p className="text-lg font-bold">{ag.nome}</p>
+                  <p className="text-sm">Horário: {ag.horario}</p>
+                  <p className="text-sm">{ag.descricao}</p>
+                  <p className="text-sm text-blue-400">
+                    {loading ? (
+                      <span>Carregando...</span>
+                    ) : peerIds[ag.id] ? (
+                      <button
+                        onClick={() => redirect(`/call/${idUser}`)}
+                        className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
+                      >
+                        Iniciar Reunião com {ag.nome}
+                      </button>
+                    ) : (
+                      <span>Link: <a href={`/publiccall/${ag.id}`} className="underline">
+                        /publiccall/{ag.id}
+                      </a></span>
+                    )}
+                  </p>
+                  {/*  {error && <p className="text-red-500">{error}</p>} */}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Formulário de Agendamento */}
+          <div className="w-1/2 p-6 bg-gray-800 ml-6 rounded-xl shadow-xl">
+            <h2 className="text-2xl font-semibold mb-4">Agendar Nova Reunião</h2>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <input
+                type="text"
+                name="nome"
+                value={novoAgendamento.nome}
+                onChange={handleChange}
+                placeholder="Nome do Paciente"
+                className="p-3 rounded bg-gray-700 text-white"
+                required
+              />
+              <input
+                type="time"
+                name="horario"
+                value={novoAgendamento.horario}
+                onChange={handleChange}
+                className="p-3 rounded bg-gray-700 text-white"
+                required
+              />
+              <textarea
+                name="descricao"
+                value={novoAgendamento.descricao}
+                onChange={handleChange}
+                placeholder="Descrição da reunião"
+                className="p-3 rounded bg-gray-700 text-white"
+              ></textarea>
+              <button type="submit" className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-semibold">
+                Agendar
+              </button>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <div className="flex justify-center items-center h-screen">Essa pagina é acessivel apenas para psicologos</div>
+      )}
+
+
     </>
 
-        
-  
+
+
   );
 }

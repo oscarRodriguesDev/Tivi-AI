@@ -69,13 +69,26 @@ model PrePsicologo {
  
  //se um dia model fizer login será como common user
 model Paciente {
-   id             String @id @default(uuid())
-   nome           String 
-   fantasy_name   String
+   id             String @id @default(uuid())//psc
+   nome           String? 
    cpf            String @unique
-   idade          String
-   sintomas       String
-   telefone       String
-   convenio       String 
+   fantasy_name   String?
+   idade          String?
+   sintomas       String?
+   telefone       String?
+   convenio       String?
+   sexo           String?
+   cep            String?
+   cidade         String?
+   bairro         String?
+   rua            String?
+   numero         String?
+   pais           String?
+   complemento    String?
+   estado         String?
+   email          String?
+   rg             String?
+
+
    psicoloId      String //id do psicologo responsavel
 }

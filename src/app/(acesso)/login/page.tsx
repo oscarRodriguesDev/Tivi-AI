@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const session= useSession()
-  const [logado,setLogado]=useState<boolean>(false)
+
 
   useEffect(() => {
    if(session.status==='unauthenticated'){
@@ -63,6 +63,9 @@ export default function LoginPage() {
         <div className="mt-6 text-center">
           <a href="/recupera" className="text-sm text-green-600 hover:text-green-700">
             Esqueceu a senha?
+          </a>
+          <a href="/" className="text-sm ml-2 text-green-600 hover:text-green-700">
+            Voltar
           </a>
         </div>
       </div>
