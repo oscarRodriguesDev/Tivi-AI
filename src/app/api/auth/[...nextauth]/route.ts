@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient, UserRole } from "@prisma/client";
 import { compare } from "bcryptjs";
-import { useSession } from "next-auth/react";
+
 
 const prisma = new PrismaClient();
 
@@ -29,11 +29,13 @@ const handler = NextAuth({
         });
 
         if (!user) {
+        
           throw new Error("Usuário não encontrado.");
         }
 
         const isValid = await compare(credentials.password, user.password);
         if (!isValid) {
+         
           throw new Error("Senha incorreta.");
         }
 
@@ -71,9 +73,11 @@ const handler = NextAuth({
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-  pages: {
+   pages: {
     signIn: "/login",
-  },
+    error:'/'
+   
+  }, 
 });
 
 export { handler as GET, handler as POST };

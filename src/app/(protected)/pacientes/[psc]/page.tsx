@@ -222,7 +222,7 @@ const Pacientes = () => {
     return (
         <>
             {/* Verificação do Role aqui vai mudar para role=== 'PSYCHOLOGIST'*/}
-            {role !== 'PSYCHOLOGIST' ? (
+            {role === 'PSYCHOLOGIST' ? (
 
                 <form onSubmit={handleSubmit}>
 
@@ -530,7 +530,11 @@ const Pacientes = () => {
                 </form>
 
 
-            ) : null}
+            ) : (<>
+                      <div>
+                        <h2>Sem autorização para ver essa pagina</h2>
+                      </div>
+            </>)}
         </>
 
 
