@@ -16,7 +16,7 @@ export default function LoginPage() {
    if(session.status==='unauthenticated'){
   return
    }else{
-  redirect('/common-page')
+  redirect('/')
    }
   }, [session]); 
 

@@ -5,6 +5,7 @@ import { BsFillFileEarmarkMedicalFill } from "react-icons/bs";
 import { IoIosInformationCircle } from "react-icons/io";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
+import { validarCPF } from "../util/validarCPF";
 
 const Cadastro = () => {
 
@@ -75,11 +76,18 @@ function clearInputs(){
 }
 
 //função para envio dos dados
-
-
-
-
-
+  function validacpf(){
+  // Exemplo de uso:
+try {
+    const cpfLimpo = validarCPF(cpf);
+    setCFP(cpfLimpo)
+    } catch (error) {
+    if (error) {
+       alert('Cpf invalido!')
+       setCPF('')
+    } 
+}
+  }
 
 
     return (
@@ -105,30 +113,67 @@ function clearInputs(){
 
                     <div className="flex flex-col">
                         <label className="text-sm font-medium">  CPF:</label>
-                        <input type="text"  className="border border-gray-300 rounded p-1" onChange={(e)=>setCPF(e.target.value)} value={cpf} />
+                        <input 
+                        type="text" 
+                         className="border border-gray-300 rounded p-1"
+                          onChange={(e)=>setCPF(e.target.value)} 
+                          value={cpf}
+                          onBlur={(e)=>{validacpf()}}
+                          required
+                          />
+                          
                     </div>
 
                     <div className="flex flex-col">
                         <label className="text-sm font-medium">Registro CFP:</label>
-                        <input type="text"  title='Esse numero será verificado no portal do Conselho Federal de Psicologia' className="border border-gray-300 rounded p-1" onChange={(e)=>setCFP(e.target.value)} value={cfp} />
+                        <input
+                         type="text" 
+                          title='Esse numero será verificado no portal do Conselho Federal de Psicologia'
+                           className="border border-gray-300 rounded p-1"
+                            onChange={(e)=>setCFP(e.target.value)}
+                             value={cfp}
+                             required
+                             />
                     </div>
 
                     <div className="flex flex-col">
                         <label className="text-sm font-medium">Registro CRP:</label>
-                        <input type="text"  title='Esse numero será verificado no portal do Conselho Regional de Psicologia' className="border border-gray-300 rounded p-1" onChange={(e)=>setCRP(e.target.value)} value={crp} />
+                        <input type="text" 
+                         title='Esse numero será verificado no portal do Conselho Regional de Psicologia'
+                          className="border border-gray-300 rounded p-1"
+                           onChange={(e)=>setCRP(e.target.value)} 
+                           value={crp} 
+                           required
+                           />
                     </div>
 
                     <div className="flex flex-col">
                         <label className="text-sm font-medium">  Nome:</label>
-                        <input type="text"  className="border border-gray-300 rounded p-1" onChange={(e)=>setNome(e.target.value)} value={nome}/>
+                        <input type="text"
+                          className="border border-gray-300 rounded p-1"
+                           onChange={(e)=>setNome(e.target.value)} 
+                           value={nome}
+                           required
+                           />
                     </div>
                     <div className="flex flex-col">
                         <label className="text-sm font-medium">  RG:</label>
-                        <input type="text"  className="border border-gray-300 rounded p-1" onChange={(e)=>setRG(e.target.value)} value={rg} />
+                        <input
+                         type="text"
+                           className="border border-gray-300 rounded p-1"
+                            onChange={(e)=>setRG(e.target.value)}
+                             required 
+                             value={rg} 
+                             />
                     </div>
                     <div className="flex flex-col">
                         <label className="text-sm font-medium">  Data de Nascimento:</label>
-                        <input type="date" className="border border-gray-300 rounded p-1" onChange={(e)=>setNasc(e.target.value)} value={nasc} />
+                        <input type="date"
+                        
+                        className="border border-gray-300 rounded p-1"
+                        onChange={(e)=>setNasc(e.target.value)}
+                         value={nasc} 
+                         required/>
                     </div>
                 </div>
 
@@ -139,15 +184,32 @@ function clearInputs(){
 
                     <div className="flex flex-col">
                         <label className="text-sm font-medium">  E-mail:</label>
-                        <input type="email"  className="border border-gray-300 rounded p-1" onChange={(e)=>setEmail(e.target.value)} value={email} />
+                        <input
+                         type="email" 
+                          className="border border-gray-300 rounded p-1" 
+                          onChange={(e)=>setEmail(e.target.value)} 
+                          value={email}
+                          required
+                          />
                     </div>
                     <div className="flex flex-col">
                         <label className="text-sm font-medium">  Celular:</label>
-                        <input type="text"  className="border border-gray-300 rounded p-1" onChange={(e)=>setCelular(e.target.value)} value={celular}/>
+                        <input 
+                         type="text" 
+                          className="border border-gray-300 rounded p-1" 
+                          onChange={(e)=>setCelular(e.target.value)}
+                           value={celular}
+                           required
+                           />
                     </div>
                     <div className="flex flex-col">
                         <label className="text-sm font-medium"> Telefone:</label>
-                        <input type="text"  className="border border-gray-300 rounded p-1" onChange={(e)=>setTelefone(e.target.value)} value={telefone} />
+                        <input
+                         type="text"
+                           className="border border-gray-300 rounded p-1"
+                            onChange={(e)=>setTelefone(e.target.value)} 
+                            value={telefone}
+                            required/>
                     </div>
 
 
