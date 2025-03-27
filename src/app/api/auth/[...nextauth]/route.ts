@@ -17,7 +17,8 @@ const handler = NextAuth({
         id:{label:'Id',type:'id'},
         email: { label: "Email", type: "email", placeholder: "exemplo@email.com" },
         password: { label: "Senha", type: "password" },
-        role: { label: "role", type:'UserRole'}
+        role: { label: "role", type:'UserRole'},
+       
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -58,6 +59,7 @@ const handler = NextAuth({
       if (user) {
         token.id = user.id
         token.role = user.role; // Adiciona o role do usuário ao token
+       
       }
       return token;
     },
@@ -67,6 +69,7 @@ const handler = NextAuth({
       if (token) {
         session.user.role = token.role as UserRole; // Faz o cast para UserRole
         session.user.id =  token.id as string;
+        
       }
       return session;
     },

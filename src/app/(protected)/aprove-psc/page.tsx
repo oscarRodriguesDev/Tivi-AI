@@ -4,10 +4,11 @@ import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook
 
 // Definindo o tipo dos dados que vamos receber da API
 type Psicologo = {
-  id: string;
-  cpf: string;
-  cfp: string;
-  nome: string;
+  id: string,
+  cpf: string,
+  cfp: string,
+  nome: string,
+ 
 
 };
 
@@ -34,6 +35,7 @@ const ListaPsicologos = () => {
         // Verificando se os dados retornados são um array e atualizando o estado
         if (Array.isArray(data.data)) {
           setPsicologos(data.data);  // Armazenando os psicólogos no estado
+      
         } else {
           setError("Erro: Dados recebidos não são válidos.");
         }
@@ -63,9 +65,11 @@ const ListaPsicologos = () => {
       });
 
       // Verifica se a resposta da requisição foi bem-sucedida
+     
       if (response.ok) {
         const data = await response.json(); // A resposta será convertida para JSON
-        console.log('Psicólogo habilitado com sucesso', data);
+        console.log('Psicólogo habilitado com sucesso',data);
+        
         alert(data.message || 'Psicólogo habilitado com sucesso');
       } else {
         const errorData = await response.json();
@@ -115,6 +119,7 @@ const ListaPsicologos = () => {
                     <td className="border p-2">{psicologo.nome}</td>
                     <td className="border p-2">{psicologo.cpf}</td>
                     <td className="border p-2">{psicologo.cfp}</td>
+                    <td className="border p-2">{psicologo.habilitado}</td>
                     <td className="border p-2 flex space-x-2">
                       <button
                         onClick={() => habilitarPsicologo(psicologo.cpf)}

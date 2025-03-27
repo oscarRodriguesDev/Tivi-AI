@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { redirect } from 'next/navigation';
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
 import { FaCalendarAlt } from 'react-icons/fa';
+import Modal from '../components/modalAgendamentos';
 
 interface Agendamento {
   id: string;
@@ -15,6 +16,14 @@ interface Agendamento {
 
 //definir as variaveis de url
 export default function AgendamentoPage() {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
+
+
   const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
 
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([
@@ -26,6 +35,7 @@ export default function AgendamentoPage() {
     descricao: '',
     horario: '',
   });
+  
   const [peerIds, setPeerIds] = useState<{ [key: string]: string }>({}); // Armazena o peerId por agendamento
   const [idUser, setIdUser] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);     // Para controle de loading
@@ -96,8 +106,9 @@ export default function AgendamentoPage() {
 
     
 
-      {role === 'PSYCHOLOGIST' ? (
+      {role !== 'PSYCHOLOGIST' ? (
         <div className="flex min-h-screen p-8 bg-gray-900 text-white">
+           <Modal isOpen={isModalOpen} onClose={handleCloseModal} onSave={()=>alert('teste')} />
           {/* Lista de Agendamentos */}
           <div className="w-1/2 p-6 bg-gray-800 rounded-xl shadow-xl">
             <h2 className="text-2xl font-semibold mb-4">Reuniões de Hoje - {hoje}</h2>
@@ -160,12 +171,17 @@ export default function AgendamentoPage() {
               <button type="submit" className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-semibold">
                 Agendar
               </button>
+
+
             </form>
+              <button onClick={handleOpenModal}>Abrir modal</button>
           </div>
         </div>
       ) : (
         <div className="flex justify-center items-center h-screen">Essa pagina é acessivel apenas para psicologos</div>
       )}
+
+      
 
 
     </>
