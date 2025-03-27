@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         celular,
         telefone,
         //habilitado define que o psicologo ainda não foi habilitado no sistema
-        habilitado: false
+       habilitado:false
       },
     });
     //retorno caso sucesso

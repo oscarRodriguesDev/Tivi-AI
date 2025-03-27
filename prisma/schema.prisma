@@ -50,6 +50,7 @@ model User {
   whatsapp      String?
   psicologoid   String? //id do psicologo responsavel especifico para pacientes
   first_acess   Boolean? // vamos utilizar esse boolean para que o usuario troque sua senha
+  habilitado    Boolean?
 }
 
 //pré cadastro de Psicologos
@@ -88,8 +89,6 @@ model Paciente {
    estado         String?
    email          String?
    rg             String?
-
-
    psicoloId      String //id do psicologo responsavel
 }
 //as consultas vão ter um modelo para serem criadas
