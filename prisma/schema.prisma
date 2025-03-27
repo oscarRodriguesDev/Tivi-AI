@@ -67,7 +67,7 @@ model PrePsicologo {
  habilitado    Boolean
 }
  
- //se um dia model fizer login será como common user
+ //se um dia paciente fizer login será como common user
 model Paciente {
    id             String @id @default(uuid())//psc
    nome           String? 
@@ -91,4 +91,17 @@ model Paciente {
 
 
    psicoloId      String //id do psicologo responsavel
+}
+//as consultas vão ter um modelo para serem criadas
+model Consulta{
+  id             String @id @default(uuid())
+  pacienteId     String //id do paciente
+  fantasy_name   String
+  titulo         String
+  psicologoId    String //id do psicologo
+  data           String //data da consulta
+  hora           String //hora da consulta
+  tipo_consulta  String //tipo de consulta presencial ou online
+  observacao     String //observação da consulta
+  recorrencia    String
 }
