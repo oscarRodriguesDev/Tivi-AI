@@ -1,16 +1,9 @@
 'use client'
 import { useState, useEffect } from "react";
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
+import { Psicologo } from "../../../../types/psicologos";
 
-// Definindo o tipo dos dados que vamos receber da API
-type Psicologo = {
-  id: string,
-  cpf: string,
-  cfp: string,
-  nome: string,
- 
 
-};
 
 const ListaPsicologos = () => {
 
@@ -116,13 +109,13 @@ const ListaPsicologos = () => {
               <tbody>
                 {psicologos.map((psicologo) => (
                   <tr key={psicologo.id}>
-                    <td className="border p-2">{psicologo.nome}</td>
-                    <td className="border p-2">{psicologo.cpf}</td>
+                    <td className="border p-2">{psicologo.name}</td>
                     <td className="border p-2">{psicologo.cfp}</td>
-                    <td className="border p-2">{psicologo.habilitado}</td>
+                    <td className="border p-2">{psicologo.cfp}</td>
+                    <td className="border p-2">{psicologo.first_acess}</td>
                     <td className="border p-2 flex space-x-2">
                       <button
-                        onClick={() => habilitarPsicologo(psicologo.cpf)}
+                        onClick={() => habilitarPsicologo(psicologo.cfp||'')}
                         className="bg-green-500 text-white px-4 py-2 rounded"
                       >
                         Habilitar Psicólogo
