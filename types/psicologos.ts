@@ -106,12 +106,7 @@ interface Psicologo {
      */
     first_acess?: boolean;
 
-    /**
-     * variavel para corrigir erro no build.
-     * Opcional.
-     * @type {boolean | undefined}
-     */
-    habilitado?: boolean;
+  
 }
 
 /**

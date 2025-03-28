@@ -36,6 +36,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onSave }) => {
             const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
             setAgendamentos([...agendamentos, novo]);
             setNovoAgendamento({ nome: '', descricao: '', horario: '', id: '' });
+            alert(agendamentos)
         }
     };
 

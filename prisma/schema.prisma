@@ -50,7 +50,7 @@ model User {
   whatsapp      String?
   psicologoid   String? //id do psicologo responsavel especifico para pacientes
   first_acess   Boolean? // vamos utilizar esse boolean para que o usuario troque sua senha
-  habilitado    Boolean?
+
 }
 
 //pré cadastro de Psicologos
@@ -93,14 +93,15 @@ model Paciente {
 }
 //as consultas vão ter um modelo para serem criadas
 model Consulta{
-  id             String @id @default(uuid())
-  pacienteId     String //id do paciente
-  fantasy_name   String
-  titulo         String
-  psicologoId    String //id do psicologo
-  data           String //data da consulta
-  hora           String //hora da consulta
-  tipo_consulta  String //tipo de consulta presencial ou online
-  observacao     String //observação da consulta
-  recorrencia    String
+  id             String @id @default(uuid()) //id da reunião
+  pacienteId     String? //id do paciente
+  fantasy_name   String?
+  name           String?
+  titulo         String?
+  psicologoId    String? //id do psicologo
+  data           String? //data da consulta
+  hora           String? //hora da consulta
+  tipo_consulta  String? //tipo de consulta presencial ou online
+  observacao     String? //observação da consulta
+  recorrencia    String?
 }

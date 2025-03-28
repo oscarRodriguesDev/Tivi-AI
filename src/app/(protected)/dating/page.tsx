@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
 import { FaCalendarAlt } from 'react-icons/fa';
 import Modal from '../components/modalAgendamentos';
+import ModalMeet from '../components/modalMeet';
 
 interface Agendamento {
   id: string;
@@ -109,6 +110,7 @@ export default function AgendamentoPage() {
       {role !== 'PSYCHOLOGIST' ? (
         <div className="flex min-h-screen p-8 bg-gray-900 text-white">
            <Modal isOpen={isModalOpen} onClose={handleCloseModal} onSave={()=>alert('teste')} />
+          
           {/* Lista de Agendamentos */}
           <div className="w-1/2 p-6 bg-gray-800 rounded-xl shadow-xl">
             <h2 className="text-2xl font-semibold mb-4">Reuniões de Hoje - {hoje}</h2>
