@@ -66,10 +66,10 @@ export default function PublicCallPage() {
   const handleTranscription = (text: string, isPsychologist: boolean) => {
     // Definindo quem está falando, psicólogo ou paciente
     const speaker = isPsychologist ? 'psicologo' : 'paciente';
-   
+
     // Atualizando a transcrição com o título correto
     setTranscription(prevTranscription => prevTranscription + `\n${speaker}: ${transcription}`);
-   
+
   };
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function PublicCallPage() {
 
     peer.on("open", async (id) => {
       setPeerId(id); // Define o ID do Peer
-   
+
       try {
         // Envia o ID gerado para a API
         await fetch(`/api/save_peer?iddinamico=${iddinamico}`, {
@@ -130,42 +130,54 @@ export default function PublicCallPage() {
   };
 
   return (
-    <div className="flex flex-row items-center justify-center min-h-screen bg-[#181818] text-white p-8">
-      <div className="w-full max-w-4xl bg-[#202124] p-6 rounded-3xl shadow-xl">
-        <h1 className="text-4xl font-semibold text-center text-indigo-500 mb-6">Reunião de Psicoterapia</h1>
+    <div className="flex flex-row  items-center justify-center min-h-screen bg-white text-white ">
+      <div className="flex flex-row items-center justify-center min-h-screen bg-gradient-to-br from-indigo-100 to-indigo-300 text-white">
+        <div className="w-full relative">
 
-        <p className="text-lg text-center text-gray-400 mb-2">ID da Sala: {iddinamico}</p>
-        <p className="text-lg text-center text-gray-400 mb-8">Sua conexão ID: {peerId}</p>
+          <div className="absolute top-0 w-[92vw] h-[92vh] rounded-2xl overflow-hidden shadow-2xl border-4 border-indigo-500">
 
-        <div className="flex justify-center mb-8">
-          {callActive && (
-            <button
-              onClick={endCall}
-              className="w-32 py-3 px-6 text-white bg-gradient-to-r from-red-600 to-red-400 rounded-lg shadow-lg hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
-            >
-              Sair
-            </button>
-          )}
-        </div>
+            <div className="absolute flex flex-col items-center w-full p-6">
+              <h1 className="text-indigo-700 mb-2 text-4xl font-extrabold drop-shadow-lg">Consulta Agendada</h1>
+              <p className="text-lg text-center text-indigo-600 mb-2">ID da Sala: {iddinamico}</p>
+              <p className="text-lg text-center text-indigo-600 mb-8">Sua conexão ID: {peerId}</p>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <div className="relative w-full h-80">
-            <video ref={videoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg border-4 border-indigo-500" />
-            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Você (Paciente)</div>
+            <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+            <div className="absolute bottom-6 left-2 bg-black bg-opacity-60 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md">Você (Paciente)</div>
+
+            <div className="absolute bottom-8 left-2 w-64 h-40 rounded-lg overflow-hidden border-2 border-indigo-400 shadow-lg">
+              <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
+              <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white px-3 py-1 rounded-md font-semibold text-sm">Psicólogo (Host)</div>
+            </div>
+
+            <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2">
+              {callActive && (
+                <button
+                  onClick={endCall}
+                  className="py-3 px-8 text-white bg-gradient-to-r from-red-600 to-red-400 rounded-full shadow-lg hover:from-red-700 hover:to-red-500 focus:outline-none focus:ring-4 focus:ring-red-500 transition-transform transform hover:scale-105 duration-300"
+                >
+                  Sair
+                </button>
+              )}
+            </div>
+
           </div>
-          <div className="relative w-full h-80">
-            <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg border-4 border-indigo-500" />
-            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Psicólogo (Host)</div>
-          </div>
+
         </div>
       </div>
+
+
+
+
+
       {/* Transcrição unificada */}
-      <div>
+      {/*  <div>
         <LiveTranscription
           usuario={'Paciente'}
-          mensagem={transcription} // A transcrição agora é unificada         
+          mensagem={transcription} // A transcrição agora é unificada   
+                
         />
-      </div>
+      </div> */}
     </div>
   );
 }

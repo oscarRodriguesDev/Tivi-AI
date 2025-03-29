@@ -36,7 +36,7 @@ export default function RootLayout({
             <AccessControlProvider>
           <Menu />
           <div className="flex-1 ml-[300px] mt-2">{/* Todo conteúdo  */}
-            <CardUser />
+           
               {children}  {/* Aqui você passa o children para que o conteúdo da página seja renderizado */}
           </div>
             </AccessControlProvider>

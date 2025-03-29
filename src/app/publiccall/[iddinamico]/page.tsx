@@ -130,14 +130,14 @@ export default function PublicCallPage() {
   };
 
   return (
-    <div className="flex flex-row  items-center justify-center min-h-screen bg-white text-white p-8">
-      <div className="w-full ">
+    <div className="flex flex-row items-center justify-center min-h-screen bg-[#181818] text-white p-8">
+      <div className="w-full max-w-4xl bg-[#202124] p-6 rounded-3xl shadow-xl">
         <h1 className="text-4xl font-semibold text-center text-indigo-500 mb-6">Reunião de Psicoterapia</h1>
 
         <p className="text-lg text-center text-gray-400 mb-2">ID da Sala: {iddinamico}</p>
         <p className="text-lg text-center text-gray-400 mb-8">Sua conexão ID: {peerId}</p>
 
-        <div className="flex justify-center ">
+        <div className="flex justify-center mb-8">
           {callActive && (
             <button
               onClick={endCall}
@@ -148,30 +148,24 @@ export default function PublicCallPage() {
           )}
         </div>
 
-          <div className=" w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <div className="relative w-full h-80">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg border-4 border-indigo-500" />
-            <div className="absolute  left-2  text-white  rounded-md font-semibold text-sm">Você (Paciente)</div>
+            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Você (Paciente)</div>
           </div>
-          
-          <div className="absolute w-80 h-80 bottom-1 left-14">
+          <div className="relative w-full h-80">
             <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg border-4 border-indigo-500" />
             <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Psicólogo (Host)</div>
           </div>
-
-
-       
+        </div>
       </div>
-
-
-      
       {/* Transcrição unificada */}
-     {/*  <div>
+      <div>
         <LiveTranscription
           usuario={'Paciente'}
-          mensagem={transcription} // A transcrição agora é unificada   
-                
+          mensagem={transcription} // A transcrição agora é unificada         
         />
-      </div> */}
+      </div>
     </div>
   );
 }
