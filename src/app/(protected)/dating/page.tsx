@@ -165,7 +165,7 @@ export default function AgendamentoPage() {
         icon={<FaCalendarAlt />}
       />
 
-      {role !== 'PSYCHOLOGIST' ? (
+      {role === 'PSYCHOLOGIST' ? (
         <div className="flex-col h-[80vh]  p-8 text-white">
           <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
 
