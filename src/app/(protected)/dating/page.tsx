@@ -62,12 +62,19 @@ export default function AgendamentoPage() {
     const { name, value } = e.target;
     setNovoAgendamento((prev) => ({ ...prev, [name]: value }));
   };
+  const [periodo, setPeriodo] = useState<string>('Dia')
 
 
   //essa função vai continuar gerando o usuauario para mim
 
+  /**
+   * @deprecated Esta função será removida em breve. 
+   * Utilize o modal para manipular o envio de agendamentos.
+   */
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.warn("⚠️ handleSubmit está depreciada. Use handleNewSubmit.");
+
     if (novoAgendamento.name && novoAgendamento.hora) {
       const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
       setAgendamentos([...agendamentos, novo]);
@@ -85,8 +92,10 @@ export default function AgendamentoPage() {
     }
   };
 
-  //opção do handleSubmit:
+
+  //função para buscar os agendamentos no banco de dados
   const buscarAgendamentos = async () => {
+
     try {
       const response = await fetch("/api/gen-meet");
       if (response.ok) {
@@ -107,6 +116,8 @@ export default function AgendamentoPage() {
     buscarAgendamentos();
   }, []);
 
+
+  //monitora se o paciente ja esta em reunião
   useEffect(() => {
     const fetchPeerId = async (id: string) => {
       try {
@@ -142,10 +153,10 @@ export default function AgendamentoPage() {
     return () => clearInterval(intervalId);
   }, [agendamentos, peerIds]);
 
+
+
+
   return (
-
-
-
     <>
 
       {/* componente cabeçalho das paginas */}
@@ -159,68 +170,97 @@ export default function AgendamentoPage() {
           <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
 
 
-            {/* Filtro */}
-            <div className="flex space-x-4 mb-0">
-              {["Dia", "Semana", "Mês", "Ano"].map((filtro) => (
-                <button
-                  key={filtro}
-                  className="px-4 py-0 bg-white text-black rounded-sm hover:bg-blue-200 transition"
-                  onClick={() => console.log(`Filtrar por: ${filtro}`)}
-                >
-                  {filtro}
-                </button>
-              ))}
-            </div>
+          {/* Filtro */}
+          <div className="flex space-x-4 mb-0">
+            {["Dia", "Semana", "Mês", "Ano"].map((filtro) => (
+              <button
+                key={filtro}
+                className={`px-4 py-0 rounded-sm transition ${periodo === filtro
+                    ? "bg-blue-500 text-white" // Estilo do botão ativo
+                    : "bg-white text-black hover:bg-blue-200"
+                  }`}
+                onClick={() => setPeriodo(filtro)}
+              >
+                {filtro}
+              </button>
+            ))}
+          </div>
 
 
           {/* Lista de Agendamentos */}
-          <div className="w-full  p-6  rounded-xl shadow-xl">
-            <h2 className="text-2xl text-black font-semibold mb-4">Reuniões de Hoje - {hoje}</h2>
+            <div className="w-full  p-6  rounded-xl shadow-xl">
+              <h2 className="text-2xl text-black font-semibold mb-4">Consultas Agendadas - {hoje}</h2>
+            {/* agendamentos por dia */}
+          {periodo == 'Dia' &&
+              <div className="bg-gray-200 p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
+                <ul>
+                  {agendamentos.map((ag) => (
+                    <li key={ag.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
+                      <p className="text-lg font-bold text-blue-950">Consulta OnLine</p>
+                      <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p>
+                      <p className="text-sm  text-blue-950">Horário: {ag.hora}</p>
+                      <p className="text-sm  text-blue-950">{ag.observacao}</p>
+                      <p className="text-sm text-blue-400">
+                        {loading ? (
+                          <span className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-semibold">
+                            Carregando...
+                          </span>
+                        ) : peerIds[ag.id] ? (
+                          <button
+                            onClick={() => redirect(`/call/${idUser}`)}
+                            className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
+                          >
+                            Iniciar Reunião com {ag.name}
+                          </button>
+                        ) : (
+                          <span>Link: <a href={`/publiccall/${ag.id}`} className="underline">
+                            /publiccall/{ag.id}
+                          </a></span>
+                        )}
+                      </p>
+                      {/*  {error && <p className="text-red-500">{error}</p>} */}
+                    </li>
+                  ))}
+                </ul>
 
+              </div>
 
-            <div className="bg-gray-200 p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
-              <ul>
-                {agendamentos.map((ag) => (
-                <li key={ag.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
-                    <p className="text-lg font-bold text-blue-950">Consulta OnLine</p>
-                    <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p>
-                    <p className="text-sm  text-blue-950">Horário: {ag.hora}</p>
-                    <p className="text-sm  text-blue-950">{ag.observacao}</p>
-                    <p className="text-sm text-blue-400">
-                      {loading ? (
-                        <span className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-semibold">
-                          Carregando...
-                        </span>
-                      ) : peerIds[ag.id] ? (
-                        <button
-                          onClick={() => redirect(`/call/${idUser}`)}
-                          className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
-                        >
-                          Iniciar Reunião com {ag.name}
-                        </button>
-                      ) : (
-                        <span>Link: <a href={`/publiccall/${ag.id}`} className="underline">
-                          /publiccall/{ag.id}
-                        </a></span>
-                      )}
-                    </p>
-                    {/*  {error && <p className="text-red-500">{error}</p>} */}
-                  </li>
-                ))}
-              </ul>
+          }
+          
+          {/* agendamentos por semana */}
 
-            </div>
-            <div className="w-full h-auto mt-5 flex justify-end items-end">
-              <button
-                onClick={handleOpenModal}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-              >
-                Agendar
-              </button>
-            </div>
-
-
+          {periodo=='Semana'&&
+          <div className="bg-gray-200 text-black p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
+            <h2>Deve mostrar os agendamenos por semana</h2>
           </div>
+          }
+
+          {/* Agendamentos por mes */}
+          {periodo=='Mês'&&
+          <div className="bg-gray-200 text-black p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
+            <h2>Deve mostrar os agendamenos por Mes</h2>
+          </div>
+          }
+
+          {/* Agendamentos por ano */}
+          {periodo=='Ano'&&
+          <div className="bg-gray-200 text-black p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
+            <h2>Deve mostrar os agendamenos por Ano</h2>
+          </div>
+          }
+
+
+              <div className="w-full h-auto mt-5 flex justify-end items-end">
+                <button
+                  onClick={handleOpenModal}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                >
+                  Agendar
+                </button>
+              </div>
+
+
+            </div>
 
 
         </div>

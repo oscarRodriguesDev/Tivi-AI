@@ -33,6 +33,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     recorrencia: ''
   });
 
+ 
+
   // Função para atualizar o estado do Agendamento conforme os inputs
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -64,7 +66,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             psicologoId: '',
             fantasy_name: '',
             name: '',
-            titulo: '',
             data: '',
             hora: '',
             tipo_consulta: '',
