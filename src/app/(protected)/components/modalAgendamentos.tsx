@@ -8,7 +8,6 @@ interface Agendamento {
   psicologoId: string;
   fantasy_name: string;
   name: string;
-  titulo: string;
   data: string;
   hora: string;
   tipo_consulta: string;
@@ -27,7 +26,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     psicologoId: '',
     fantasy_name: '',
     name: '',
-    titulo: '',
     data: '',
     hora: '',
     tipo_consulta: '',
@@ -46,7 +44,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
 
     // Verifica se todos os campos obrigatórios estão preenchidos
-    if (novoAgendamento.titulo && novoAgendamento.data && novoAgendamento.hora && novoAgendamento.name) {
+    if ( novoAgendamento.data && novoAgendamento.hora && novoAgendamento.name && novoAgendamento.fantasy_name) {
       const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
 
       try {
@@ -101,21 +99,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           <div className="space-y-4">
           
 
-            {/* Apelido para o paciente: vira do banco de dados, da escolha do paciente */} 
-            <div className="flex-col justify-between gap-4">
-              <label className="block text-sm font-medium text-gray-800">titulo </label>
-              <div className="flex items-center gap-3">
-                <FaPen size={20} className="text-gray-600" />
-                <input
-                  type="text"
-                  name="titulo"
-                  value={novoAgendamento.titulo}
-                  onChange={handleChange}
-                  placeholder="Digite o apelido do seu paciente"
-                  className="border border-gray-300 text-black rounded-md px-4 py-2 w-full"
-                />
-              </div>
-            </div>
             {/* Apelido para o paciente: vira do banco de dados, da escolha do paciente */} 
             <div className="flex-col justify-between gap-4">
               <label className="block text-sm font-medium text-gray-800">Precisamos de um nick name para seu paciente</label>

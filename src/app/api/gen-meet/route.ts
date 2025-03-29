@@ -6,12 +6,12 @@ const prisma = new PrismaClient();
 
 // Criar uma reunião
 export async function POST(req: Request) {
-  
+  const titulo =  'Consulta'
   try {
-    const { pacienteId, fantasy_name, titulo, psicologoId, data, hora, tipo_consulta, observacao, recorrencia } = await req.json();
+    const { pacienteId,name, fantasy_name, titulo:titulo, psicologoId, data, hora, tipo_consulta, observacao, recorrencia } = await req.json();
 
     const novaConsulta = await prisma.consulta.create({
-      data: { pacienteId, fantasy_name, titulo, psicologoId, data, hora, tipo_consulta, observacao, recorrencia },
+      data: { pacienteId, fantasy_name, titulo, psicologoId,name, data, hora, tipo_consulta, observacao, recorrencia },
     });
 
     return NextResponse.json(novaConsulta, { status: 201 });

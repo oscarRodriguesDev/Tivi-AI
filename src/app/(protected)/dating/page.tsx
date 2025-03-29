@@ -155,51 +155,71 @@ export default function AgendamentoPage() {
       />
 
       {role !== 'PSYCHOLOGIST' ? (
-        <div className="flex-col h-[80vh]  p-8 bg-slate-100 text-white">
+        <div className="flex-col h-[80vh]  p-8 text-white">
           <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
 
-          {/* Lista de Agendamentos */}
-          <div className="w-full  p-6 bg-red-300  overflow-y-visible rounded-xl shadow-xl">
-            <h2 className="text-2xl text-black font-semibold mb-4">Reuniões de Hoje - {hoje}</h2>
-            <ul>
-              {agendamentos.map((ag) => (
-                <li key={ag.id} className="p-3 bg-white rounded-lg mb-3">
-                  <p className="text-lg font-bold text-blue-950">Consulta OnLine</p>
-                  <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p>
-                  <p className="text-sm  text-blue-950">Horário: {ag.hora}</p>
-                  <p className="text-sm  text-blue-950">{ag.observacao}</p>
-                  <p className="text-sm text-blue-400">
-                    {loading ? (
-                      <span className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-semibold">
-                        Carregando...
-                      </span>
-                    ) : peerIds[ag.id] ? (
-                      <button
-                        onClick={() => redirect(`/call/${idUser}`)}
-                        className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
-                      >
-                        Iniciar Reunião com {ag.name}
-                      </button>
-                    ) : (
-                      <span>Link: <a href={`/publiccall/${ag.id}`} className="underline">
-                        /publiccall/{ag.id}
-                      </a></span>
-                    )}
-                  </p>
-                  {/*  {error && <p className="text-red-500">{error}</p>} */}
-                </li>
+
+            {/* Filtro */}
+            <div className="flex space-x-4 mb-0">
+              {["Dia", "Semana", "Mês", "Ano"].map((filtro) => (
+                <button
+                  key={filtro}
+                  className="px-4 py-0 bg-white text-black rounded-sm hover:bg-blue-200 transition"
+                  onClick={() => console.log(`Filtrar por: ${filtro}`)}
+                >
+                  {filtro}
+                </button>
               ))}
-            </ul>
+            </div>
 
 
-          </div>
-          <div className="w-full h-[30vh] flex justify-end items-end">
-            <button
-              onClick={handleOpenModal}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-            >
-              Agendar
-            </button>
+          {/* Lista de Agendamentos */}
+          <div className="w-full  p-6  rounded-xl shadow-xl">
+            <h2 className="text-2xl text-black font-semibold mb-4">Reuniões de Hoje - {hoje}</h2>
+
+
+            <div className="bg-gray-200 p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
+              <ul>
+                {agendamentos.map((ag) => (
+                <li key={ag.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
+                    <p className="text-lg font-bold text-blue-950">Consulta OnLine</p>
+                    <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p>
+                    <p className="text-sm  text-blue-950">Horário: {ag.hora}</p>
+                    <p className="text-sm  text-blue-950">{ag.observacao}</p>
+                    <p className="text-sm text-blue-400">
+                      {loading ? (
+                        <span className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-semibold">
+                          Carregando...
+                        </span>
+                      ) : peerIds[ag.id] ? (
+                        <button
+                          onClick={() => redirect(`/call/${idUser}`)}
+                          className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
+                        >
+                          Iniciar Reunião com {ag.name}
+                        </button>
+                      ) : (
+                        <span>Link: <a href={`/publiccall/${ag.id}`} className="underline">
+                          /publiccall/{ag.id}
+                        </a></span>
+                      )}
+                    </p>
+                    {/*  {error && <p className="text-red-500">{error}</p>} */}
+                  </li>
+                ))}
+              </ul>
+
+            </div>
+            <div className="w-full h-auto mt-5 flex justify-end items-end">
+              <button
+                onClick={handleOpenModal}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+              >
+                Agendar
+              </button>
+            </div>
+
+
           </div>
 
 
