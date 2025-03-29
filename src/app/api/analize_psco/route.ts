@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         celular,
         telefone,
         //habilitado define que o psicologo ainda não foi habilitado no sistema
-        habilitado: false
+       habilitado:false
       },
     });
     //retorno caso sucesso
@@ -88,12 +88,16 @@ async function notificar(email: string, nome: string, email_system: string, senh
   const mailOptions = {
     from: 'oskharm12@gmail.com',
     to: email,
-    subject: 'Cadastro habilitado no Tivi AI',
-    text: `Olá ${nome},\n\n Seu cadastro como psicólogo foi habilitado com sucesso no Tivi AI! \n\n 
-    estamos enviando seus dados de acesso para que você consiga completar seu cadastro!\n\n
-    email: ${email_system} 
-    senha: ${senha}
-    `,
+    subject: 'Cadastro Habilitado no Tivi AI',
+    text: `Prezado(a) ${nome},\n\n
+  É com prazer que informamos que seu cadastro como psicólogo foi habilitado com sucesso na plataforma Tivi AI.\n\n
+  Abaixo, seguem seus dados de acesso para completar seu cadastro e iniciar sua jornada na plataforma:\n\n
+  Email: "${email_system}"\n
+  Senha: ${senha}\n\n
+  Para sua segurança, recomendamos que, ao acessar a plataforma pela primeira vez, você altere sua senha. Isso garantirá a proteção do seu acesso e dados.\n\n
+  Caso tenha alguma dúvida ou necessite de suporte, não hesite em nos contatar.\n\n
+  Atenciosamente,\n
+  Equipe Tivi AI`
   };
 
   try {
@@ -148,7 +152,8 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
  * const idade = calcularIdade("03/22/2000");
  * console.log(idade); // Saída: 25 (se o ano atual for 2025)
  */
-  const calcularIdade = (data: string) => Math.floor((new Date().getTime() - new Date(data).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+  const defIdade = (data: string) => Math.floor((new Date().getTime() - new Date(data).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+
   const psicologo = await prisma.user.create({
     data: {
       name: nome,
@@ -161,9 +166,9 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
       crp: crp,
       telefone: telefone,
       celular: celular,
-      idade: String(calcularIdade(data_nasc)), //passamos a idade para o objeto a ser salvo
-      first_acess:false,
-     
+      idade: String(defIdade(data_nasc)), //passamos a idade para o objeto a ser salvo
+      first_acess: true, //primeiro acesso definido
+
     }
   });
 
@@ -171,11 +176,11 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
     /*  Enviando a requisição POST para outro endpoint */
     const apiUrl = `${process.env.NEXTAUTH_URL}/api/register_admins`
     const response = await fetch(apiUrl, {
-      method: 'POST', 
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(psicologo) 
+      body: JSON.stringify(psicologo)
     });
 
     if (!psicologo.email_confirm) {
@@ -188,10 +193,10 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
     const data = await response.json();
     /* Aqui estamos efetivando o psicologo caso seu cadastro seja aprovado */
     await notificar(email_confirm, nome, psicologo.email, senha)
-    return data; 
+    return data;
   } catch (error) {
     console.error('Erro ao tentar confirmar cadastro do psicólogo:', error);
-    throw error; 
+    throw error;
   }
 }
 
@@ -200,12 +205,12 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
 /* Nesse endpoint salvamos o novo psicologo no sisteam pelo cpf informado */
 export async function PUT(req: Request) {
   try {
-    const { cpf } = await req.json(); 
+    const { cpf } = await req.json();
     if (!cpf) {
       return NextResponse.json({ error: "CPF é obrigatório" }, { status: 400 });
     }
 
-   //busca o psicologo que vai ser autorizado
+    //busca o psicologo que vai ser autorizado
     const prePsicologo = await prisma.prePsicologo.findUnique({
       where: { cpf },
     });
@@ -235,7 +240,7 @@ export async function PUT(req: Request) {
     // Retorna todos os dados disponíveis do psicólogo após habilitação
     return NextResponse.json({
       message: "Psicólogo habilitado com sucesso",
-      data: updatedPsicologo, 
+      data: updatedPsicologo,
     }, { status: 200 });
 
   } catch (error: any) {

@@ -16,6 +16,7 @@ export default function LandingPage() {
     }
 
     return (
+      <>
       
             <div className="min-h-screen bg-gradient-to-r from-blue-400 to-green-300 flex flex-col items-center text-center">
                 {/* Hero Section */}
@@ -91,6 +92,9 @@ export default function LandingPage() {
                     © 2025 Ti Vi AI - Todos os direitos reservados.
                 </footer>
             </div>
+      </>
+      
+      
      
     );
 }

@@ -50,6 +50,7 @@ model User {
   whatsapp      String?
   psicologoid   String? //id do psicologo responsavel especifico para pacientes
   first_acess   Boolean? // vamos utilizar esse boolean para que o usuario troque sua senha
+
 }
 
 //pré cadastro de Psicologos
@@ -67,15 +68,40 @@ model PrePsicologo {
  habilitado    Boolean
 }
  
- //se um dia model fizer login será como common user
+ //se um dia paciente fizer login será como common user
 model Paciente {
-   id             String @id @default(uuid())
-   nome           String 
-   fantasy_name   String
+   id             String @id @default(uuid())//psc
+   nome           String? 
    cpf            String @unique
-   idade          String
-   sintomas       String
-   telefone       String
-   convenio       String 
+   fantasy_name   String?
+   idade          String?
+   sintomas       String?
+   telefone       String?
+   convenio       String?
+   sexo           String?
+   cep            String?
+   cidade         String?
+   bairro         String?
+   rua            String?
+   numero         String?
+   pais           String?
+   complemento    String?
+   estado         String?
+   email          String?
+   rg             String?
    psicoloId      String //id do psicologo responsavel
+}
+//as consultas vão ter um modelo para serem criadas
+model Consulta{
+  id             String @id @default(uuid()) //id da reunião
+  pacienteId     String? //id do paciente
+  fantasy_name   String?
+  name           String?
+  titulo         String?
+  psicologoId    String? //id do psicologo
+  data           String? //data da consulta
+  hora           String? //hora da consulta
+  tipo_consulta  String? //tipo de consulta presencial ou online
+  observacao     String? //observação da consulta
+  recorrencia    String?
 }

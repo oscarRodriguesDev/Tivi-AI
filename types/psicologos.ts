@@ -105,6 +105,8 @@ interface Psicologo {
      * @type {boolean | undefined}
      */
     first_acess?: boolean;
+
+  
 }
 
 /**

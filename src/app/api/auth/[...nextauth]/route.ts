@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient, UserRole } from "@prisma/client";
 import { compare } from "bcryptjs";
-import { useSession } from "next-auth/react";
+
 
 const prisma = new PrismaClient();
 
@@ -17,7 +17,8 @@ const handler = NextAuth({
         id:{label:'Id',type:'id'},
         email: { label: "Email", type: "email", placeholder: "exemplo@email.com" },
         password: { label: "Senha", type: "password" },
-        role: { label: "role", type:'UserRole'}
+        role: { label: "role", type:'UserRole'},
+       
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -29,11 +30,13 @@ const handler = NextAuth({
         });
 
         if (!user) {
+        
           throw new Error("Usuário não encontrado.");
         }
 
         const isValid = await compare(credentials.password, user.password);
         if (!isValid) {
+         
           throw new Error("Senha incorreta.");
         }
 
@@ -56,6 +59,7 @@ const handler = NextAuth({
       if (user) {
         token.id = user.id
         token.role = user.role; // Adiciona o role do usuário ao token
+       
       }
       return token;
     },
@@ -65,15 +69,17 @@ const handler = NextAuth({
       if (token) {
         session.user.role = token.role as UserRole; // Faz o cast para UserRole
         session.user.id =  token.id as string;
+        
       }
       return session;
     },
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-  pages: {
+   pages: {
     signIn: "/login",
-  },
+  
+  }, 
 });
 
 export { handler as GET, handler as POST };
