@@ -7,6 +7,8 @@ import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook
 import { FaCalendarAlt } from 'react-icons/fa';
 import Modal from '../components/modalAgendamentos';
 import HeadPage from '../components/headPage';
+import ViewMes from '../components/viewMes';
+import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
 
 
 interface Agendamento {
@@ -26,10 +28,8 @@ interface Agendamento {
 export default function AgendamentoPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
-
 
 
   const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
@@ -57,6 +57,9 @@ export default function AgendamentoPage() {
   const [loading, setLoading] = useState<boolean>(false);     // Para controle de loading
   const hoje = format(new Date(), 'dd/MM/yyyy');
   const [error, setError] = useState<string | null>(null);     // Para mostrar erros
+
+  const [copied, setCopied] = useState(false);
+
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -154,6 +157,49 @@ export default function AgendamentoPage() {
   }, [agendamentos, peerIds]);
 
 
+  const handleDayClick = (dia: number) => {
+    // Exemplo: você pode usar o console ou redirecionar para uma página com os detalhes desse dia.
+    alert(`Abrindo consultas para o dia ${dia}`);
+
+    // Aqui você pode fazer algo como mostrar uma modal, ou redirecionar para uma página com mais detalhes do dia
+    // Por exemplo:
+    // router.push(`/detalhes-do-dia/${dia}`);
+  };
+
+  //função que permite copia
+  const handleCopy = (id: string) => {
+    const link = `${window.location.origin}/publiccall/${id}`;
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Resetando o estado após 2 segundos
+    });
+  };
+
+  //função para copiar para whatsapp
+  const copiarLinkParaWhatsApp = (idReuniao: string, data: string, hora: string) => {
+    const linkReuniao = `/publiccall/${idReuniao}`;
+    const mensagem = `Olá! Aqui está o link para acessar sua reunião agendada:
+  
+  Data: ${data}
+  Hora: ${hora}
+  
+  Clique no link para acessar a reunião: ${window.location.origin}${linkReuniao}`;
+  
+    // Copiar a mensagem para a área de transferência
+    navigator.clipboard.writeText(mensagem).then(() => {
+      alert('Mensagem copiada! Agora, abra o WhatsApp e cole a mensagem.');
+  
+      // Abrir o WhatsApp Web com a mensagem copiada
+      const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+      
+      // Abrir o WhatsApp Web em uma nova aba
+      window.open(url, '_blank');
+    }).catch(err => {
+      console.error('Erro ao copiar a mensagem: ', err);
+    });
+  };
+  
+  
 
 
   return (
@@ -165,19 +211,19 @@ export default function AgendamentoPage() {
         icon={<FaCalendarAlt />}
       />
 
-      {role === 'PSYCHOLOGIST' ? (
+      {role !== 'PSYCHOLOGIST' ? (
         <div className="flex-col h-[80vh]  p-8 text-white">
           <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
 
 
           {/* Filtro */}
           <div className="flex space-x-4 mb-0">
-            {["Dia", "Semana", "Mês", "Ano"].map((filtro) => (
+            {["Dia", "Semana", "Mês"].map((filtro) => (
               <button
                 key={filtro}
                 className={`px-4 py-0 rounded-sm transition ${periodo === filtro
-                    ? "bg-blue-500 text-white" // Estilo do botão ativo
-                    : "bg-white text-black hover:bg-blue-200"
+                  ? "bg-blue-500 text-white" // Estilo do botão ativo
+                  : "bg-white text-black hover:bg-blue-200"
                   }`}
                 onClick={() => setPeriodo(filtro)}
               >
@@ -188,10 +234,12 @@ export default function AgendamentoPage() {
 
 
           {/* Lista de Agendamentos */}
-            <div className="w-full  p-6  rounded-xl shadow-xl">
-              <h2 className="text-2xl text-black font-semibold mb-4">Consultas Agendadas - {hoje}</h2>
+          <div className="w-full  p-6  rounded-xl shadow-xl">
+            <h2 className="text-2xl text-black font-semibold mb-4">Consultas Agendadas - {hoje}</h2>
+
+
             {/* agendamentos por dia */}
-          {periodo == 'Dia' &&
+            {periodo == 'Dia' &&
               <div className="bg-gray-200 p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
                 <ul>
                   {agendamentos.map((ag) => (
@@ -213,54 +261,99 @@ export default function AgendamentoPage() {
                             Iniciar Reunião com {ag.name}
                           </button>
                         ) : (
-                          <span>Link: <a href={`/publiccall/${ag.id}`} className="underline">
-                            /publiccall/{ag.id}
-                          </a></span>
+
+                          <span>
+                            Link:
+                            <p
+                              className="text-black cursor-pointer w-full"
+                              onClick={()=>{handleCopy(ag.id)}}
+                            >
+                              /publiccall/{ag.id}
+                            </p>
+                            {copied && <span className="text-green-500 text-sm">Link copiado!</span>}
+
+                          </span>
+
                         )}
                       </p>
-                      {/*  {error && <p className="text-red-500">{error}</p>} */}
+                      <div className="flex space-x-2 pt-5">
+                        <button className="text-blue-500 hover:text-blue-700">
+                          <FaEdit size={20} />
+                        </button>
+                        <button className="text-red-500 hover:text-red-700">
+                          <FaTrash size={20} />
+                        </button>
+                        <button className="text-green-600 hover:text-green-400"
+                        onClick={()=>{copiarLinkParaWhatsApp(ag.id,ag.data,ag.hora)}}
+                        >
+                          <FaWhatsapp size={20} />
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>
 
               </div>
 
-          }
-          
-          {/* agendamentos por semana */}
+            }
 
-          {periodo=='Semana'&&
-          <div className="bg-gray-200 text-black p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
-            <h2>Deve mostrar os agendamenos por semana</h2>
-          </div>
-          }
+            {/* agendamentos por semana */}
 
-          {/* Agendamentos por mes */}
-          {periodo=='Mês'&&
-          <div className="bg-gray-200 text-black p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
-            <h2>Deve mostrar os agendamenos por Mes</h2>
-          </div>
-          }
+            {periodo == 'Semana' &&
+              <div className="bg-gray-200 text-black p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
+                <h2 className="text-xl font-semibold mb-4">Agendamentos da Semana</h2>
 
-          {/* Agendamentos por ano */}
-          {periodo=='Ano'&&
-          <div className="bg-gray-200 text-black p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
-            <h2>Deve mostrar os agendamenos por Ano</h2>
-          </div>
-          }
+                <div className="grid grid-cols-7 gap-4">
+                  {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia, index) => (
+                    <div key={dia} className="bg-white p-3 rounded-lg shadow">
+                      <h3 className="text-lg font-medium">{dia}</h3>
 
+                      {agendamentos
+                        .filter((agendamento) => new Date(agendamento.data).getDay() === index)
+                        .map((agendamento) => (
+                          <div key={agendamento.id} className="mt-2 p-2 bg-blue-100 rounded-lg">
+                            <p className="font-semibold">{agendamento.name}</p>
+                            <p>{agendamento.hora}</p>
 
-              <div className="w-full h-auto mt-5 flex justify-end items-end">
-                <button
-                  onClick={handleOpenModal}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-                >
-                  Agendar
-                </button>
+                          </div>
+                        ))}
+
+                      {agendamentos.filter((a) => new Date(a.data).getDay() === index).length === 0 && (
+                        <p className="text-sm text-gray-500">Sem agendamentos</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
+            }
+
+            {/* Agendamentos por Mês */}
+            {periodo === "Mês" && (
 
 
+              <ViewMes
+                agendamentos={agendamentos}
+                onDayClick={handleDayClick}
+              />
+
+
+            )}
+
+
+
+
+
+            <div className="w-full h-auto mt-5 flex justify-end items-end">
+              <button
+                onClick={handleOpenModal}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+              >
+                Agendar
+              </button>
             </div>
+
+
+          </div>
 
 
         </div>
@@ -273,7 +366,7 @@ export default function AgendamentoPage() {
 
     </>
 
-//envio para produção
+    //envio para produção
 
   );
 }

@@ -4,7 +4,6 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
@@ -14,24 +13,25 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 }
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
-
-  
-  
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-     return
-    }
-  }, [status, router]);
+    // Verifica o status somente após ele ser carregado
+    if (status === "loading") return; // Não faz nada enquanto está carregando
 
-  
-  if (status === "loading") return <p>Carregando...</p>; 
+    if (status === "unauthenticated") {
+      return // Redireciona para o login se não estiver autenticado
+    } else if (status === "authenticated") {
+      router.push("/dating"); // Redireciona para o dating se estiver autenticado
+    }
+  }, [status, router]); // Executa sempre que o status mudar
+
+  if (status === "loading") return <p>Carregando...</p>; // Exibe "Carregando..." enquanto a autenticação não está pronta
 
   return (
     <>
-      {children}
+      {children} {/* Renderiza o conteúdo filho se a sessão for carregada */}
     </>
   );
 }

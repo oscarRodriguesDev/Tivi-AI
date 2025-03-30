@@ -26,7 +26,7 @@ export default function PublicCallPage() {
 
   //flag para definir quem está falando
   const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
-  const [transcription, setTranscription] = useState<string>("fazendo um teste");
+  const [transcription, setTranscription] = useState<string>("");
 
 
 
@@ -160,7 +160,7 @@ export default function PublicCallPage() {
         </div>
       </div>
       {/* Transcrição unificada */}
-      <div>
+      <div className=''>
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription} // A transcrição agora é unificada         

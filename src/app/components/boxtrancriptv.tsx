@@ -15,6 +15,8 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   const [error, setError] = useState<string>("");
   const [titulo, setTitulo] = useState<string>("");
   const [analise,setAnalise]= useState<string>('nenhuma analise')
+  const [ligado,setLigado]=useState<boolean>(false) //usar essa variavel pra controlar quando vai transcrever
+  
 
 
   /* faz a transcrição */
@@ -120,6 +122,8 @@ const saveMessage = async (transcript: string) => {
 };
 
 
+
+/* essas funções controlam quando grava e quando não grava */
   const handleStartListening = () => {
     if (!recognition) {
       console.error("Reconhecimento de voz não foi inicializado corretamente.");
@@ -216,6 +220,70 @@ const saveMessage = async (transcript: string) => {
   };
   
 
+
+  //use efect para gravar automaticamentde
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+  
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  
+    if (!SpeechRecognition) {
+      setError("Seu navegador não suporta reconhecimento de voz.");
+      return;
+    }
+  
+    // Função para pedir permissão e iniciar a transcrição
+    const requestMicrophonePermission = async () => {
+      try {
+        // Tentamos acessar o microfone. O prompt de permissão é exibido automaticamente.
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+  
+        const recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = false;
+        recognitionInstance.lang = "PT-BR";
+  
+        recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
+          let transcript = "";
+  
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const result = event.results[i];
+            if (result.isFinal) {
+              transcript = result[0].transcript + "\n";
+            }
+          }
+  
+          if (transcript.trim()) {
+            setTranscription((prev) => `${usuario}: ${transcript}`);
+            saveMessage(`${usuario}: ${transcript}`); // Salvar transcrição na API
+          }
+        };
+  
+        recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
+          setError(`Erro no reconhecimento: ${event.error}`);
+        };
+  
+        setRecognition(recognitionInstance);
+  
+        // Iniciar transcrição após permissão
+        recognitionInstance.start();
+      } catch (err) {
+        setError("Permissão para usar o microfone não concedida.");
+      }
+    };
+  
+    // Dispara a solicitação de permissão
+    requestMicrophonePermission();
+  
+    // Cleanup
+    return () => {
+      if (recognition) {
+        recognition.stop(); // Parar o reconhecimento quando o componente for desmontado
+      }
+    };
+  }, []); // A dependência vazia faz com que isso seja executado apenas uma vez no mount
+  
 
 
 

@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from "../../../components/boxtrancriptv";
+import LiveTranscription from "../../components/boxtrancriptv";
+import HeadPage from "../../components/headPage";
+import { FaVideo } from "react-icons/fa";
 
 export default function Home() {
   const [peerId, setPeerId] = useState<string>("");
@@ -132,6 +134,10 @@ export default function Home() {
   };
 
   return (
+
+    <>
+   <HeadPage title='Sala de Reunião'  icon={<FaVideo size={20}/>} />
+
     <div className="flex  flex-row items-center justify-center min-h-screen bg-[#181818] text-white p-8">
       <div className="w-full max-w-4xl bg-[#202124] p-6 rounded-3xl shadow-xl">
         <h1 className="text-4xl font-semibold text-center text-indigo-500 mb-6">Video Conferência</h1>
@@ -183,5 +189,7 @@ export default function Home() {
         />
       </div>
     </div>
+</>
+
   );
 }

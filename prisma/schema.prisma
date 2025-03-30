@@ -104,4 +104,5 @@ model Consulta{
   tipo_consulta  String? //tipo de consulta presencial ou online
   observacao     String? //observação da consulta
   recorrencia    String?
+  code           String? @unique
 }

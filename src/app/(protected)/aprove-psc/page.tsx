@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
 import { Psicologo } from "../../../../types/psicologos";
+import HeadPage from "../components/headPage";
+import { VscGitPullRequestGoToChanges } from "react-icons/vsc";
+
 
 
 
@@ -83,6 +86,8 @@ const ListaPsicologos = () => {
 
   return (
     <>
+
+    <HeadPage title='Novas Solicitações' icon={<VscGitPullRequestGoToChanges size={20}/>}/>
 
       {role === 'ADMIN' ? (
         <div className="container">

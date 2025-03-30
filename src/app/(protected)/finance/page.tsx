@@ -1,7 +1,8 @@
 
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
-import { FaCalendarAlt } from "react-icons/fa";
+import { FaMoneyBillWave  } from "react-icons/fa";
+import HeadPage from "../components/headPage";
 
 
 
@@ -12,13 +13,7 @@ const Financeiro = () => {
 
   return (
     <>
-      <div className=" relative w-full max-w-screen-xl h-auto bg-white p-5">
-        {/* Header */}
-        <div className="w-full h-16 bg-[#F9FAFC] border border-[#D9D9D9] rounded-lg flex items-center px-6 mb-8">
-          <FaCalendarAlt className="text-black text-2xl mr-4" />
-          <h1 className="text-black font-extrabold text-2xl">Financeiro</h1>
-        </div>
-      </div>
+ <HeadPage title='Financeiro' icon ={<FaMoneyBillWave size ={20}/>}/>
 
       {role === 'PSYCHOLOGIST' ? (
         <div>Meus Atendimentos</div>

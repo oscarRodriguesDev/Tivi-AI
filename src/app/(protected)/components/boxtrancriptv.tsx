@@ -5,7 +5,7 @@ import jsPDF from "jspdf";
 
 interface LiveTranscriptionProps {
   mensagem: string; 
-  usuario: string; // Identificador único do usuário (ex: "User1" ou "User2")
+  usuario: string; 
 }
 
 export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
@@ -13,7 +13,13 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   const [recognition, setRecognition] = useState<any>(null);
   const [listening, setListening] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [titulo, setTitulo] = useState<string>("user1");
+  const [titulo, setTitulo] = useState<string>("");
+  const [analise,setAnalise]= useState<string>('nenhuma analise')
+  const [ligado,setLigado]=useState<boolean>(false) //usar essa variavel pra controlar quando vai transcrever
+  
+
+
+  /* faz a transcrição */
   useEffect(() => {
     if (typeof window === "undefined") return;
   
@@ -28,7 +34,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.continuous = true;
     recognitionInstance.interimResults = false;
-    recognitionInstance.lang = "pt-BR";
+    recognitionInstance.lang = "PT-BR";
   
     recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
       let transcript = "";
@@ -36,13 +42,13 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          transcript += result[0].transcript + "\n";
+           transcript =   result[0].transcript + "\n";
         }
       }
   
       if (transcript.trim()) {
         setTranscription((prev) => {
-          const updatedTranscription = prev + `${usuario}: ${transcript}`;
+          const updatedTranscription = /* prev +  */`${usuario}: ${transcript}`; //solução para não repetir a transcrição foi tirar a prev
           saveMessage(updatedTranscription); // Salvar transcrição na API
           return updatedTranscription;
         });
@@ -54,13 +60,8 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
     };
   
     setRecognition(recognitionInstance);
-  
-    // Recupera as mensagens do servidor ao carregar o componente
-    fetchMessages();
-  
     // Verifica as novas mensagens a cada 5 segundos
     const intervalId = setInterval(() => {
-      //fetchMessages();
     }, 5000); // Ajuste o intervalo conforme necessário
   
     return () => {
@@ -69,7 +70,6 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
     };
   }, []);
   
-
 
 
   const fetchMessages = async () => {
@@ -81,40 +81,49 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
       }
   
       const data = await response.json();
-      setTranscription(prev => prev  + (data.transcript || ""));
+      
+      if (data.transcript) {
+        const cleanedTranscript = data.transcript;
+  
+        // Só atualiza se o texto limpo for realmente novo
+        if (cleanedTranscript !== transcription) {
+          setTranscription(cleanedTranscript);
+        }
+      }
     } catch (error) {
       setError(`Erro ao carregar mensagens: ${error}`);
     }
   };
   
+  
 
 
-  // Função para salvar a mensagem no servidor e atualizar as mensagens
-  const saveMessage = async (transcript: string) => {
-    try {
-      const response = await fetch('/api/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ transcript }),  // Passando a variável transcript corretamente
-      });
-  
-      if (!response.ok) {
-        throw new Error("Erro ao salvar a mensagem.");
-      }
-  
-      const data = await response.json();
-      console.log("Mensagem salva com sucesso:", data.transcript);
-  
-      // Atualiza as mensagens imediatamente após o envio
-      fetchMessages();
-  
-    } catch (error) {
-      setError(`Erro ao salvar a mensagem: ${error}`);
+// Função para salvar a mensagem no servidor
+const saveMessage = async (transcript: string) => {
+  try {
+    const response = await fetch('/api/message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ transcript }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao salvar a mensagem.");
     }
-  };
-  
+
+    // Após salvar a mensagem, busca as mensagens novamente
+    handleClearTranscription()
+    await fetchMessages();
+  } catch (error) {
+    setError(`Erro ao salvar a mensagem: ${error}`);
+  }
+};
+
+
+
+/* essas funções controlam quando grava e quando não grava */
   const handleStartListening = () => {
     if (!recognition) {
       console.error("Reconhecimento de voz não foi inicializado corretamente.");
@@ -124,69 +133,212 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
     recognition.start();
   };
 
+
   const handleStopListening = () => {
     if (!recognition) return;
     setListening(false);
     recognition.stop();
   };
 
+
   const handleClearTranscription = () => {
     setTranscription("");
   };
 
-  const handleSavePDF = () => {
-    const doc = new jsPDF();
-    doc.text(transcription, 10, 10);
+
+  /* Função para salvar o pdf de forma responsiva */
+  function handleSavePDF(): void {
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const marginLeft = 10;
+    const marginTop = 10;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const lineHeight = 7; // Espaçamento entre linhas
+    const maxWidth = pageWidth - marginLeft * 2;
+
+    let yPos = marginTop;
+
+    const wrapText = (text: string): string[] => {
+      return doc.splitTextToSize(text, maxWidth);
+    };
+
+    const addTextToPDF = (text: string): void => {
+      const lines = wrapText(text);
+      lines.forEach((line) => {
+        if (yPos + lineHeight > pageHeight - marginTop) {
+          doc.addPage();
+          yPos = marginTop;
+        }
+        doc.text(line, marginLeft, yPos);
+        yPos += lineHeight;
+      });
+    };
+
+    addTextToPDF(transcription);
+    yPos += lineHeight * 2;
+
+    addTextToPDF("Análise detalhada da conversa:\n");
+    yPos += lineHeight;
+
+    addTextToPDF(analise);
+
     doc.save("transcricao.pdf");
+  }
+
+
+  /* Função traz a resposta do chat GPT, para apresentação para o psicologo e tambem para salvar no modal */
+  const handleGetInsights = async (mensagem: string) => {
+    try {
+      const response = await fetch('/api/psicochat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: mensagem }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Erro na requisição: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      console.log("Resposta completa da API:", data); // <-- Adicionando para depuração
+        const respostaGPT = data.response || "Nenhuma resposta gerada.";
+        setAnalise(respostaGPT);
+        return respostaGPT;
+    
+  
+    } catch (error) {
+      console.error("Erro ao buscar insights:", error);
+      return "Erro ao obter resposta.";
+    }
   };
+  
+
+
+/*   //use efect para gravar automaticamentde
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+  
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  
+    if (!SpeechRecognition) {
+      setError("Seu navegador não suporta reconhecimento de voz.");
+      return;
+    }
+  
+    // Função para pedir permissão e iniciar a transcrição
+    const requestMicrophonePermission = async () => {
+      try {
+        // Tentamos acessar o microfone. O prompt de permissão é exibido automaticamente.
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+  
+        const recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = false;
+        recognitionInstance.lang = "PT-BR";
+  
+        recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
+          let transcript = "";
+  
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const result = event.results[i];
+            if (result.isFinal) {
+              transcript = result[0].transcript + "\n";
+            }
+          }
+  
+          if (transcript.trim()) {
+            setTranscription((prev) => `${usuario}: ${transcript}`);
+            saveMessage(`${usuario}: ${transcript}`); // Salvar transcrição na API
+          }
+        };
+  
+        recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
+          setError(`Erro no reconhecimento: ${event.error}`);
+        };
+  
+        setRecognition(recognitionInstance);
+  
+        // Iniciar transcrição após permissão
+        recognitionInstance.start();
+      } catch (err) {
+        setError("Permissão para usar o microfone não concedida.");
+      }
+    };
+  
+    // Dispara a solicitação de permissão
+    requestMicrophonePermission();
+  
+    // Cleanup
+    return () => {
+      if (recognition) {
+        recognition.stop(); // Parar o reconhecimento quando o componente for desmontado
+      }
+    };
+  }, []); // A dependência vazia faz com que isso seja executado apenas uma vez no mount
+  
+ */
+
 
   return (
-    <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4">
-      <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
+    <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4 overflow-y-auto max-h-[80vh]">
+    <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
 
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+    {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-      <div className="flex gap-2 justify-center mb-2">
-        {!listening ? (
-          <button
-            onClick={handleStartListening}
-            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
-          >
-            Iniciar Transcrição
-          </button>
-        ) : (
-          <button
-            onClick={handleStopListening}
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
-          >
-            Parar Transcrição
-          </button>
-        )}
-      </div>
-
-      <div className="flex-1 overflow-y-auto bg-gray-800 p-2 rounded-md text-sm text-white">
-        {transcription ? (
-          <p className="whitespace-pre-wrap">{transcription}</p>
-        ) : (
-          <p className="text-gray-400 text-center">{mensagem || "Aguardando transcrição..."}</p>
-        )}
-      </div>
-
-      <div className="flex justify-center mt-4 gap-2">
+    <div className="flex gap-2 justify-center mb-2">
+      {!listening ? (
         <button
-          onClick={handleClearTranscription}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+          onClick={handleStartListening}
+          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
         >
-          Limpar Transcrição
+          Iniciar Transcrição
         </button>
+      ) : (
         <button
-          onClick={handleSavePDF}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+          onClick={handleStopListening}
+          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
         >
-          Salvar como PDF
+          Parar Transcrição
         </button>
-        
-      </div>
+      )}
     </div>
+
+    <div className="flex-1 overflow-y-auto bg-gray-800 p-2 rounded-md text-sm text-white max-h-[60vh]">
+      {transcription ? (
+        <p className="whitespace-pre-wrap">{transcription}</p>
+      ) : (
+        <p className="text-gray-400 text-center">Aguardando transcrição...</p>
+      )}
+    </div>
+
+    <div className="flex justify-center mt-4 gap-2">
+      <button
+        onClick={handleClearTranscription}
+        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+      >
+        Limpar Transcrição
+      </button>
+      <button
+        onClick={handleSavePDF}
+        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+      >
+        Salvar como PDF
+      </button>
+      <button
+        onClick={() => handleGetInsights(transcription)}
+        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+      >
+        GPT Análise
+      </button>
+    </div>
+  </div>
   );
 }

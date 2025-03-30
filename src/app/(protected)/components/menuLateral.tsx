@@ -7,8 +7,9 @@ import { RiCustomerServiceFill } from "react-icons/ri";
 import { LuLibraryBig } from "react-icons/lu";
 import { IoBarChart } from "react-icons/io5";
 import { BsCreditCard2BackFill } from "react-icons/bs";
+import { PiUserCheckFill } from "react-icons/pi";
 import { useRouter } from "next/navigation";
-import Logomarca from '../../../../public/marca/Marca Horizontal.jpg'
+import Logomarca from '../../../../public/marca/marca tiviai.png'
 import Image from "next/image";
 
 // Tipagem do MenuItemProps
@@ -22,6 +23,9 @@ const Menu: React.FC = () => {
 
   const router = useRouter()
   return (
+
+
+
     <div className="absolute w-[244px] h-auto bg-white p-5">
 
       {/* logomarca */}
@@ -39,6 +43,7 @@ const Menu: React.FC = () => {
         <MenuItem icon={<LuLibraryBig size={25} />} label="Base Científica" onClick={() => router.push('/cientific')} />
         <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push('/finance')} />
         <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push('/credit')} />
+        <MenuItem icon={<PiUserCheckFill size={25} />} label="Novos psicologos" onClick={() => router.push('/aprove-psc')} />
       </nav>
     </div>
   );
