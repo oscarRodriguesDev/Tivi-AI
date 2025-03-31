@@ -105,4 +105,5 @@ model Consulta{
   observacao     String? //observação da consulta
   recorrencia    String?
   code           String? @unique
+  duração        String? //tempo de duração da reunião
 }
