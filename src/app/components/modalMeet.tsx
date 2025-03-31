@@ -1,34 +1,39 @@
-'use client';
 
+'use client';
+import LiveTranscription from '../components/boxtrancriptv'
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from '../../components/boxtrancriptv'
-
-export default function PublicCallPage() {
-
-  const [remoteId, setRemoteId] = useState<string>("");
-  const [msg, setMsg] = useState<string>("Aguardando transcrição");
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
-  const { iddinamico } = useParams(); // Pegando o ID da URL corretamente
-
-  const [peerId, setPeerId] = useState<string>('');
-  const [callActive, setCallActive] = useState<boolean>(false);
-
-  const peerRef = useRef<Peer | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
-  const currentCall = useRef<MediaConnection | null>(null);
 
 
-  //flag para definir quem está falando
-  const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
-  const [transcription, setTranscription] = useState<string>("");
 
 
+
+
+export default function VideoCallScreen() {
+
+    const [remoteId, setRemoteId] = useState<string>("");
+    const [msg, setMsg] = useState<string>("Aguardando transcrição");
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const analyserRef = useRef<AnalyserNode | null>(null);
+    const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+    const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+    const { iddinamico } = useParams(); // Pegando o ID da URL corretamente
+  
+    const [peerId, setPeerId] = useState<string>('');
+    const [callActive, setCallActive] = useState<boolean>(false);
+  
+    const peerRef = useRef<Peer | null>(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+    const currentCall = useRef<MediaConnection | null>(null);
+  
+  
+    //flag para definir quem está falando
+    const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
+    const [transcription, setTranscription] = useState<string>("");
+
+    
 
   // Função para monitorar o volume do microfone
   const monitorMicrophone = (stream: MediaStream) => {
@@ -129,6 +134,10 @@ export default function PublicCallPage() {
     setCallActive(false);
   };
 
+
+
+  const [isModalOpen, setIsModalOpen] = useState(true);
+
   return (
     <div className="relative w-screen h-screen bg-[#202124]">
       {/* Vídeo do Paciente - Ocupa 100% da tela */}
@@ -156,22 +165,31 @@ export default function PublicCallPage() {
           </button>
         </div>
       )}
+
+      {/* Transcrição ao vivo */}
       <div className="absolute bottom-[40%] right-4 w-auto max-w-[30%]">
-        <LiveTranscription
-          usuario={'Paciente'}
-          mensagem={transcription} // A transcrição agora é unificada         
-        />
+        <LiveTranscription usuario={"Paciente"} mensagem={transcription} />
       </div>
+
+      {/* MODAL */}
+      {isModalOpen && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-semibold mb-4">Aviso Importante</h2>
+            <p className="text-gray-700">
+              Esta sessão está sendo gravada para fins terapêuticos e análise posterior.
+            </p>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-
-
-
   );
 }
-{/* Transcrição unificada */ }
-{/* <div className=''>
-        <LiveTranscription
-          usuario={'Paciente'}
-          mensagem={transcription} // A transcrição agora é unificada         
-        />
-      </div> */}

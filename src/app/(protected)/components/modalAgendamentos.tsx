@@ -238,7 +238,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             {/* Botões */}
             <div className="mt-6 flex justify-end gap-4">
               <button type="button" onClick={onClose} className="text-gray-500">Cancelar</button>
-              <button type="submit" className="bg-blue-500 text-white px-6 py-2 rounded-md">Salvar</button>
+              <button type="button" onClick={onClose} className="bg-blue-500 text-white px-6 py-2 rounded-md">Salvar</button>
             </div>
           </div>
         </form>
