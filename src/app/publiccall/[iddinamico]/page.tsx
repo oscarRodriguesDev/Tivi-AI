@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
 import LiveTranscription from '../../components/boxtrancriptv'
+import { Mic, MicOff, Video, VideoOff, LogOut } from "lucide-react";
 
 export default function PublicCallPage() {
 
@@ -22,6 +23,9 @@ export default function PublicCallPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const currentCall = useRef<MediaConnection | null>(null);
+
+  const [mic, setMic] = useState<boolean>(true);
+  const [video, setVideo] = useState<boolean>(true);
 
 
   //flag para definir quem está falando
@@ -126,22 +130,25 @@ export default function PublicCallPage() {
       (remoteVideoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
       remoteVideoRef.current.srcObject = null;
     }
-    setCallActive(false);
+    setCallActive(false); 
   };
 
   return (
-    <div className="relative w-screen h-screen bg-[#202124]">
+    <div className="relative w-screen h-screen bg-gradient-to-r from-blue-400 to-green-300">
       {/* Vídeo do Paciente - Ocupa 100% da tela */}
-      <video ref={videoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 font-semibold text-sm">
-        Você (Paciente)
+     {/*  <video ref={videoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" /> */}
+     <video ref={remoteVideoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute top-2 left-2 text-blue-800 p-2 font-semibold text-sm">
+        Psicologo
       </div>
+
 
       {/* Vídeo do Psicólogo - Menor no canto inferior esquerdo */}
       <div className="absolute bottom-4 left-4 w-1/4 h-auto">
-        <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-auto object-cover border-4 border-indigo-500" />
+        {/* <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" /> */}
+        <video ref={videoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" />
         <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 font-semibold text-sm">
-          Psicólogo (Host)
+          você
         </div>
       </div>
 
@@ -156,22 +163,59 @@ export default function PublicCallPage() {
           </button>
         </div>
       )}
-      <div className="absolute bottom-[40%] right-4 w-auto max-w-[30%]">
+      {/* nessa versão vamos buscar a transcrição do paciente e enviar para o psicólogo, 
+      mas estamos trabalhando para conseguir buscar a trasncriçao diretor do auto falante do psicologo */}
+
+      <div className="hidden absolute  bottom-[40%] right-4 w-auto max-w-[30%]">
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription} // A transcrição agora é unificada         
         />
       </div>
+
+      
+      <div className="absolute bottom-6 left-[50%] transform -translate-x-1/2 flex space-x-6 p-4 rounded-xl">
+
+      {/* botão para desativar o microfone */}
+        <button
+          className="p-3 bg-gray-700 text-white rounded-full shadow-md hover:bg-gray-800 transition"
+          onClick={() => {
+            setMic(!mic)
+            if(mic){
+              //LIGAR MICROFONE
+            }else{
+              //DESLIGAR MICROFONE
+            }
+          }}
+        >
+          {mic ? <Mic size={12} /> : <MicOff size={12} />}
+        </button>
+
+
+        <button
+    className="p-3 bg-gray-700 text-white rounded-full shadow-md hover:bg-gray-800 transition"
+    onClick={() => {setVideo(!video)
+      if(video){
+       //LIGAR VIDEO
+      }else{
+        //DESLIGAR VIDEO
+      }
+    }}
+  >
+    {video ? <Video size={12} /> : <VideoOff size={12} />}
+  </button>
+
+  <button
+    className="p-3 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 transition"
+    onClick={endCall}
+  >
+    <LogOut size={12} />
+  </button>
+      </div>
+
     </div>
 
 
 
   );
 }
-{/* Transcrição unificada */ }
-{/* <div className=''>
-        <LiveTranscription
-          usuario={'Paciente'}
-          mensagem={transcription} // A transcrição agora é unificada         
-        />
-      </div> */}

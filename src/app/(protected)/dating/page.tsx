@@ -9,6 +9,7 @@ import Modal from '../components/modalAgendamentos';
 import HeadPage from '../components/headPage';
 import ViewMes from '../components/viewMes';
 import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
+import ModalMeet from '../components/[id-paciente]/modalmeet';
 
 
 interface Agendamento {
@@ -30,6 +31,10 @@ export default function AgendamentoPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+
+  const[isModalMeet,setIsModalMeet] = useState(false);
+  const handleOpenModalMeet = () => setIsModalMeet(true);
+  const handleCloseModalMeet = () => setIsModalMeet(false);
 
 
   const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
@@ -204,6 +209,7 @@ export default function AgendamentoPage() {
 
   return (
     <>
+    
 
       {/* componente cabeçalho das paginas */}
       <HeadPage
@@ -214,6 +220,7 @@ export default function AgendamentoPage() {
       {role !== 'PSYCHOLOGIST' ? (
         <div className="flex-col h-[80vh]  p-8 text-white">
           <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
+          <ModalMeet isOpen={isModalMeet} onClose={handleCloseModalMeet} />
 
 
           {/* Filtro */}
@@ -245,7 +252,7 @@ export default function AgendamentoPage() {
                   {agendamentos.map((ag) => (
                     <li key={ag.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
                       <p className="text-lg font-bold text-blue-950">Consulta OnLine</p>
-                      <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p>
+                      <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p> 
                       <p className="text-sm  text-blue-950">Horário: {ag.hora}</p>
                       <p className="text-sm  text-blue-950">{ag.observacao}</p>
                       <p className="text-sm text-blue-400">
@@ -255,7 +262,8 @@ export default function AgendamentoPage() {
                           </span>
                         ) : peerIds[ag.id] ? (
                           <button
-                            onClick={() => redirect(`/call/${idUser}`)}
+                          onClick={() => redirect(`/call/${idUser}`)} 
+                         
                             className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
                           >
                             Iniciar Reunião com {ag.name}
