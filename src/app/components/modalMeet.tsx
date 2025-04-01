@@ -1,6 +1,6 @@
 
 'use client';
-import LiveTranscription from '../components/boxtrancriptv'
+import LiveTranscription from './transcriptPAC'
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";

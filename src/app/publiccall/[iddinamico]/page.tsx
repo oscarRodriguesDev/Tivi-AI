@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from '../../components/boxtrancriptv'
+import LiveTranscription from '../../components/transcriptPAC'
 import { Mic, MicOff, Video, VideoOff, LogOut } from "lucide-react";
 
 export default function PublicCallPage() {

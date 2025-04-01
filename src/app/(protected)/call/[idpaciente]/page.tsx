@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from "../../components/boxtrancriptv";
+import LiveTranscription from "../../components/transcriptionPSC";
 import HeadPage from "../../components/headPage";
 import { FaVideo } from "react-icons/fa";
-import { FcVideoCall,FcEndCall } from "react-icons/fc";
+import { FcVideoCall, FcEndCall } from "react-icons/fc";
 
 
 export default function Home() {
@@ -142,57 +142,65 @@ export default function Home() {
       <HeadPage title='Sala de Reunião' icon={<FaVideo size={20} />} />
 
       <div className=" flex  flex-col items-center justify-center w-[98%] h-[83vh] -my-5 bg-gradient-to-r from-blue-400 to-green-300 text-black p-8">
-       
 
-          {/* <h1 className="text-4xl font-semibold text-center text-indigo-500 mb-6">Video Conferência</h1>
+
+        {/* <h1 className="text-4xl font-semibold text-center text-indigo-500 mb-6">Video Conferência</h1>
         <p className="text-lg text-center text-gray-400 mb-2">Sua ID de Participante</p>
         <p className="text-2xl font-semibold text-center text-indigo-400 mb-8">{peerId}</p> */}
 
 
 
 
+        <div className="relative w-full h-full">
+          {/* video do paciente */}
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            className="absolute inset-0 w-full h-full bg-gray-300 border-4 border-indigo-500 object-cover"
+          />
+          <div className="absolute top-1 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">
+            Paciente
+          </div>
+        </div>
+
+        {/* video pscologo */}
+        <div className="absolute top-[63%] left-[20%] w-60 h-60">
+          <video ref={videoRef}
+            autoPlay
+            playsInline
+            className="w-full h-full bg-gray-600 rounded-lg shadow-lg z-50"
+          />
+          <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm z-50">Psicologo</div>
+        </div>
 
 
+        <div className="absolute top-[90%] left-[55%] flex justify-center pt-8 gap-6 mb-8">
+          <button
+            onClick={callPeer}
+            className="bg-blue-200 rounded-full p-1"
+          >
+            <FcVideoCall size={24} />
+
+          </button>
+
+          <button
+            onClick={endCall}
+            className="bg-blue-200 rounded-full p-1"
+          >
+            <FcEndCall size={24} />
+          </button>
 
 
-            <div className="absolute ">
-              <video ref={remoteVideoRef} autoPlay playsInline className="w-[100vw] h-[30vh] mt-5 rounded-lg shadow-lg " />
-              <div className="absolute top-1 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">Paciente</div>
-            </div>
-         
-        
-            <div className="absolute top-[63%] left-[20%] w-60 h-60">
-              <video ref={videoRef} autoPlay playsInline className="w-full h-full rounded-lg shadow-lg z-50" />
-              <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm z-50">Psicologo</div>
-            </div> 
-
-      
-          <div className="absolute top-[88%] left-[55%] flex justify-center pt-8 gap-6 mb-8">
-            <button
-              onClick={callPeer}
-              className="bg-blue-200 rounded-full p-1"
-              >
-              <FcVideoCall size={20} />
-
-            </button>
-
-            <button
-              onClick={endCall}
-                className="bg-blue-200 rounded-full p-1"
-              >
-              <FcEndCall size={20} />
-            </button>
-        
-
-        </div> 
+        </div>
 
         {/* Transcrição unificada */}
-        {/*  <div>
+         <div className="absolute top-[20%] left-[70%] flex justify-center pt-8 gap-6 mb-8">
         <LiveTranscription 
          usuario={'Psicologo'}
          mensagem={transcription} // A transcrição agora é unificada         
         />
-      </div> */}
+      </div> 
       </div>
     </>
 
