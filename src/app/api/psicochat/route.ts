@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    //const prompt = process.env.PERSONA_PSICO_PROMPT;
+    const prompt = process.env.PERSONA_PSICO_PROMPT;
     try {
         // Lendo o corpo da requisição
         const { message } = await req.json();
