@@ -83,7 +83,9 @@ Observações:
 - Você deve extrair informações da transcrição e preencher os campos correspondentes.
 - Caso alguma informação não seja encontrada, registre "Dado não encontrado".
 - A formatação do documento deve ser mantida para garantir clareza e organização. segue transcrição da consulta:
-- como estamos fazendo testes não limite sua criatividade e invente dados para completar o documento`; //essa linha sai do prompt
+- como estamos fazendo testes não limite sua criatividade e invente dados para completar o documento.
+quando finalizar aquero que
+- a seguir segue transcrição da consulta:`
 
 
-export { prompt };
+export default  prompt ;

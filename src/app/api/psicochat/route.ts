@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-import { prompt } from "@/app/util/prompt";
+import prompt from "@/app/util/prompt";
 
 
 
@@ -41,11 +41,12 @@ export async function POST(req: Request) {
         const promptMessage = `${prompt} ${message}`;
         console.log("Valor do prompt:", prompt);
 
-        console.log('starting analize gpt')
+        console.log('aguardando resposta do modelo')
 
         // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // Usando o modelo GPT-4
+            //usar o 3.5 turbo  
+            model: "gpt-3.5-turbo", //tive que alterar o modelo
             messages: [{ role: "user", content: promptMessage }],
         });
 
