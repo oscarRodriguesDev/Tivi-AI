@@ -12,7 +12,7 @@ export async function GET(req: Request) {
     try {
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
-            messages: [{ role: "user", content: "Liste 5 anomalias psicológicas conhecidas." }],
+            messages: [{ role: "user", content: "fale sobre o sistema tivi ai" }],
         });
 
         return NextResponse.json({
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    //const prompt = process.env.PERSONA_PSICO_PROMPT;
+   /*  const prompt = process.env.PERSONA_PSICO_PROMPT; */
     try {
         // Lendo o corpo da requisição
         const { message } = await req.json();
@@ -39,6 +39,8 @@ export async function POST(req: Request) {
 
         // Combinando o prompt com a mensagem do paciente
         const promptMessage = `${prompt} ${message}`;
+        console.log("Valor do prompt:", prompt);
+
         console.log('starting analize gpt')
 
         // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida

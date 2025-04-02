@@ -1,38 +1,39 @@
-'use client';
 
+'use client';
+import LiveTranscription from './transcriptPAC'
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from '../../components/transcriptPAC'
-import { Mic, MicOff, Video, VideoOff, LogOut } from "lucide-react";
-
-export default function PublicCallPage() {
-
-  const [remoteId, setRemoteId] = useState<string>("");
-  const [msg, setMsg] = useState<string>("Aguardando transcrição");
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
-  const { iddinamico } = useParams(); // Pegando o ID da URL corretamente
-
-  const [peerId, setPeerId] = useState<string>('');
-  const [callActive, setCallActive] = useState<boolean>(false);
-
-  const peerRef = useRef<Peer | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
-  const currentCall = useRef<MediaConnection | null>(null);
-
-  const [mic, setMic] = useState<boolean>(true);
-  const [video, setVideo] = useState<boolean>(true);
 
 
-  //flag para definir quem está falando
-  const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
-  const [transcription, setTranscription] = useState<string>("");
 
 
+
+
+export default function VideoCallScreen() {
+
+    const [remoteId, setRemoteId] = useState<string>("");
+    const [msg, setMsg] = useState<string>("Aguardando transcrição");
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const analyserRef = useRef<AnalyserNode | null>(null);
+    const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+    const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+    const { iddinamico } = useParams(); // Pegando o ID da URL corretamente
+  
+    const [peerId, setPeerId] = useState<string>('');
+    const [callActive, setCallActive] = useState<boolean>(false);
+  
+    const peerRef = useRef<Peer | null>(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+    const currentCall = useRef<MediaConnection | null>(null);
+  
+  
+    //flag para definir quem está falando
+    const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
+    const [transcription, setTranscription] = useState<string>("");
+
+    
 
   // Função para monitorar o volume do microfone
   const monitorMicrophone = (stream: MediaStream) => {
@@ -130,25 +131,26 @@ export default function PublicCallPage() {
       (remoteVideoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
       remoteVideoRef.current.srcObject = null;
     }
-    setCallActive(false); 
+    setCallActive(false);
   };
 
-  return (
-    <div className="relative w-screen h-screen bg-gradient-to-r from-blue-400 to-green-300">
-      {/* Vídeo do Paciente - Ocupa 100% da tela */}
-     {/*  <video ref={videoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" /> */}
-     <video ref={remoteVideoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute top-2 left-2 text-blue-800 p-2 font-semibold text-sm">
-        Psicologo
-      </div>
 
+
+  const [isModalOpen, setIsModalOpen] = useState(true);
+
+  return (
+    <div className="relative w-screen h-screen bg-[#202124]">
+      {/* Vídeo do Paciente - Ocupa 100% da tela */}
+      <video ref={videoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 font-semibold text-sm">
+        Você (Paciente)
+      </div>
 
       {/* Vídeo do Psicólogo - Menor no canto inferior esquerdo */}
       <div className="absolute bottom-4 left-4 w-1/4 h-auto">
-        {/* <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" /> */}
-        <video ref={videoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" />
+        <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-auto object-cover border-4 border-indigo-500" />
         <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 font-semibold text-sm">
-          você
+          Psicólogo (Host)
         </div>
       </div>
 
@@ -163,59 +165,31 @@ export default function PublicCallPage() {
           </button>
         </div>
       )}
-      {/* nessa versão vamos buscar a transcrição do paciente e enviar para o psicólogo, 
-      mas estamos trabalhando para conseguir buscar a trasncriçao diretor do auto falante do psicologo */}
 
-      <div className=" absolute  bottom-[40%] right-4 w-auto max-w-[30%]">
-        <LiveTranscription
-          usuario={'Paciente'}
-          mensagem={transcription} // A transcrição agora é unificada         
-        />
+      {/* Transcrição ao vivo */}
+      <div className="absolute bottom-[40%] right-4 w-auto max-w-[30%]">
+        <LiveTranscription usuario={"Paciente"} mensagem={transcription} />
       </div>
 
-      
-      <div className="absolute bottom-6 left-[50%] transform -translate-x-1/2 flex space-x-6 p-4 rounded-xl">
-
-      {/* botão para desativar o microfone */}
-        <button
-          className="p-3 bg-gray-700 text-white rounded-full shadow-md hover:bg-gray-800 transition"
-          onClick={() => {
-            setMic(!mic)
-            if(mic){
-              //LIGAR MICROFONE
-            }else{
-              //DESLIGAR MICROFONE
-            }
-          }}
-        >
-          {mic ? <Mic size={12} /> : <MicOff size={12} />}
-        </button>
-
-
-        <button
-    className="p-3 bg-gray-700 text-white rounded-full shadow-md hover:bg-gray-800 transition"
-    onClick={() => {setVideo(!video)
-      if(video){
-       //LIGAR VIDEO
-      }else{
-        //DESLIGAR VIDEO
-      }
-    }}
-  >
-    {video ? <Video size={12} /> : <VideoOff size={12} />}
-  </button>
-
-  <button
-    className="p-3 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 transition"
-    onClick={endCall}
-  >
-    <LogOut size={12} />
-  </button>
-      </div>
-
+      {/* MODAL */}
+      {isModalOpen && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-semibold mb-4">Aviso Importante</h2>
+            <p className="text-gray-700">
+              Esta sessão está sendo gravada para fins terapêuticos e análise posterior.
+            </p>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-
-
-
   );
 }

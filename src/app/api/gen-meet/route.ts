@@ -4,25 +4,59 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+function codeGen(data: string, hora: string): string {
+  const timestamp = Date.now();  // Obtém o timestamp atual
+  return `COD${data}${hora}${timestamp}`;
+}
+
+
+
 // Criar uma reunião
 export async function POST(req: Request) {
-  const titulo =  'Consulta'
+  const titulo = 'Consulta';
   try {
-    const { pacienteId,name, fantasy_name, titulo:titulo, psicologoId, data, hora, tipo_consulta, observacao, recorrencia } = await req.json();
+    const {
+      pacienteId,
+      name,
+      fantasy_name,
+      psicologoId,
+      data,
+      hora,
+      tipo_consulta,
+      observacao,
+      recorrencia
+    } = await req.json();
 
+    // Gerar o código único
+    const code = codeGen(data, hora);
+
+    // Criar a nova consulta com todos os campos
     const novaConsulta = await prisma.consulta.create({
-      data: { pacienteId, fantasy_name, titulo, psicologoId,name, data, hora, tipo_consulta, observacao, recorrencia },
+      data: {
+        pacienteId,
+        name,
+        fantasy_name,
+        titulo,
+        psicologoId,
+        data,
+        hora,
+        tipo_consulta,
+        observacao,
+        recorrencia,
+        code,
+      },
     });
 
     return NextResponse.json(novaConsulta, { status: 201 });
   } catch (error) {
+    console.error("Erro ao criar reunião:", error);
     return NextResponse.json({ error: "Erro ao criar reunião" }, { status: 500 });
   }
 }
 
 // Recuperar reuniões
 export async function GET() {
- 
+
 
   try {
     const consultas = await prisma.consulta.findMany();

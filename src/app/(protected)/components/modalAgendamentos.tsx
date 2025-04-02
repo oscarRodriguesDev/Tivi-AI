@@ -1,5 +1,5 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
-import { FaCalendar, FaCalendarAlt, FaClock, FaPhoneAlt, FaPen, FaUserFriends } from "react-icons/fa";
+import { FaCalendar, FaCalendarAlt, FaClock, FaPhoneAlt, FaPen, FaUserFriends, FaTimes, FaCalendarTimes, FaUserClock } from "react-icons/fa";
 import { MdNotes } from "react-icons/md";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,6 +13,7 @@ interface Agendamento {
   tipo_consulta: string;
   observacao: string;
   recorrencia: string;
+  duracao: string;
 }
 
 type ModalProps = {
@@ -30,10 +31,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     hora: '',
     tipo_consulta: '',
     observacao: '',
-    recorrencia: ''
+    recorrencia: '',
+    duracao: ''
   });
 
- 
+
 
   // Função para atualizar o estado do Agendamento conforme os inputs
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -46,7 +48,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
 
     // Verifica se todos os campos obrigatórios estão preenchidos
-    if ( novoAgendamento.data && novoAgendamento.hora && novoAgendamento.name && novoAgendamento.fantasy_name) {
+    if (novoAgendamento.data && novoAgendamento.hora && novoAgendamento.name && novoAgendamento.fantasy_name) {
       const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
 
       try {
@@ -70,7 +72,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             hora: '',
             tipo_consulta: '',
             observacao: '',
-            recorrencia: ''
+            recorrencia: '',
+            duracao: ''
           });
           onClose(); // Fecha o modal após salvar
         } else {
@@ -98,9 +101,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         {/* Form */}
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
-          
 
-            {/* Apelido para o paciente: vira do banco de dados, da escolha do paciente */} 
+
+            {/* Apelido para o paciente: vira do banco de dados, da escolha do paciente */}
             <div className="flex-col justify-between gap-4">
               <label className="block text-sm font-medium text-gray-800">Precisamos de um nick name para seu paciente</label>
               <div className="flex items-center gap-3">
@@ -121,14 +124,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               <label className="block text-sm font-medium text-gray-800">Nome real do Paciente</label>
               <div className="flex items-center gap-3">
                 <FaUserFriends size={20} className="text-gray-600" />
-                <input 
+                <input
                   type='text'
                   name="name"
                   value={novoAgendamento.name}
                   onChange={handleChange}
                   className="border text-black border-gray-300 rounded-md px-4 py-2 w-full"
                 />
-                 
+
               </div>
             </div>
 
@@ -192,6 +195,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   className="border text-black border-gray-300 rounded-md px-4 py-2 w-full"
                 >
                   <option value="">Selecione a recorrência</option>
+                  <option value="Unica">Reunião única</option>
                   <option value="diaria">Diária</option>
                   <option value="semanal">Semanal</option>
                   <option value="mensal">Mensal</option>
@@ -214,11 +218,27 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                 />
               </div>
             </div>
+            {/* Observações */}
+            <div className="flex-col justify-between gap-4">
+              <label className="block text-sm font-medium text-gray-800">duracao</label>
+              <div className="flex items-center gap-3">
+                <FaUserClock size={20} className="text-gray-600" />
+                <select
+                  name="duracao"
+                  value={novoAgendamento.duracao}
+                  onChange={handleChange}
+                  className="border text-black border-gray-300 rounded-md px-4 py-2 w-full"
+                >
+                  <option value="30">30 minutos</option>
+                  <option value="60">1 hora</option>
+                </select>
+              </div>
+            </div>
 
             {/* Botões */}
             <div className="mt-6 flex justify-end gap-4">
               <button type="button" onClick={onClose} className="text-gray-500">Cancelar</button>
-              <button type="submit" className="bg-blue-500 text-white px-6 py-2 rounded-md">Salvar</button>
+              <button type="button" onClick={onClose} className="bg-blue-500 text-white px-6 py-2 rounded-md">Salvar</button>
             </div>
           </div>
         </form>

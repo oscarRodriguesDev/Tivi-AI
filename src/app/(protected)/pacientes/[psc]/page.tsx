@@ -5,6 +5,9 @@ import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone, FaExclamationTriangle } f
 import { ChangeEvent, useState } from "react";
 import { useParams } from "next/navigation";
 import { Endereco } from "../../../../../types/adress";
+import HeadPage from "../../components/headPage";
+import { FaBookMedical } from "react-icons/fa";
+
 
 const Pacientes = () => {
     const { psc } = useParams()
@@ -221,6 +224,11 @@ const Pacientes = () => {
 
     return (
         <>
+              
+              <HeadPage title='Pacientes' icon={<FaBookMedical size={20}/>}/>
+
+
+
             {/* Verificação do Role aqui vai mudar para role=== 'PSYCHOLOGIST'*/}
             {role === 'PSYCHOLOGIST' ? (
 

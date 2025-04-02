@@ -44,10 +44,19 @@ const CardUser = () => {
         {/* Status de Usuário */}
         {status === "authenticated" ? (
           <div className="flex items-center space-x-2">
+            
+            {session.user.role!=='ADMIN' ? ( /* se common user entrar no sistema tem que alterar isso */
             <span className="text-sm text-gray-300">
               Psicologo: {session.user?.name}
-            
             </span>
+            ):
+            (
+              <span className="text-sm text-gray-300">
+              Admin: {session.user?.name}
+            </span>
+            )
+            }
+
             <button
               onClick={handleLogout}
               className=" text-white hover:text-red-400 px-4 py-2 rounded-md transition duration-300 ease-in-out"

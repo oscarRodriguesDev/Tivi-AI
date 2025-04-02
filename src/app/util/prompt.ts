@@ -4,7 +4,7 @@ const psicologo= 'Tatiane Fontes'
 const paciente =  'tiago'
 const idade = 30
 const crp = '0001010'
-const prompt: string = `Prompt para Geração de Documento Pós-Consulta Psicológica
+const prompt = `Prompt para Geração de Documento Pós-Consulta Psicológica
 
 
 Instruções para o Modelo GPT:
@@ -80,9 +80,10 @@ Profissional Responsável:
 - CRP: ${crp}
 
 Observações:
-- O ChatGPT deve extrair informações da transcrição e preencher os campos correspondentes.
-- Caso alguma informação não seja encontrada, registrar "Dado não encontrado".
+- Você deve extrair informações da transcrição e preencher os campos correspondentes.
+- Caso alguma informação não seja encontrada, registre "Dado não encontrado".
 - A formatação do documento deve ser mantida para garantir clareza e organização. segue transcrição da consulta:
-- como estamos fazendo testes não limite sua criatividade e invente dados para completar o documento`;
+- como estamos fazendo testes não limite sua criatividade e invente dados para completar o documento`; //essa linha sai do prompt
+
 
 export { prompt };

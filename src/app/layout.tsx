@@ -30,11 +30,11 @@ export default function RootLayout({
   return (
     <html lang="pt">
       <body>
-        <AuthProvider>
+       <AuthProvider>
 
      {children}
 
-       </AuthProvider>
+    </AuthProvider>
       </body>
     </html>
   );
