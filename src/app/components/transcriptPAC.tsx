@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
+import { FaBrain, FaEraser, FaFilePdf, FaStop } from "react-icons/fa";
+import { RiPlayList2Fill } from "react-icons/ri";
 
 interface LiveTranscriptionProps {
   mensagem: string; 
@@ -288,57 +290,70 @@ const saveMessage = async (transcript: string) => {
 
 
   return (
-    <div className="w-96 ml-10 pb-4 bg-slate-700 rounded-lg p-4 overflow-y-auto max-h-[80vh]">
-    <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
+    <>
 
-    {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-    <div className="flex gap-2 justify-center mb-2">
-      {!listening ? (
+      <div className="w-96 ml-10 pb-4 rounded-lg p-4 overflow-y-auto h-full">
+        <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
+
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+
+
+        <div className="flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
+          {transcription ? (
+            <p className="whitespace-pre-wrap">{transcription}</p>
+          ) : (
+            <p className="text-gray-800 text-center">{'Aguardando transcrição...'}</p>
+          )}
+        </div>
+
+
+      </div>
+
+      <div className="fixed left-[90%] grid grid-cols-2  justify-center gap-2">
         <button
-          onClick={handleStartListening}
-          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+          onClick={handleClearTranscription}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+          title="Limpar Transcrição"
         >
-          Iniciar Transcrição
+          <FaEraser size={10} />
         </button>
-      ) : (
         <button
-          onClick={handleStopListening}
-          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+          onClick={handleSavePDF}
+          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+          title="Salvar PDF"
         >
-          Parar Transcrição
+          <FaFilePdf size={10} />
         </button>
-      )}
-    </div>
+        <button
+          onClick={() => handleGetInsights(transcription)}
+          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+          title="Análise"
+        >
+          <FaBrain size={10} />
+        </button>
 
-    <div className="flex-1 overflow-y-auto bg-gray-800 p-2 rounded-md text-sm text-white max-h-[60vh]">
-      {transcription ? (
-        <p className="whitespace-pre-wrap">{transcription}</p>
-      ) : (
-        <p className="text-gray-400 text-center">Aguardando transcrição...</p>
-      )}
-    </div>
 
-    <div className="flex justify-center mt-4 gap-2">
-      <button
-        onClick={handleClearTranscription}
-        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-      >
-        Limpar Transcrição
-      </button>
-      <button
-        onClick={handleSavePDF}
-        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
-      >
-        Salvar como PDF
-      </button>
-      <button
-        onClick={() => handleGetInsights(transcription)}
-        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
-      >
-        GPT Análise
-      </button>
-    </div>
-  </div>
+        {!listening ? (
+          <button
+            onClick={handleStartListening}
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition"
+            title="Iniciar Transcrição"
+          >
+            <RiPlayList2Fill size={10} />
+          </button>
+        ) : (
+          <button
+            onClick={handleStopListening}
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition"
+            title="Parar Transcrição"
+          >
+            <FaStop size={10} />
+
+          </button>
+        )}
+      </div>
+    </>
   );
 }

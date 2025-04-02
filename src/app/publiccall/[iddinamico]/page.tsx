@@ -166,7 +166,7 @@ export default function PublicCallPage() {
       {/* nessa versão vamos buscar a transcrição do paciente e enviar para o psicólogo, 
       mas estamos trabalhando para conseguir buscar a trasncriçao diretor do auto falante do psicologo */}
 
-      <div className="hidden absolute  bottom-[40%] right-4 w-auto max-w-[30%]">
+      <div className=" absolute  bottom-[40%] right-4 w-auto max-w-[30%]">
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription} // A transcrição agora é unificada         
