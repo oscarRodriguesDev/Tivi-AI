@@ -12,7 +12,7 @@ export async function GET(req: Request) {
     try {
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
-            messages: [{ role: "user", content: "Liste 5 anomalias psicológicas conhecidas." }],
+            messages: [{ role: "user", content: "fale sobre o sistema tivi ai" }],
         });
 
         return NextResponse.json({
