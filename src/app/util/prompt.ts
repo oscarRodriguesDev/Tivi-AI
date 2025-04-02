@@ -4,7 +4,7 @@ const psicologo= 'Tatiane Fontes'
 const paciente =  'tiago'
 const idade = 30
 const crp = '0001010'
-const prompt: string = `Prompt para Geração de Documento Pós-Consulta Psicológica
+const prompt = `Prompt para Geração de Documento Pós-Consulta Psicológica
 
 
 Instruções para o Modelo GPT:

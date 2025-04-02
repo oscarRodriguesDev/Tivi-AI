@@ -39,6 +39,8 @@ export async function POST(req: Request) {
 
         // Combinando o prompt com a mensagem do paciente
         const promptMessage = `${prompt} ${message}`;
+        console.log("Valor do prompt:", prompt);
+
         console.log('starting analize gpt')
 
         // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida
