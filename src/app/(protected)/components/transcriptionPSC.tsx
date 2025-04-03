@@ -2,14 +2,18 @@
 
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
-import { FaBrain, FaEraser, FaFilePdf, FaStop, FaWalking } from "react-icons/fa";
+import { FaBrain, FaDochub, FaEraser, FaFilePdf, FaStop, FaWalking } from "react-icons/fa";
 import { RiPlayList2Fill } from "react-icons/ri";
+import TranscriptionModal from "./modalTranscription";
+
 
 
 interface LiveTranscriptionProps {
   mensagem: string;
   usuario: string;
 }
+
+
 
 export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
   const [transcription, setTranscription] = useState<string>("");
@@ -19,6 +23,8 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   const [titulo, setTitulo] = useState<string>("");
   const [analise, setAnalise] = useState<string>('nenhuma analise')
   const [ligado, setLigado] = useState<boolean>(false) //usar essa variavel pra controlar quando vai transcrever
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+ 
 
 
 
@@ -184,20 +190,25 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
 
     addTextToPDF(transcription);
     yPos += lineHeight * 2;
-
+    
     addTextToPDF("Análise detalhada da conversa:\n");
     yPos += lineHeight;
-
+    
     addTextToPDF(analise);
-
-    doc.save("transcricao.pdf");
+    
+    doc.save("transcricao.pdf"); 
+    
   }
 
 
   /* Função traz a resposta do chat GPT, para apresentação para o psicologo e tambem para salvar no modal */
   const handleGetInsights = async (mensagem: string) => {
     const controller = new AbortController();
+   
+   
+    
     const timeoutId = setTimeout(() => controller.abort(), 120000); //120 segundos
+  
     try {
       const response = await fetch('/api/psicochat', {
         method: 'POST',
@@ -208,6 +219,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
+    
 
       if (!response.ok) {
         throw new Error(`Erro na requisição: ${response.statusText}`);
@@ -298,28 +310,28 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
 
     <>
 
+     <TranscriptionModal isOpen={isOpen} onClose={() => setIsOpen(false)} transcription={analise} />
 
-      <div className="w-96 ml-10 pb-4 rounded-lg p-4 overflow-y-auto h-full">
-        <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
+      <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
 
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-
-
-
-        <div className="flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
-          {transcription ? (
-            <p className="whitespace-pre-wrap">{transcription}</p>
-          ) : (
-            <p className="text-gray-800 text-center">{'Aguardando transcrição...'}</p>
-          )}
-        </div>
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
 
+
+      <div className="flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
+        {transcription ? (
+          <p className="whitespace-pre-wrap">{transcription}</p>
+        ) : (
+          <p className="text-gray-800 text-center">{'Aguardando transcrição...'}</p>
+        )}
       </div>
+
+     
 
       <div className="fixed left-[90%] grid grid-cols-2  justify-center gap-2">
         <button
-          onClick={handleClearTranscription}
+         /*  onClick={handleClearTranscription} */
+         onClick={() => setIsOpen(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
           title="Limpar Transcrição"
         >
@@ -340,6 +352,7 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
           <FaBrain size={10} />
         </button>
 
+      
 
         {!listening ? (
           <button
@@ -359,6 +372,8 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
 
           </button>
         )}
+
+       
       </div>
     </>
   );

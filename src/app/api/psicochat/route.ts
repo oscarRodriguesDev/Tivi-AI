@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-import prompt from "@/app/util/prompt";
+//import prompt from "@/app/util/prompt";
+import { generateTrasnctipionPrompt } from "@/app/util/prompt2";
 
 
 
@@ -29,9 +30,19 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
    /*  const prompt = process.env.PERSONA_PSICO_PROMPT; */
+   const { message } = await req.json();
+   const prompt = generateTrasnctipionPrompt(
+    'Oscar',
+    '20',
+    '2024-01-01',
+    'Adulto',
+    'Mãe',
+    'Tatiane de Souza Pontes Correa',
+    '16/10466',
+    message
+   )
     try {
         // Lendo o corpo da requisição
-        const { message } = await req.json();
 
         if (!message) {
             return NextResponse.json({ error: "Mensagem não fornecida." }, { status: 400 });

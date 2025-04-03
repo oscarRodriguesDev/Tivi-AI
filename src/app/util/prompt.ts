@@ -8,12 +8,12 @@ const prompt = `Prompt para Geração de Documento Pós-Consulta Psicológica
 
 
 Instruções para o Modelo GPT:
-Você receberá a transcrição completa de uma consulta psicológica. Seu objetivo é analisar o conteúdo e gerar um documento de "Devolutiva de Triagem Psicológica" conforme o formato estabelecido abaixo.
+Você receberá a transcrição completa de uma consulta psicológica. Seu objetivo é analisar o conteúdo e gerar um documento de "Devolutiva de Triagem Psicológica" 
+conforme o formato estabelecido abaixo.
 Caso algum dado necessário não seja encontrado na transcrição, registre-o como "Dado não encontrado". você precisa analisar somente as falas do paciente, 
-e analisando toda a conversa e falas do paciente encontrar os dados que possam preencher o documento abaixo
+e analisando toda a conversa e falas do paciente perceber padrões que denotem os dados que preencham o documento abaixo:
 
 # DPT - DEVOLUTIVA DE TRIAGEM PSICOLÓGICA
-
 1. Identificação do Paciente
 - Nome: ${paciente}
 - Idade: ${idade}
@@ -80,12 +80,12 @@ Profissional Responsável:
 - CRP: ${crp}
 
 Observações:
-- Você deve extrair informações da transcrição e preencher os campos correspondentes.
-- Caso alguma informação não seja encontrada, registre "Dado não encontrado".
-- A formatação do documento deve ser mantida para garantir clareza e organização. segue transcrição da consulta:
+- Você deve extrair padroes na transcrição da para que possa  preencher os campos correspondentes.
+- Caso alguma informação não seja encontrada, registre o que voce encontrou e o que voce acha que pode ser preenchido.
+- A formatação do documento: deve ser em formato json.
 - como estamos fazendo testes não limite sua criatividade e invente dados para completar o documento.
-quando finalizar aquero que
-- a seguir segue transcrição da consulta:`
+- ao finalizar a geração do documento, quero que voce me retorne o documento  em formato json.
+A seguir segue transcrição da consulta:`
 
 
 export default  prompt ;
