@@ -24,7 +24,9 @@ export async function POST(req: Request) {
       hora,
       tipo_consulta,
       observacao,
-      recorrencia
+      recorrencia,
+      duracao,
+      
     } = await req.json();
 
     // Gerar o código único
@@ -44,6 +46,8 @@ export async function POST(req: Request) {
         observacao,
         recorrencia,
         code,
+        duracao,
+        
       },
     });
 

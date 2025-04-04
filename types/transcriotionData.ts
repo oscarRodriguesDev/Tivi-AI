@@ -1,4 +1,5 @@
 export interface TranscriptionData {
+  titleDoc: string;
     IdentificacaoPaciente: {
       Nome: string;
       Idade: number;

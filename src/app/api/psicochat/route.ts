@@ -32,11 +32,11 @@ export async function POST(req: Request) {
    /*  const prompt = process.env.PERSONA_PSICO_PROMPT; */
    const { message } = await req.json();
    const prompt = generateTrasnctipionPrompt(
-    'Oscar',
-    '20',
+    'Andre',
+    '15',
     '2024-01-01',
-    'Adulto',
-    'Mãe',
+    'Adolescente',
+    'irmão',
     'Tatiane de Souza Pontes Correa',
     '16/10466',
     message

@@ -44,7 +44,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   // Função para enviar os dados do agendamento para a API
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Verifica se todos os campos obrigatórios estão preenchidos
@@ -99,7 +99,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e)=>{handleSubmit(e)}} >
           <div className="space-y-4">
 
 
@@ -238,7 +238,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             {/* Botões */}
             <div className="mt-6 flex justify-end gap-4">
               <button type="button" onClick={onClose} className="text-gray-500">Cancelar</button>
-              <button type="button" onClick={onClose} className="bg-blue-500 text-white px-6 py-2 rounded-md">Salvar</button>
+              <button type="submit" 
+              className="bg-blue-500 text-white px-6 py-2 rounded-md">Salvar</button>
             </div>
           </div>
         </form>
