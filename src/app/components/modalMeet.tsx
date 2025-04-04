@@ -52,6 +52,8 @@ export default function VideoCallScreen() {
 
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
+
+    //aqui vou mexer pra ajustar microfone
     const checkVolume = () => {
       analyser.getByteFrequencyData(dataArray);
       const volume = dataArray.reduce((a, b) => a + b) / dataArray.length; // Calcula o volume médio

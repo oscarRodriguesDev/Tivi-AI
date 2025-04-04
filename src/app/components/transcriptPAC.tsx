@@ -290,17 +290,17 @@ const saveMessage = async (transcript: string) => {
 
 
   return (
-    <>
+    <div className="hidden">
 
 
-      <div className="w-96 ml-10 pb-4 rounded-lg p-4 overflow-y-auto h-full">
+      <div className=" w-96 ml-10 pb-4 rounded-lg p-4 overflow-y-auto h-full">
         <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
 
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
 
 
-        <div className="flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
+        <div className="hidden  flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
           {transcription ? (
             <p className="whitespace-pre-wrap">{transcription}</p>
           ) : (
@@ -311,7 +311,7 @@ const saveMessage = async (transcript: string) => {
 
       </div>
 
-      <div className="fixed left-[90%] grid grid-cols-2  justify-center gap-2">
+      <div className=" fixed left-[90%] grid grid-cols-2  justify-center gap-2">
         <button
           onClick={handleClearTranscription}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
@@ -354,6 +354,6 @@ const saveMessage = async (transcript: string) => {
           </button>
         )}
       </div>
-    </>
+    </div>
   );
 }

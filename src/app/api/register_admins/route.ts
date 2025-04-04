@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     );
 
   } catch (error) {
-    console.error("Erro ao cadastrar admin:", error);
+   
     return NextResponse.json({ message: "Erro ao cadastrar admin" }, { status: 500 });
   }
 }

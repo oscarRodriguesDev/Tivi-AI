@@ -9,7 +9,7 @@ import Modal from '../components/modalAgendamentos';
 import HeadPage from '../components/headPage';
 import ViewMes from '../components/viewMes';
 import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
-import ModalMeet from '../components/[id-paciente]/modalmeet';
+
 
 
 interface Agendamento {
@@ -217,12 +217,11 @@ export default function AgendamentoPage() {
         icon={<FaCalendarAlt />}
       />
 
-      {role !== 'PSYCHOLOGIST' ? (
+    {/* Essa regra de acesso é para essa pagina na verdade deve ser role===psicologo*/}
+      {role !== 'PSYCHOLOGIST' ? ( 
         <div className="flex-col h-[80vh]  p-8 text-white">
           <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
-          <ModalMeet isOpen={isModalMeet} onClose={handleCloseModalMeet} />
-
-
+        
           {/* Filtro */}
           <div className="flex space-x-4 mb-0">
             {["Dia", "Semana", "Mês"].map((filtro) => (
@@ -346,9 +345,6 @@ export default function AgendamentoPage() {
 
 
             )}
-
-
-
 
 
             <div className="w-full h-auto mt-5 flex justify-end items-end">

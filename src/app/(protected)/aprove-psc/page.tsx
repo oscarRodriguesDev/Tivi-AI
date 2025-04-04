@@ -81,7 +81,7 @@ const ListaPsicologos = () => {
 
   // Função para "Rejeitar Cadastro" (exemplo de implementação)
   const rejeitarCadastro = (id: string) => {
-    console.log(`Rejeitar cadastro do psicólogo com ID: ${id}`);
+  alert(`Rejeitar cadastro do psicólogo com ID: ${id}`);
   };
 
   return (

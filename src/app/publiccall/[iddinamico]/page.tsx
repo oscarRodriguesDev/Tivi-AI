@@ -76,6 +76,7 @@ export default function PublicCallPage() {
 
   };
 
+  
   useEffect(() => {
     if (!iddinamico) return; // Se não tem ID na URL, não faz nada
 

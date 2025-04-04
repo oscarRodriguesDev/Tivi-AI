@@ -39,14 +39,5 @@ export function validarCPF(cpf: string): string {
     return cpf;
 }
 
-// Exemplo de uso:
-try {
-    const cpfLimpo = validarCPF('123.456.789-09');
-    console.log('CPF válido:', cpfLimpo);
-} catch (error) {
-    if (error instanceof InvalidCPFError) {
-        console.error('Erro de validação:', error.message);
-    } else {
-        console.error('Erro inesperado:', error);
-    }
-}
+
+

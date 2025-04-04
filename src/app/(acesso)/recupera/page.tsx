@@ -34,7 +34,7 @@ async function solicitarAcesso(email: string) {
       // Então não informamos nada ao usuário (comportamento esperado)
     }
   } catch (error) {
-    console.error("Erro ao solicitar recuperação de acesso:", error);
+   
     alert("Ocorreu um erro ao tentar recuperar sua senha. Tente novamente mais tarde.");
   }
 }

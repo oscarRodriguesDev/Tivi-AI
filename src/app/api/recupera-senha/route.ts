@@ -104,7 +104,7 @@ export async function PUT(req: Request) {
       // Retornar sucesso
       return NextResponse.json({ message: "Senha alterada com sucesso. Verifique seu e-mail para a nova senha." }, { status: 200 });
     } catch (error) {
-      console.error("Erro ao atualizar a senha:", error);
+  
       return NextResponse.json({ message: "Erro ao tentar recuperar a senha." }, { status: 500 });
     }
   }

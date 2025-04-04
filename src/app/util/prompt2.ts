@@ -8,16 +8,16 @@ export function generateTrasnctipionPrompt(
   psicologo: string,
   crp: string,
 ): string {
-  return `analise a trascriação a seguir:"${transcrição}"
-  Agora aja como um psicologo renomado e que entende bem de qualquer area da psicologia, com vasto conhecimento em psiquiatria e psicanalise, e que 
-  alem disso possua experiencia com adolescentes e com familiares, casais e adultos e qualquer outra area da psicologia.
-     Seu objetivo é extrair informações relevantes e estruturá-las no formato de um jsx que represente a "DPT - Devolutiva de Triagem Psicológica" e que 
-     sera renderizado em um modal.
+  return `[analise a trascrição a seguir:"${transcrição}"]
+  [Agora aja como um psicologo renomado e que entende bem de qualquer area da psicologia, com vasto conhecimento em psiquiatria e psicanalise, e que 
+  alem disso possua experiencia com adolescentes e com familiares, casais e adultos e qualquer outra area da psicologia.]
+     [Seu objetivo é extrair informações relevantes e estruturá-las no formato de um jsx que represente a "DPT - Devolutiva de Triagem Psicológica" e que 
+     sera renderizado em um modal.]
   
-  Siga o modelo abaixo e, caso uma informação não tenha sido mencionada diretamente na transcrição, analise a transcrição e se aplicavel 
+  [Siga o modelo abaixo e, caso uma informação não tenha sido mencionada diretamente na transcrição, analise a transcrição e se aplicavel 
   atribua o valor de acordo com o padrão de falas do paciente, caso não seja possivel atribuir um valor, atribua "Nada consta na consulta.
    Você deve analisar somente as falas do paciente e não as falas do psicologo.
-   Nos InsightsGPT, gere insights para dar um ponto de partida para o psicologo atribuir um diagnostico.
+   Nos InsightsGPT, gere insights para dar um ponto de partida para o psicologo atribuir um diagnostico.]
   ".
   
  
@@ -32,7 +32,7 @@ export function generateTrasnctipionPrompt(
   **Entrada:**
   
   
-  **Saída esperada: jsx**
+  [Saída esperada: jsx]
  
  <div className="w-11/12 max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg overflow-y-auto max-h-[80vh]">
             <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">DPT - Devolutiva de Triagem Psicológica</h1>
@@ -51,7 +51,8 @@ export function generateTrasnctipionPrompt(
 
             <section className="mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800">Introdução à Anamnese</h2>
-                <p className="text-gray-700">A anamnese psicológica foi realizada com o objetivo de levantar informações relevantes sobre o histórico do paciente, considerando aspectos emocionais, sociais, familiares e comportamentais.</p>
+                <p className="text-gray-700">A anamnese psicológica foi realizada com o objetivo de levantar informações relevantes sobre o histórico do paciente, 
+                considerando aspectos emocionais, sociais, familiares e comportamentais.</p>
             </section>
 
             <section className="mb-6">
@@ -71,7 +72,7 @@ export function generateTrasnctipionPrompt(
                 <h2 className="text-2xl font-semibold text-gray-800">Plano Terapêutico Inicial</h2>
                 <p className="text-gray-700">[sugira uma abordagem terapêutica inicial de acordo com o que foi falado na consulta]</p>
             </section>
-
+    
             <section className="mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800">Plano de Investimento</h2>
                 <ul className="list-disc pl-6 text-gray-700">
@@ -86,6 +87,7 @@ export function generateTrasnctipionPrompt(
             <Section>
                 <h2 className="text-2xl font-semibold text-gray-800">Sugestores de exercicios</h2>
                 <ul className="list-disc pl-6 text-gray-700">
+                [você deve sugerir atividades fisicas, mentais e artisicas para o paciente, de acordo com o que foi falado na consulta, no minimo 3]
                     <li>[sugira uma ação fisica para o paciente que pode ajudar no seu tratamento]</li>
                     <li>[sugira uma ação mental para o paciente que pode ajudar no seu tratamento]</li>
                     <li>[sugira uma atividade artistica ou criativa, um esporte, um jogo, etc]</li>
@@ -106,9 +108,9 @@ export function generateTrasnctipionPrompt(
                 <p className="text-gray-700">[Gerar recomendações e insights para auxiliar o psicólogo na interpretação do caso]</p>
             </section>
         </div>
-  -Certifique-se de estruturar as informações de forma organizada e objetiva, 
+  -[Certifique-se de estruturar as informações de forma organizada e objetiva, 
   incluindo apenas informações que podem ser compartilhadas com o paciente. Gere insights relevantes 
-  para auxiliar o psicólogo na interpretação e possíveis direcionamentos terapêuticos.
-  - para cada seção, gere um titulo e um paragrafo com o conteudo. e cite falas do paciente entre aspas duplas para embasar suas avaliações.`;
+  para auxiliar o psicólogo na interpretação e possíveis direcionamentos terapêuticos.]
+  - [para cada seção, gere um titulo e um paragrafo com o conteudo. e cite falas do paciente entre aspas duplas para embasar suas avaliações.]`;
 
 }

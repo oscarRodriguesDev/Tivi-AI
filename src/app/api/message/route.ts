@@ -9,7 +9,6 @@ export async function GET() {
     }
 
     const fullTranscription = Array.from(transcriptionStorage).join("\n");
-    console.log(fullTranscription)
     return NextResponse.json({ transcript: fullTranscription }, { status: 200 });
 
   } catch (error) {
@@ -26,9 +25,8 @@ export async function POST(req: Request) {
     }
 
     transcriptionStorage.add(body.transcript); // Evita duplicatas automaticamente
-    console.log('Nova transcrição salva:', transcriptionStorage);
-
     return NextResponse.json({ message: 'Mensagem salva com sucesso.', transcript: body.transcript }, { status: 200 });
+
   } catch (error) {
     console.error('Erro no POST:', error);
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });

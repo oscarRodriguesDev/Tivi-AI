@@ -50,9 +50,7 @@ export async function POST(req: Request) {
 
         // Combinando o prompt com a mensagem do paciente
         const promptMessage = `${prompt} ${message}`;
-        console.log("Valor do prompt:", prompt);
-
-        console.log('aguardando resposta do modelo')
+        NextResponse.json({ error: "aguardando resposta do modelo" }, { status: 1000 });
 
         // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida
         const completion = await openai.chat.completions.create({
@@ -61,8 +59,6 @@ export async function POST(req: Request) {
             messages: [{ role: "user", content: promptMessage }],
         });
 
-        // Retornando a resposta do modelo
-        console.log(completion.choices[0])
         return NextResponse.json({ response: completion.choices[0].message.content });
 
     } catch (error) {

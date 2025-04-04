@@ -216,7 +216,7 @@ const Pacientes = () => {
 
         } catch (error) {
             // Lidando com erros de rede ou de formatação de CEP
-            console.error('Erro:', error);
+            alert(`Erro ${error}`);
         }
     };
 
