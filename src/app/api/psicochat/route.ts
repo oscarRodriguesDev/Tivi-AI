@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
         // Combinando o prompt com a mensagem do paciente
         const promptMessage = `${prompt} ${message}`;
-        NextResponse.json({ error: "aguardando resposta do modelo" }, { status: 1000 });
+        NextResponse.json({ error: "aguardando resposta do modelo" }, { status: 404 });
 
         // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida
         const completion = await openai.chat.completions.create({
