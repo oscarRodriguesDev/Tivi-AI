@@ -10,6 +10,7 @@ import { VscGitPullRequestGoToChanges } from "react-icons/vsc";
 
 const ListaPsicologos = () => {
 
+
   const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
 
   const [psicologos, setPsicologos] = useState<Psicologo[]>([]);  // Estado para armazenar psicólogos
@@ -20,6 +21,7 @@ const ListaPsicologos = () => {
   useEffect(() => {
     const fetchPsicologos = async () => {
       try {
+        
         const response = await fetch("/api/analize_psco"); // Rota GET para buscar psicólogos
 
         if (!response.ok) {
