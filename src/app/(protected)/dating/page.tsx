@@ -23,6 +23,7 @@ interface Agendamento {
   tipo_consulta: string;
   observacao: string;
   recorrencia: string;
+  code: string;
 }
 
 //definir as variaveis de url
@@ -54,6 +55,7 @@ export default function AgendamentoPage() {
     tipo_consulta: '', // Tipo da consulta (presencial, online, etc.)
     observacao: '',
     recorrencia: '', // Recorrência da consulta (diária, semanal, mensal, etc.)
+    code: '',
   });
 
 
@@ -95,7 +97,8 @@ export default function AgendamentoPage() {
         hora: '',
         tipo_consulta: '',
         observacao: '',
-        recorrencia: ''
+        recorrencia: '',
+        code: ''
       });
     }
   };
@@ -261,7 +264,7 @@ export default function AgendamentoPage() {
                           </span>
                         ) : peerIds[ag.id] ? (
                           <button
-                          onClick={() => redirect(`/call/${idUser}`)} 
+                          onClick={() => redirect(`/call/${ag.id}/?iddinamico=${idUser}`)} 
                          
                             className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
                           >
