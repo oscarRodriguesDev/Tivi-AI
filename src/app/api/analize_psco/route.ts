@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone } = body;
 
-    if (!cpf || !cfp || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone) {
+    if (!cpf || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone) {
       return NextResponse.json({ error: "Todos os campos são obrigatórios!" }, { status: 400 });
     }
     const newPrePsicologo = await prisma.prePsicologo.create({

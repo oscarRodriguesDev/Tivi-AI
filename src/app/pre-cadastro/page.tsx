@@ -6,7 +6,7 @@ import { IoIosInformationCircle } from "react-icons/io";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
 import { validarCPF } from "../util/validarCPF";
-import { validarTelefone } from "../util/validaPhone";
+
 
 const Cadastro = () => {
 
@@ -37,6 +37,9 @@ const Cadastro = () => {
         }
 
         event.preventDefault()
+        setCFP(crp)
+        setCelular(ddi2+celular)
+        setTelefone(ddi+telefone)
 
         const dados = {
             cpf: cpf,
@@ -49,9 +52,10 @@ const Cadastro = () => {
             celular: celular,
             telefone: telefone,
         }
-
+        
         try {
             const response = await fetch("/api/analize_psco", {
+                
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -73,6 +77,7 @@ const Cadastro = () => {
                 alert('Dados não foram salvos no banco de dados')
             }
         } catch (error) {
+            alert('Erro ao enviar dados '+ error)
             console.error("Erro na requisição:", error);
         }
     };
@@ -167,7 +172,10 @@ const Cadastro = () => {
                                 <input type="text"
                                     title='Esse numero será verificado no portal do Conselho Regional de Psicologia'
                                     className="border border-gray-300 rounded p-1"
-                                    onChange={(e) => setCRP(e.target.value)}
+                                    onChange={(e) => {
+                                        setCRP(e.target.value)
+                                        setCFP(e.target.value)
+                                    }}
                                     value={crp}
                                     required
                                 />
@@ -178,9 +186,8 @@ const Cadastro = () => {
                                     type="text"
                                     title='Esse numero será verificado no portal do Conselho Federal de Psicologia'
                                     className="hidden border border-gray-300 rounded p-1"
-                                    onChange={(e) => setCFP(e.target.value)}
                                     value={crp}
-                                    required
+                                    
                                 />
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  E-mail:</label>
@@ -222,7 +229,7 @@ const Cadastro = () => {
                                         type="text"
                                         className="border w-full border-gray-300 rounded p-1"
                                         onChange={(e) => {
-                                            setTelefone(ddi+e.target.value);
+                                            setTelefone(e.target.value);
                                         }}
                                         value={telefone}
                                         required
@@ -259,7 +266,7 @@ const Cadastro = () => {
                                         type="text"
                                         className="border w-full border-gray-300 rounded p-1"
                                         onChange={(e) => {
-                                            setCelular(ddi2+e.target.value);
+                                            setCelular(e.target.value);
                                         }}
                                         value={celular}
                                         required
