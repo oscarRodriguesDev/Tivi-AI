@@ -19,6 +19,8 @@ const Cadastro = () => {
     const [celular, setCelular] = useState<string>('')
     const [nome, setNome] = useState<string>('')
     const [crp, setCRP] = useState<string>('')
+    const [ddi, setDDI] = useState<string>('+55')
+    const [ddi2, setDDI2] = useState<string>('+55')
 
     const router = useRouter()
 
@@ -107,28 +109,21 @@ const Cadastro = () => {
 
     return (
         <>
-
             <div className="flex items-center  justify-center mt-48 ">
-
                 <form onSubmit={handleSubmit}>
-
                     <div className="relative w-[1260px] h-auto bg-white p-5 rounded-lg shadow-md">
                         {/* Header */}
                         <div className="w-[1224px] h-[64px] bg-gray-100 border border-gray-300 rounded-lg flex items-center px-5">
                             <BsFillFileEarmarkMedicalFill size={40} />
                             <h1 className="text-2xl font-extrabold">   Sou psicologo e quero usar todo o poder do Tivi AI</h1>
                         </div>
-
                         {/* Seção Informações */}
                         <div className="mt-5 border-b border-gray-300 pb-2 flex items-center">
                             <IoIosInformationCircle size={20} />
                             <h2 className="text-lg font-semibold">Informe seus dados de Psicologo abaixo, nossa equipe pode levar até 48h pra analisar seu pedido</h2>
                         </div>
-
                         {/* Formulário */}
                         <div className="grid grid-cols-2 gap-4 mt-4">
-
-
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  Nome:</label>
                                 <input type="text"
@@ -138,7 +133,6 @@ const Cadastro = () => {
                                     required
                                 />
                             </div>
-
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  CPF:</label>
                                 <input
@@ -149,37 +143,11 @@ const Cadastro = () => {
                                     onBlur={(e) => { validacpf() }}
                                     required
                                 />
-
                             </div>
-
-                            <div className="flex flex-col">
-                                <label className="text-sm font-medium">Registro CFP:</label>
-                                <input
-                                    type="number"
-                                    title='Esse numero será verificado no portal do Conselho Federal de Psicologia'
-                                    className="border border-gray-300 rounded p-1"
-                                    onChange={(e) => setCFP(e.target.value)}
-                                    value={cfp}
-                                    required
-                                />
-                            </div>
-
-                            <div className="flex flex-col">
-                                <label className="text-sm font-medium">Registro CRP:</label>
-                                <input type="number"
-                                    title='Esse numero será verificado no portal do Conselho Regional de Psicologia'
-                                    className="border border-gray-300 rounded p-1"
-                                    onChange={(e) => setCRP(e.target.value)}
-                                    value={crp}
-                                    required
-                                />
-                            </div>
-
-
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  RG:</label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     className="border border-gray-300 rounded p-1"
                                     onChange={(e) => setRG(e.target.value)}
                                     required
@@ -189,19 +157,31 @@ const Cadastro = () => {
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  Data de Nascimento:</label>
                                 <input type="date"
-
                                     className="border border-gray-300 rounded p-1"
                                     onChange={(e) => setNasc(e.target.value)}
                                     value={nasc}
                                     required />
                             </div>
-                        </div>
-
-
-
-
-                        <div className="grid grid-cols-3 gap-4 mt-4">
-
+                            <div className="flex flex-col">
+                                <label className="text-sm font-medium">Registro CRP:</label>
+                                <input type="text"
+                                    title='Esse numero será verificado no portal do Conselho Regional de Psicologia'
+                                    className="border border-gray-300 rounded p-1"
+                                    onChange={(e) => setCRP(e.target.value)}
+                                    value={crp}
+                                    required
+                                />
+                            </div>
+                            <div className="flex flex-col">
+                                <label className="hidden text-sm font-medium">Registro CFP:</label>
+                                <input
+                                    type="text"
+                                    title='Esse numero será verificado no portal do Conselho Federal de Psicologia'
+                                    className="hidden border border-gray-300 rounded p-1"
+                                    onChange={(e) => setCFP(e.target.value)}
+                                    value={crp}
+                                    required
+                                />
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  E-mail:</label>
                                 <input
@@ -212,31 +192,80 @@ const Cadastro = () => {
                                     required
                                 />
                             </div>
-
+                            </div>
+                        </div>
+                         
+                        <div className="grid grid-cols-2 w-full  gap-6 mt-4">
                             <div className="flex flex-col">
-                                <label className="text-sm font-medium"> Telefone:</label>
-                                <input
-                                    type="number"
-                                    className="border border-gray-300 rounded p-1"
-                                    onChange={(e) => {
-                                        setTelefone(e.target.value); 
-                                    }}
-                                    value={telefone}
-                                    required
-                                />
+                                <label className="text-sm font-medium"> Celular 1:</label>
+                                <div className="flex flex-row w-full">
+                                    <select
+                                        className="border border-gray-300 rounded p-1"
+                                        value={ddi}
+                                        onChange={(e) => setDDI(e.target.value)}
+                                    >
+                                        <option value="+1">🇺🇸+1</option>
+                                        <option value="+44">🇬🇧+44</option>
+                                        <option value="+55">🇧🇷+55</option>
+                                        <option value="+33">🇫🇷+33</option>
+                                        <option value="+49">🇩🇪+49</option>
+                                        <option value="+34">🇪🇸+34</option>
+                                        <option value="+81">🇯🇵+81</option>
+                                        <option value="+86">🇨🇳+86</option>
+                                        <option value="+351">🇵🇹+351</option>
+                                        <option value="+91">🇮🇳+91</option>
+                                        {/* Adicione mais DDI conforme necessário */}
+                                    </select>
+
+
+                                    <input
+                                        type="text"
+                                        className="border w-full border-gray-300 rounded p-1"
+                                        onChange={(e) => {
+                                            setTelefone(e.target.value);
+                                        }}
+                                        value={telefone}
+                                        required
+                                    />
+                                </div>
 
                             </div>
 
 
                             <div className="flex flex-col">
-                                <label className="text-sm font-medium">  Celular:</label>
-                                <input
-                                    type="number"
-                                    className="border border-gray-300 rounded p-1"
-                                    onChange={(e) => setCelular(e.target.value)}
-                                    value={celular}
-                                    required
-                                />
+                                <label className="text-sm font-medium"> Celular 2:</label>
+
+                                <div className="flex flex-row w-full">
+                                    <select
+                                        className="border border-gray-300 rounded p-1"
+                                        value={ddi2}
+                                        onChange={(e) => setDDI2(e.target.value)}
+                                    >
+                                        <option value="+1">🇺🇸+1</option>
+                                        <option value="+44">🇬🇧+44</option>
+                                        <option value="+55">🇧🇷+55</option>
+                                        <option value="+33">🇫🇷+33</option>
+                                        <option value="+49">🇩🇪+49</option>
+                                        <option value="+34">🇪🇸+34</option>
+                                        <option value="+81">🇯🇵+81</option>
+                                        <option value="+86">🇨🇳+86</option>
+                                        <option value="+351">🇵🇹+351</option>
+                                        <option value="+91">🇮🇳+91</option>
+                                        {/* Adicione mais DDI conforme necessário */}
+                                    </select>
+
+
+                                    <input
+                                        type="text"
+                                        className="border w-full border-gray-300 rounded p-1"
+                                        onChange={(e) => {
+                                            setCelular(e.target.value);
+                                        }}
+                                        value={celular}
+                                        required
+                                    />
+                                </div>
+
                             </div>
 
 
