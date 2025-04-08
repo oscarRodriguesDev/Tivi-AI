@@ -222,7 +222,7 @@ const Cadastro = () => {
                                         type="text"
                                         className="border w-full border-gray-300 rounded p-1"
                                         onChange={(e) => {
-                                            setTelefone(e.target.value);
+                                            setTelefone(ddi+e.target.value);
                                         }}
                                         value={telefone}
                                         required
@@ -259,7 +259,7 @@ const Cadastro = () => {
                                         type="text"
                                         className="border w-full border-gray-300 rounded p-1"
                                         onChange={(e) => {
-                                            setCelular(e.target.value);
+                                            setCelular(ddi2+e.target.value);
                                         }}
                                         value={celular}
                                         required
