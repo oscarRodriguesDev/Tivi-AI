@@ -64,9 +64,9 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone } = body;
+    const { cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone,lastname } = body;
 
-    if (!cpf || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone) {
+    if (!cpf || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone||!lastname) {
       return NextResponse.json({ error: "Todos os campos são obrigatórios!" }, { status: 400 });
     }
     const newPrePsicologo = await prisma.prePsicologo.create({
@@ -75,6 +75,7 @@ export async function POST(req: Request) {
         cfp,
         crp,
         nome,
+        lastname,
         rg,
         email,
         data_nasc,
@@ -168,8 +169,8 @@ function gerarSenhaAleatoria(tamanho: number = 8): string {
  * 
  * @returns {Promise<void>} - Retorna uma Promise que não resolve nenhum valor explícito.
  */
-async function efetivarPsicologo(nome: string, email_confirm: string, cpf: string, cfp: string, crp: string, telefone: string, celular: string, data_nasc: string) {
-  let cname = nome.replace(/\s+/g, "")
+async function efetivarPsicologo(nome: string, lastname: string, email_confirm: string, cpf: string, cfp: string, crp: string, telefone: string, celular: string, data_nasc: string) {
+  let cname = `${nome.replace(/\s+/g, "")}.${lastname.replace(/\s+/g, "")}`
   const senha = gerarSenhaAleatoria().toLowerCase()
   const hashedPassword = await bcrypt.hash(senha, 10);
 
@@ -190,6 +191,7 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
   const psicologo = await prisma.user.create({
     data: {
       name: nome,
+      lastname: lastname,
       email: `${cname}@tiviai.com.br`,
       email_confirm: email_confirm,
       password: hashedPassword,
@@ -201,6 +203,7 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
       celular: celular,
       idade: String(defIdade(data_nasc)), //passamos a idade para o objeto a ser salvo
       first_acess: true, //primeiro acesso definido
+    
 
     }
   });
@@ -270,9 +273,14 @@ export async function PUT(req: Request) {
       data: { habilitado: true },
     });
 
+    //garante que o sobrenome do psicólogo é obrigatório
+    if (!updatedPsicologo.lastname) {
+      return NextResponse.json({ error: "Sobrenome do psicólogo é obrigatório" }, { status: 400 });
+    }
     // Efetiva o psicólogo no sistema e envia e-mail de notificação
     await efetivarPsicologo(
       updatedPsicologo.nome,
+      updatedPsicologo.lastname,
       updatedPsicologo.email,
       updatedPsicologo.cfp,
       updatedPsicologo.cfp,
@@ -280,6 +288,7 @@ export async function PUT(req: Request) {
       updatedPsicologo.telefone,
       updatedPsicologo.celular,
       updatedPsicologo.data_nasc,
+    
     );
 
     // Retorna todos os dados disponíveis do psicólogo após habilitação

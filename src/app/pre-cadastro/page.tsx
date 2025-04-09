@@ -12,7 +12,7 @@
 
 import { BsFillFileEarmarkMedicalFill } from "react-icons/bs";
 import { IoIosInformationCircle } from "react-icons/io";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { validarCPF } from "../util/validarCPF";
 
@@ -103,6 +103,12 @@ const Cadastro = () => {
     const [nome, setNome] = useState<string>('')
 
     /**
+     * @state nome
+     * @description Last name do psicólogo, usamos para criar o email dele.
+     */
+    const [lastName, setLastName] = useState<string>('')
+
+    /**
      * @state crp
      * @description Registro profissional no Conselho Regional de Psicologia (CRP), obrigatório para validação da atuação profissional.
      */
@@ -136,6 +142,7 @@ const Cadastro = () => {
  * console.log(idade); // Saída: 34 (dependendo do ano atual)
  */
     const defIdade = (data: string) => Math.floor((new Date().getTime() - new Date(data).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    
 
 
 
@@ -143,7 +150,7 @@ const Cadastro = () => {
  * Idade atual do usuário calculada com base na data de nascimento fornecida no formulário.
  * Atualiza dinamicamente conforme o valor de `nasc` muda.
  */
-    const idade = defIdade(nasc)
+    const idade = useMemo(() => defIdade(nasc), [nasc])
 
 
     /**
@@ -191,6 +198,7 @@ const Cadastro = () => {
             cfp: cfp,
             crp: crp,
             nome: nome,
+            lastname: lastName,
             rg: rg,
             email: email,
             data_nasc: nasc,
@@ -220,10 +228,14 @@ const Cadastro = () => {
             } else {
 
                 alert('Dados não foram salvos no banco de dados')
+                setTelefone('')
+                setCelular('')
             }
         } catch (error) {
             alert('Erro ao enviar dados ' + error)
             console.error("Erro na requisição:", error);
+            setTelefone('')
+            setCelular('')
         }
     };
 
@@ -257,6 +269,7 @@ const Cadastro = () => {
         setTelefone('')
         setCelular('')
         setNome('')
+        setLastName('')
     }
 
 
@@ -325,7 +338,7 @@ const Cadastro = () => {
      */
 
     return (
-        <>
+       
             <div className="flex items-center  justify-center mt-48 ">
                 <form onSubmit={handleSubmit}>
                     <div className="relative w-[1260px] h-auto bg-white p-5 rounded-lg shadow-md">
@@ -342,14 +355,22 @@ const Cadastro = () => {
                         {/* Formulário */}
                         <div className="grid grid-cols-2 gap-4 mt-4">
                             <div className="flex flex-col">
-                                <label className="text-sm font-medium">  Nome:</label>
+                                <label className="text-sm font-medium">  Primeiro Nome:</label>
                                 <input type="text"
                                     className="border border-gray-300 rounded p-1"
                                     onChange={(e) => setNome(e.target.value)}
                                     value={nome}
                                     required
                                 />
+                                <label className="text-sm font-medium"> Sobrenome:</label>
+                                <input type="text"
+                                    className="border border-gray-300 rounded p-1"
+                                   onChange={(e) => setLastName(e.target.value)}
+                                    value={lastName} 
+                                    required
+                                />
                             </div>
+
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  CPF:</label>
                                 <input
@@ -361,6 +382,7 @@ const Cadastro = () => {
                                     required
                                 />
                             </div>
+
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  RG:</label>
                                 <input
@@ -392,6 +414,7 @@ const Cadastro = () => {
                                     required
                                 />
                             </div>
+
                             <div className="flex flex-col">
                                 <label className="hidden text-sm font-medium">Registro CFP:</label>
                                 <input
@@ -412,6 +435,7 @@ const Cadastro = () => {
                                     />
                                 </div>
                             </div>
+                            
                         </div>
 
                         <div className="grid grid-cols-2 w-full  gap-6 mt-4">
@@ -507,7 +531,7 @@ const Cadastro = () => {
 
             </div>
 
-        </>
+      
 
 
     );
