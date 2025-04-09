@@ -400,6 +400,7 @@ const Perfil = () => {
                                 name={formData.name}
                                 password={formData.password}
                                 first_acess={formData.first_acess}
+                                lastname={formData.lastname}
                             />
                         </div>
                     </>

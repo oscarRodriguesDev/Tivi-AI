@@ -1,27 +1,145 @@
 "use client";
 
+/**
+ * Importações de dependências e utilitários usados no componente de transcrição:
+ *
+ * - `useState`, `useEffect` (React): Hooks utilizados para gerenciar o estado e efeitos colaterais do componente.
+ * - `jsPDF`: Biblioteca para geração de arquivos PDF diretamente no cliente.
+ * - `FaBrain`, `FaEraser`, `FaFilePdf`, `FaStop` (react-icons/fa): Ícones utilizados na interface para representar ações como análise, limpar, exportar PDF e parar transcrição.
+ * - `RiPlayList2Fill` (react-icons/ri): Ícone utilizado para representar o botão de iniciar transcrição.
+ * - `useParams` (next/navigation): Hook do Next.js App Router utilizado para capturar parâmetros da URL, como o identificador da sala.
+ */
+
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import { FaBrain, FaEraser, FaFilePdf, FaStop } from "react-icons/fa";
 import { RiPlayList2Fill } from "react-icons/ri";
+import { useParams } from "next/navigation";
 
+
+/**
+ * Interface para definir as propriedades do componente `LiveTranscription`.
+ *
+ * - `mensagem`: Mensagem a ser exibida no componente.
+ * - `usuario`: Nome do usuário que está falando.
+ * - `sala`: Identificador da sala de reunião.
+ * 
+ * @interface LiveTranscriptionProps
+ * @property {string} mensagem - Mensagem a ser exibida no componente.
+ * @property {string} usuario - Nome do usuário que está falando.
+ * @property {string} sala - Identificador da sala de reunião.
+ */
 interface LiveTranscriptionProps {
   mensagem: string; 
-  usuario: string; 
+  usuario: string;
+  sala:string
 }
 
-export default function LiveTranscription({ usuario, mensagem }: LiveTranscriptionProps) {
+
+
+/**
+ * Componente `LiveTranscription`
+ * 
+ * Este componente é responsável por realizar a transcrição de voz em tempo real, 
+ * associando-a a uma sala virtual para sessões entre psicólogos e pacientes.
+ * 
+ * Recursos principais:
+ * 
+ * - 🎙️ **Reconhecimento de voz (SpeechRecognition)**:
+ *   Usa a API nativa de reconhecimento de fala do navegador (`SpeechRecognition` ou `webkitSpeechRecognition`)
+ *   para transcrever a fala do usuário automaticamente em tempo real.
+ * 
+ * - 💬 **Armazenamento e recuperação de transcrições**:
+ *   As transcrições são salvas em um backend via API REST e recuperadas conforme necessário, 
+ *   garantindo persistência e sincronização dos dados da sessão.
+ * 
+ * - 🧠 **Análise com IA (ChatGPT)**:
+ *   Envia a transcrição para uma rota que responde com insights, análises e observações que auxiliam o psicólogo.
+ * 
+ * - 📄 **Exportação para PDF**:
+ *   Gera um arquivo `.pdf` da transcrição e da análise com layout formatado para impressão ou arquivamento.
+ * 
+ * - 🎛️ **Controles manuais e automáticos**:
+ *   O usuário pode iniciar/parar a transcrição manualmente ou permitir que o sistema inicie automaticamente 
+ *   após o aceite da permissão de microfone.
+ * 
+ * - ⚠️ **Tratamento de erros e notificações**:
+ *   Exibe mensagens de erro caso o navegador não suporte o recurso ou se houver falhas no processo.
+ * 
+ * Props esperadas:
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.usuario - Nome ou identificador de quem está falando, usado para prefixar as falas.
+ * @param {string} props.mensagem - Mensagem inicial ou conteúdo relevante para análise (não utilizado diretamente aqui).
+ * @param {string} props.sala - Identificador da sala usada para salvar/recuperar transcrições associadas.
+ * 
+ * @returns {JSX.Element} Interface com os controles de transcrição, exibição do conteúdo e ações como salvar e analisar.
+ * 
+ * @example
+ * <LiveTranscription usuario="Paciente" mensagem="" sala="abc123" />
+ */
+
+
+export default function LiveTranscription({ usuario, mensagem, sala }: LiveTranscriptionProps) {
+
+  /** 
+   * Estado que armazena a transcrição atual da fala reconhecida.
+   * Atualizada toda vez que uma nova fala é reconhecida como final.
+   */
   const [transcription, setTranscription] = useState<string>("");
+
+  /**
+   * Instância da API de reconhecimento de voz (`SpeechRecognition`).
+   * Inicializada após verificação de suporte e permissão ao microfone.
+   */
   const [recognition, setRecognition] = useState<any>(null);
+
+  /**
+   * Indica se o reconhecimento de voz está atualmente ativo (em escuta).
+   * Usado para alternar o botão de iniciar/parar.
+   */
   const [listening, setListening] = useState<boolean>(false);
+
+  /**
+   * Armazena mensagens de erro relacionadas à transcrição,
+   * como falta de suporte no navegador ou falha de permissão.
+   */
   const [error, setError] = useState<string>("");
+
+  /**
+   * Título da sessão ou da transcrição. Pode ser definido externamente ou dinamicamente.
+   * Exibido no topo da interface de transcrição.
+   */
   const [titulo, setTitulo] = useState<string>("");
-  const [analise,setAnalise]= useState<string>('nenhuma analise')
-  const [ligado,setLigado]=useState<boolean>(false) //usar essa variavel pra controlar quando vai transcrever
+
+  /**
+   * Armazena a resposta gerada pela análise da conversa usando IA.
+   * Exibida ao psicólogo ou exportada no PDF.
+   */
+  const [analise, setAnalise] = useState<string>("nenhuma analise");
+
+  /**
+   * Indica se o sistema está "ligado" para iniciar a transcrição automaticamente.
+   * Útil para controlar o modo de escuta automática.
+   */
+  const [ligado, setLigado] = useState<boolean>(false);
+//usar essa variavel pra controlar quando vai transcrever
   
 
 
-  /* faz a transcrição */
+
+/**
+ * Inicializa o reconhecimento de voz assim que o componente é montado.
+ * 
+ * - Verifica se o navegador suporta a API `SpeechRecognition`.
+ * - Configura o reconhecimento contínuo de fala em português (PT-BR).
+ * - Escuta os resultados finais e atualiza a transcrição com o nome do usuário.
+ * - Salva cada trecho transcrito na API (`/api/message`).
+ * - Trata possíveis erros durante o reconhecimento.
+ * 
+ * A instância de reconhecimento é parada e o intervalo de verificação é limpo ao desmontar o componente.
+ */
   useEffect(() => {
     if (typeof window === "undefined") return;
   
@@ -71,12 +189,20 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
       clearInterval(intervalId); // Limpar o intervalo quando o componente for desmontado
     };
   }, []);
+
+
   
 
-
+/**
+ * Busca as mensagens transcritas do servidor com base na sala atual.
+ * 
+ * - Realiza uma requisição GET para a rota `/api/message`, passando o identificador da sala.
+ * - Se a resposta contiver uma transcrição (`transcript`), atualiza o estado `transcription` apenas se o conteúdo for diferente do atual.
+ * - Em caso de erro na requisição, atualiza o estado de erro com uma mensagem descritiva.
+ */
   const fetchMessages = async () => {
     try {
-      const response = await fetch('/api/message', { method: 'GET' });
+      const response = await fetch(`/api/message/?sala=${sala}`, { method: 'GET' });
   
       if (!response.ok) {
         throw new Error("Erro ao recuperar mensagens.");
@@ -100,7 +226,15 @@ export default function LiveTranscription({ usuario, mensagem }: LiveTranscripti
   
 
 
-// Função para salvar a mensagem no servidor
+/**
+ * Salva uma transcrição no servidor associada a uma sala específica.
+ * 
+ * - Envia uma requisição POST para a rota `/api/message` com o conteúdo da transcrição e o identificador da sala.
+ * - Em caso de sucesso, limpa a transcrição atual e busca novamente todas as mensagens.
+ * - Em caso de erro, atualiza o estado de erro com a mensagem correspondente.
+ * 
+ * @param {string} transcript - Texto transcrito a ser salvo no servidor.
+ */
 const saveMessage = async (transcript: string) => {
   try {
     const response = await fetch('/api/message', {
@@ -108,7 +242,7 @@ const saveMessage = async (transcript: string) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ transcript }),
+      body: JSON.stringify({ sala, transcript }),
     });
 
     if (!response.ok) {
@@ -125,7 +259,13 @@ const saveMessage = async (transcript: string) => {
 
 
 
-/* essas funções controlam quando grava e quando não grava */
+/**
+ * Inicia o reconhecimento de voz.
+ * 
+ * - Verifica se a instância de reconhecimento está disponível.
+ * - Se disponível, inicia a escuta e atualiza o estado `listening` para `true`.
+ * - Caso contrário, exibe um erro no console.
+ */
   const handleStartListening = () => {
     if (!recognition) {
       console.error("Reconhecimento de voz não foi inicializado corretamente.");
@@ -136,6 +276,14 @@ const saveMessage = async (transcript: string) => {
   };
 
 
+
+/**
+ * Interrompe o reconhecimento de voz.
+ * 
+ * - Verifica se a instância de reconhecimento existe.
+ * - Atualiza o estado `listening` para `false`.
+ * - Chama o método `stop()` para encerrar a escuta de voz.
+ */
   const handleStopListening = () => {
     if (!recognition) return;
     setListening(false);
@@ -143,12 +291,28 @@ const saveMessage = async (transcript: string) => {
   };
 
 
+/**
+ * Limpa o conteúdo da transcrição atual.
+ * 
+ * - Reseta o estado `transcription` para uma string vazia.
+ */
   const handleClearTranscription = () => {
     setTranscription("");
   };
 
 
-  /* Função para salvar o pdf de forma responsiva */
+ 
+ 
+  /**
+   * Salva a transcrição atual em um arquivo PDF.
+   * 
+   * - Cria um novo documento PDF com orientação vertical.
+   * - Define o formato de página como A4.
+   * - Calcula o espaçamento entre linhas e a largura máxima de cada página. 
+   * 
+   * @returns {void}
+   * 
+   */
   function handleSavePDF(): void {
     const doc = new jsPDF({
       orientation: "portrait",
@@ -193,7 +357,17 @@ const saveMessage = async (transcript: string) => {
   }
 
 
-  /* Função traz a resposta do chat GPT, para apresentação para o psicologo e tambem para salvar no modal */
+  /**
+   * Busca insights sobre a transcrição atual usando a API de análise com IA.
+   * 
+   * - Envia uma requisição POST para a rota `/api/psicochat` com a mensagem transcrita.
+   * - Recebe a resposta da API e atualiza o estado `analise` com o conteúdo da resposta.
+   *    
+   * @param {string} mensagem - Mensagem transcrita a ser enviada para a API de análise.
+   * 
+   * @returns {Promise<string>} Resposta da API de análise.
+   */
+
   const handleGetInsights = async (mensagem: string) => {
     try {
       const response = await fetch('/api/psicochat', {
@@ -222,8 +396,18 @@ const saveMessage = async (transcript: string) => {
   };
   
 
+  
 
-  //use efect para gravar automaticamentde
+  /**
+   * Inicializa o reconhecimento de voz automaticamnte.
+   * 
+   * - Verifica se o navegador suporta a API `SpeechRecognition`.
+   * - Configura o reconhecimento contínuo de fala em português (PT-BR).
+   * - Escuta os resultados finais e atualiza a transcrição com o nome do usuário.
+   * 
+   * @returns {void}
+   */
+
   useEffect(() => {
     if (typeof window === "undefined") return;
   
@@ -268,7 +452,6 @@ const saveMessage = async (transcript: string) => {
   
         setRecognition(recognitionInstance);
   
-        // Iniciar transcrição após permissão
         recognitionInstance.start();
       } catch (err) {
         setError("Permissão para usar o microfone não concedida.");
@@ -281,16 +464,32 @@ const saveMessage = async (transcript: string) => {
     // Cleanup
     return () => {
       if (recognition) {
-        recognition.stop(); // Parar o reconhecimento quando o componente for desmontado
+        recognition.stop(); 
       }
     };
-  }, []); // A dependência vazia faz com que isso seja executado apenas uma vez no mount
+  }, []); 
   
 
 
+  /**
+ * Renderiza a interface de transcrição ao vivo.
+ *
+ * A interface contém:
+ * - Título da transcrição.
+ * - Mensagem de erro (se houver).
+ * - Área de exibição da transcrição, ou mensagem de espera.
+ * - Botões de controle:
+ *   - Limpar transcrição (ícone de borracha).
+ *   - Salvar como PDF (ícone de PDF).
+ *   - Obter insights (ícone de cérebro).
+ *   - Iniciar ou parar transcrição de voz (ícones de play/stop).
+ *
+ * Estilos responsivos e rolagem inclusos para melhor usabilidade.
+ */
+
 
   return (
-    <div className="hidden">
+    <div className="">
 
 
       <div className=" w-96 ml-10 pb-4 rounded-lg p-4 overflow-y-auto h-full">
@@ -300,7 +499,7 @@ const saveMessage = async (transcript: string) => {
 
 
 
-        <div className="hidden  flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
+        <div className="  flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
           {transcription ? (
             <p className="whitespace-pre-wrap">{transcription}</p>
           ) : (

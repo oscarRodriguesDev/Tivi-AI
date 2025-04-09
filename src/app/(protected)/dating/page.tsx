@@ -23,6 +23,7 @@ interface Agendamento {
   tipo_consulta: string;
   observacao: string;
   recorrencia: string;
+  code: string;
 }
 
 //definir as variaveis de url
@@ -54,6 +55,7 @@ export default function AgendamentoPage() {
     tipo_consulta: '', // Tipo da consulta (presencial, online, etc.)
     observacao: '',
     recorrencia: '', // Recorrência da consulta (diária, semanal, mensal, etc.)
+    code: '',
   });
 
 
@@ -66,39 +68,9 @@ export default function AgendamentoPage() {
   const [copied, setCopied] = useState(false);
 
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setNovoAgendamento((prev) => ({ ...prev, [name]: value }));
-  };
+
   const [periodo, setPeriodo] = useState<string>('Dia')
 
-
-  //essa função vai continuar gerando o usuauario para mim
-
-  /**
-   * @deprecated Esta função será removida em breve. 
-   * Utilize o modal para manipular o envio de agendamentos.
-   */
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.warn("⚠️ handleSubmit está depreciada. Use handleNewSubmit.");
-
-    if (novoAgendamento.name && novoAgendamento.hora) {
-      const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
-      setAgendamentos([...agendamentos, novo]);
-      setNovoAgendamento({
-        psicologoId: '',
-        fantasy_name: '',
-        name: '',
-        titulo: '',
-        data: '',
-        hora: '',
-        tipo_consulta: '',
-        observacao: '',
-        recorrencia: ''
-      });
-    }
-  };
 
 
   //função para buscar os agendamentos no banco de dados
@@ -261,7 +233,7 @@ export default function AgendamentoPage() {
                           </span>
                         ) : peerIds[ag.id] ? (
                           <button
-                          onClick={() => redirect(`/call/${idUser}`)} 
+                          onClick={() => redirect(`/call/${ag.id}/?iddinamico=${idUser}`)} 
                          
                             className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
                           >

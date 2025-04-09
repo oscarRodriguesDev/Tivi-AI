@@ -34,12 +34,12 @@ const Menu: React.FC = () => {
       </div>
 
       {/* Itens do menu */}
-      <nav className="space-y-5">
+      <nav className="space-y-5"> 
         <MenuItem icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push('/dashboard')} />
         {/* Você pode descomentar os outros itens se necessário */}
-        <MenuItem icon={<MdOutlineSick size={25} />} label="Pacientes" onClick={() => router.push('/pacientes/123')} />{/* vai pegar o id do psicolog */}
+        <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push('/pacientes/123')} />{/* vai pegar o id do psicolog */}
         <MenuItem icon={<LuCalendarDays size={25} />} label="Agendamentos" onClick={() => router.push('/dating')} />
-        <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Atendimentos" onClick={() => router.push('/atendimentos')} />
+        <MenuItem icon={<MdOutlineSick size={25} />} label="Pacientes" onClick={() => router.push('/atendimentos')} />
         <MenuItem icon={<LuLibraryBig size={25} />} label="Base Científica" onClick={() => router.push('/cientific')} />
         <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push('/finance')} />
         <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push('/credit')} />

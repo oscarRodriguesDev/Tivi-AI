@@ -11,10 +11,16 @@ interface Psicologo {
     id: string;
   
     /**
-     * Nome completo do psicólogo.
+     * Primeiro do psicólogo.
      * @type {string}
      */
     name: string;
+  
+    /**
+     * Segundo  do psicólogo.
+     * @type {string}
+     */
+    lastname: string;
   
     /**
      * Endereço de e-mail do psicólogo.

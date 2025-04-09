@@ -230,7 +230,7 @@ const Pacientes = () => {
 
 
             {/* Verificação do Role aqui vai mudar para role=== 'PSYCHOLOGIST'*/}
-            {role === 'PSYCHOLOGIST' ? (
+            {role !== 'PSYCHOLOGIST' ? (
 
                 <form onSubmit={handleSubmit}>
 
