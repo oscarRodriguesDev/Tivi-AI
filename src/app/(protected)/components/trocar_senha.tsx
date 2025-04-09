@@ -8,12 +8,14 @@ const AlteracaoSenha: React.FC<Psicologo> = ({ id, email, name, password, first_
   const [repetirSenha, setRepetirSenha] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
+  const [lastname, setLastname] = useState(''); 
   const [psicologo, setPsicologo] = useState<Psicologo>({
     id: id,
     name: name, 
     email:email, 
     password: password, 
-    first_acess: first_acess
+    first_acess: first_acess,
+    lastname: lastname,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
