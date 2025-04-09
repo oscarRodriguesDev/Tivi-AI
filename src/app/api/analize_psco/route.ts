@@ -30,10 +30,11 @@ const prisma = new PrismaClient();
  *
  * @async
  * @function GET
+ * @param {Request} req - Requisição HTTP contendo os dados do pré-cadastro no corpo da requisição.
  * @returns {Promise<NextResponse>} Uma resposta JSON contendo os dados dos pré-psicólogos ou uma mensagem de erro.
  */
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     // Busca todos os pré-psicólogos no banco
     const prePsicologos = await prisma.prePsicologo.findMany();
