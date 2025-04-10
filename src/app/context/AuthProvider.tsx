@@ -1,7 +1,7 @@
 "use client";
 
 import { SessionProvider, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -15,25 +15,27 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Verifica o status somente após ele ser carregado
-    if (status === "loading") return; // Não faz nada enquanto está carregando
+    if (status === "loading") return;
 
-    if (status === "unauthenticated") {
+    const isPublicPage = ["/", "/login", "/register"].includes(pathname || "");
+
+    if (status === "unauthenticated" && !isPublicPage) {
       router.push("/login");
-      return  // Redireciona para o login se não estiver autenticado
-    } else if (status === "authenticated") {
-      router.push("/common-page"); 
-      return
+      return;
     }
-  }, [status, router]); // Executa sempre que o status mudar
 
-  if (status === "loading") {return <p>Carregando...</p>; }// Exibe "Carregando..." enquanto a autenticação não está pronta
+    if (status === "authenticated" && isPublicPage) {
+      router.push("/common-page");
+      return;
+    }
+  }, [status, router, pathname]);
 
-  return (
-    <>
-      {children} {/* Renderiza o conteúdo filho se a sessão for carregada */}
-    </>
-  );
+  if (status === "loading") {
+    return <p>Carregando...</p>;
+  }
+
+  return <>{children}</>;
 }
