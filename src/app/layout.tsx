@@ -1,6 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import "./globals.css";
+import '../app/globals.css'
 
 // ⚠️ NÃO use useSession nem outros hooks aqui
 import AuthProvider from "./context/AuthProvider";
@@ -32,7 +32,7 @@ export default function RootLayout({
     <html lang="pt">
       <body>
         {/* IMPORTANTE: AuthProvider deve ser um client component */}
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider> {children} </AuthProvider>
       </body>
     </html>
   );
