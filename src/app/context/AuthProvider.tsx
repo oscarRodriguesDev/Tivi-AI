@@ -34,12 +34,11 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
   }, [status, router]); // Executa sempre que o status mudar
 
-  if (status === "loading") { return <p>Carregando...</p>; }else{// Exibe "Carregando..." enquanto a autenticação não está pronta
+  if (status === "loading") { return <p>Carregando...</p>; }// Exibe "Carregando..." enquanto a autenticação não está pronta
 
   return (
     <>
       {children} {/* Renderiza o conteúdo filho se a sessão for carregada */}
     </>
   );
-}
 }
