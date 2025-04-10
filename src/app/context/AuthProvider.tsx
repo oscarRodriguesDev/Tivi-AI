@@ -21,6 +21,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     if (status === "loading") return; // Não faz nada enquanto está carregando
 
     if (status === "unauthenticated") {
+      router.push("/login");
       return  // Redireciona para o login se não estiver autenticado
     } else if (status === "authenticated") {
       router.push("/common-page"); 
