@@ -37,3 +37,5 @@ export default function RootLayout({
     </html>
   );
 }
+//enviando para homologação
+//https://tivi-ai-git-homologacao-tivi-ai-app.vercel.app/
