@@ -124,5 +124,3 @@ export default function LoginPage() {
 
   );
 }
-//correção de bug de login
-//correção de bug de login
