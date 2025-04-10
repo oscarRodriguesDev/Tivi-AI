@@ -27,7 +27,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
         return
       } else if (status === "authenticated") {
         router.push("/common-page");
-        return
+      
       }
     }
 
