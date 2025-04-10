@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthProvider from "./context/AuthProvider";
-import { useSession } from "next-auth/react";
+
 
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",

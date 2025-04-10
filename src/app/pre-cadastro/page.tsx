@@ -338,6 +338,7 @@ const Cadastro = () => {
      */
 
     return (
+       <>
        
             <div className="flex items-center  justify-center mt-48 ">
                 <form onSubmit={handleSubmit}>
@@ -422,6 +423,7 @@ const Cadastro = () => {
                                     title='Esse numero será verificado no portal do Conselho Federal de Psicologia'
                                     className="hidden border border-gray-300 rounded p-1"
                                     value={crp}
+                                    onChange={(e) => setCFP(crp)}
 
                                 />
                                 <div className="flex flex-col">
@@ -530,6 +532,10 @@ const Cadastro = () => {
                 </form>
 
             </div>
+       </>
+       
+       
+       
 
       
 
