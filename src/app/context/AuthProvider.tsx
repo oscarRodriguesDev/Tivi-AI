@@ -18,23 +18,18 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Verifica o status somente após ele ser carregado
-    if (status === "loading") {
-      return
-    } else {
-      if (status === "unauthenticated") {
+    if (status === "loading") return; // Não faz nada enquanto está carregando
 
-        router.push("/");
-        
-      } else if (status === "authenticated") {
-        router.push("/common-page");
-        return
-      
-      }
+    if (status === "unauthenticated") {
+      router.push("/"); 
+     
+    } else if (status === "authenticated") {
+      router.push("/common-page"); 
+     
     }
-
   }, [status, router]); // Executa sempre que o status mudar
 
-  if (status === "loading") { return <p>Carregando...</p>; }// Exibe "Carregando..." enquanto a autenticação não está pronta
+  if (status === "loading") {return <p>Carregando...</p>; }// Exibe "Carregando..." enquanto a autenticação não está pronta
 
   return (
     <>
