@@ -81,23 +81,24 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
  *
  * Dependências: `status`, `router`, `pathname`.
  */
+useEffect(() => {
+  if (status === "loading") return;
 
-  useEffect(() => {
-    if (status === "loading") return;
-  
-    const isPublicPage = ["/", "/login", "/register"].includes(pathname || "");
-  
-    if (status === "unauthenticated" && !isPublicPage) {
-      router.push("/login");
-      return;
-    }
-  
-    if (status === "authenticated" && isPublicPage) {
-      router.push("/common-page");
-      return;
-    }
-  }, [status, router, pathname]);
-  
+  const isPublicPage =
+    ["/", "/login", "/recuperar-senha", "/pre-cadastro", "/feed"].includes(pathname || "") ||
+    pathname?.startsWith("/publiccall/");
+
+  if (status === "unauthenticated" && !isPublicPage) {
+    router.push("/login");
+    return;
+  }
+
+  if (status === "authenticated" && isPublicPage) {
+    router.push("/common-page");
+    return;
+  }
+}, [status, router, pathname]);
+
 
   if (status === "loading") {
     return <p>Carregando...</p>;
