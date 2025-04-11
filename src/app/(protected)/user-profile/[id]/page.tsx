@@ -32,7 +32,8 @@ const Perfil = () => {
     const [psicologo, setPsicologo] = useState<Psicologo | null>(null);
     const [editando, setEditando] = useState(false);
     const [formData, setFormData] = useState<Psicologo | null>(null);
-
+    const [alterar, setAlterar] = useState<boolean>(false);
+    const [renderBox, setRenderBox] = useState<boolean>(false);
 
     /**
      * Busca os dados do psicólogo no banco de dados.
@@ -69,6 +70,26 @@ const Perfil = () => {
             fetchUserData(id);
         }
     }, [id]);
+
+    /**
+    * Controla a renderização do componente de troca de senha.
+    *
+    * Regras:
+    * - Renderiza o componente (`setRenderBox(true)`) se:
+    *   - O usuário for um psicólogo e ainda não tiver feito o primeiro acesso (first_acess === false)
+    *   - Ou se a flag `alterar` estiver ativada manualmente
+    * - Caso contrário, oculta o componente (`setRenderBox(false)`)
+    *
+    * @param {object} psicologo - Objeto do psicólogo logado
+    * @param {boolean} alterar - Flag que indica se o componente deve ser aberto manualmente
+    * @param {Function} setRenderBox - Função que ativa/desativa a renderização do componente
+    */
+    useEffect(() => {
+        if (!psicologo) return
+
+        const deveRenderizar = psicologo.first_acess || alterar
+        setRenderBox(deveRenderizar)
+    }, [alterar])
 
     /**
      * Manipula as alterações nos campos de entrada do formulário.
@@ -199,7 +220,7 @@ const Perfil = () => {
 
         return (
             <>
-                {!psicologo.first_acess ? (
+                {!renderBox ? (
                     <div className="w-full min-h-screen bg-gray-100 flex flex-col items-center">
                         {/* Banner */}
                         <div className="w-full h-60 bg-gray-800">
@@ -236,7 +257,7 @@ const Perfil = () => {
                             )}
 
                             <h1 className="text-2xl font-bold text-gray-800 mt-4">
-                                {psicologo.name}
+                                {psicologo.nome}
                             </h1>
                             <p className="text-gray-600">{psicologo.email}</p>
 
@@ -293,11 +314,11 @@ const Perfil = () => {
                                     <label htmlFor="cfp">CFP</label>
                                     <input
                                         type="text"
-                                        name="cfp"
-                                        value={formData.cfp || ""}
+                                        name="cpf"
+                                        value={formData.cpf || ""}
                                         onChange={handleChange}
                                         className="w-full border p-2 mb-2"
-                                        placeholder="CFP"
+                                        placeholder="Cpf"
                                     />
                                     <label htmlFor="idade">Idade</label>
                                     <input
@@ -357,9 +378,7 @@ const Perfil = () => {
                                     <p>
                                         <strong>CRP:</strong> {psicologo.crp || "Não informado"}
                                     </p>
-                                    <p>
-                                        <strong>CFP:</strong> {psicologo.cfp || "Não informado"}
-                                    </p>
+
                                     <p>
                                         <strong>Idade:</strong> {psicologo.idade || "Não informado"}
                                     </p>
@@ -383,7 +402,8 @@ const Perfil = () => {
                                         value="Trocar senha"
                                         className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
                                         onClick={() => {
-
+                                            setAlterar(!alterar);
+                                            alert(alterar);
 
                                         }}
                                     />
@@ -393,11 +413,12 @@ const Perfil = () => {
                     </div>
                 ) : (
                     <>
+
                         <div className="flex justify-center items-center min-h-screen bg-gray-100">
                             <AlteracaoSenha
                                 id={id}
                                 email={formData.email}
-                                name={formData.name}
+                                nome={formData.nome}
                                 password={formData.password}
                                 first_acess={formData.first_acess}
                                 lastname={formData.lastname}
