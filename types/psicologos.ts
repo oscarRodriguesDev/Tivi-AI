@@ -14,7 +14,7 @@ interface Psicologo {
      * Primeiro do psicólogo.
      * @type {string}
      */
-    name: string;
+    nome: string;
   
     /**
      * Segundo  do psicólogo.
@@ -40,7 +40,7 @@ interface Psicologo {
      * Opcional.
      * @type {string | undefined}
      */
-    cfp?: string;
+    cpf?: string;
   
     /**
      * Número do Conselho Regional de Psicologia (CRP).
