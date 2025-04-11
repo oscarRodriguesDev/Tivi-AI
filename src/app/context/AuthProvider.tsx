@@ -36,6 +36,11 @@ import { useEffect } from "react";
  */
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
+
+
+
+
+
   return (
     <SessionProvider>
       <AuthGuard>{children}</AuthGuard>
@@ -64,40 +69,42 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const publicRoutes = ["/", "/login", "/recupera", "/pre-cadastro", "/feed"];
+  const dynamicPublicPrefixes = ["/publiccall/"];
 
 
-/**
- * Efeito que gerencia a navegação com base no status da sessão e na rota atual.
- *
- * - Quando o status da sessão está como `"loading"`, o efeito não executa nenhuma ação.
- *
- * - Define um conjunto de rotas públicas: `"/"`, `"/login"` e `"/register"`.
- *
- * - Se o usuário **não estiver autenticado** (`"unauthenticated"`) e tentar acessar uma **rota protegida**,
- *   é redirecionado para `"/login"`.
- *
- * - Se o usuário **estiver autenticado** (`"authenticated"`) e estiver em uma **rota pública**,
- *   é redirecionado para `"/common-page"`, evitando que acesse páginas de login/registro enquanto logado.
- *
- * Dependências: `status`, `router`, `pathname`.
- */
-useEffect(() => {
-  if (status === "loading") return;
+  /**
+   * Efeito que gerencia a navegação com base no status da sessão e na rota atual.
+   *
+   * - Quando o status da sessão está como `"loading"`, o efeito não executa nenhuma ação.
+   *
+   * - Define um conjunto de rotas públicas: `"/"`, `"/login"` e `"/register"`.
+   *
+   * - Se o usuário **não estiver autenticado** (`"unauthenticated"`) e tentar acessar uma **rota protegida**,
+   *   é redirecionado para `"/login"`.
+   *
+   * - Se o usuário **estiver autenticado** (`"authenticated"`) e estiver em uma **rota pública**,
+   *   é redirecionado para `"/common-page"`, evitando que acesse páginas de login/registro enquanto logado.
+   *
+   * Dependências: `status`, `router`, `pathname`.
+   */
+  useEffect(() => {
+    if (status === "loading") return;
 
-  const isPublicPage =
-    ["/", "/login", "/recuperar-senha", "/pre-cadastro", "/feed"].includes(pathname || "") ||
-    pathname?.startsWith("/publiccall/");
+    const isPublicPage =
+    publicRoutes.includes(pathname || "") ||
+    dynamicPublicPrefixes.some(prefix => pathname?.startsWith(prefix));
 
-  if (status === "unauthenticated" && !isPublicPage) {
-    router.push("/login");
-    return;
-  }
+    if (status === "unauthenticated" && !isPublicPage) {
+      router.push("/login");
+      return;
+    }
 
-  if (status === "authenticated" && isPublicPage) {
-    router.push("/common-page");
-    return;
-  }
-}, [status, router, pathname]);
+    if (status === "authenticated" && isPublicPage) {
+      router.push("/common-page");
+      return;
+    }
+  }, [status, router, pathname]);
 
 
   if (status === "loading") {
