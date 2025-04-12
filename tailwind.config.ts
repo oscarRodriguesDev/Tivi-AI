@@ -18,7 +18,7 @@ export default {
         "98": "500px", // Exemplo: Personalizado
         "100":"600px",
       },
-      spacing: {
+      spacing: {//meus valores de margin left
         'ml-perc-1': '10%',
         'ml-perc-2': '15%',
         'ml-perc-3': '30%',

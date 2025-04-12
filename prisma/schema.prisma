@@ -18,6 +18,7 @@ enum UserRole {
 model User {
   id            String   @id @default(uuid())
   name          String
+  lastname      String?
   email         String   @unique
   email_confirm String?   
   password      String
@@ -60,6 +61,7 @@ model PrePsicologo {
  cfp           String   @unique
  crp           String   @unique
  nome          String
+ lastname      String?
  rg            String
  email         String  
  data_nasc     String
@@ -105,5 +107,5 @@ model Consulta{
   observacao     String? //observação da consulta
   recorrencia    String?
   code           String? @unique
-  duração        String? //tempo de duração da reunião
+  duracao        String? //tempo de duração da reunião
 }

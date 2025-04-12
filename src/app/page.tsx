@@ -12,7 +12,8 @@ export default function LandingPage() {
     }, []);
 
     if (!isClient) {
-        return null; // Retorna nada ou algum conteúdo de loading até que o cliente seja renderizado
+        <div><h6>Carregando...</h6></div>
+        return; // Retorna nada ou algum conteúdo de loading até que o cliente seja renderizado
     }
 
     return (

@@ -8,6 +8,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa"; // Ícones para mostrar/ocul
 import Image from "next/image";
 import Logo from '../../../../public/marca/logo.png'
 import Link from "next/link";
+import { KeyboardEvent } from 'react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -19,17 +20,19 @@ export default function LoginPage() {
 
 
   const handleLogin = async () => {
-    setAviso('')
+    
     try {
-      const result = await signIn("credentials", { email, password, callbackUrl: "/dating", redirect:true });
+      const result = await signIn("credentials", { email, password, callbackUrl: `/common-page`, redirect:true });
 
       if (result?.error) {
+     
         throw new Error(result.error);
       }
 
       // Se não houver erro, o usuário será redirecionado automaticamente pelo NextAuth
     } catch (error) {
       setAviso('Usuário ou senha incorretos')
+      alert(aviso)
       setPassword(""); // Limpa a senha, mantendo o email
     }
   };
@@ -43,6 +46,12 @@ export default function LoginPage() {
     }
   }, [session]);
 
+  //se eu clicar em enter, vai chamar o handleLogin
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleLogin();
+    }
+  };
 
 
   return (
@@ -81,6 +90,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 className="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
+                onKeyDown={handleKeyDown}
               />
               <p className="absolute -mt-2 text-xs text-red-600 p-2 text-center">
                 {aviso}
@@ -94,12 +104,15 @@ export default function LoginPage() {
                 {showPassword ? <FaEyeSlash size={11} /> : <FaEye size={12} />}
               </button>
             </div>
-            <button
+            <input 
+              type='button'
               onClick={() => { handleLogin() }}/* no futuro vai mandar para a agenda para marcar as reuniões */
               className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              Entrar
-            </button>
+              value='Acessar'
+             
+            />
+
+             
 
             <button
               onClick={() => router.push('/pre-cadastro')}

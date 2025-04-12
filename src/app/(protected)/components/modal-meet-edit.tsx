@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { FaCalendar, FaCalendarAlt, FaClock, FaPhoneAlt, FaPen, FaUserFriends, FaTimes, FaCalendarTimes, FaUserClock } from "react-icons/fa";
 import { MdNotes } from "react-icons/md";
 import { v4 as uuidv4 } from 'uuid';
@@ -19,9 +19,10 @@ interface Agendamento {
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  meet: Agendamento;
 };
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, meet }) => {
   const [novoAgendamento, setNovoAgendamento] = useState<Agendamento>({
     id: '',
     psicologoId: '',
@@ -35,7 +36,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     duracao: ''
   });
 
-
+  useEffect(() => {
+    if (isOpen && meet) {
+      setNovoAgendamento(meet);
+    }
+  }, [isOpen, meet]);
 
   // Função para atualizar o estado do Agendamento conforme os inputs
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -49,12 +54,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
     // Verifica se todos os campos obrigatórios estão preenchidos
     if (novoAgendamento.data && novoAgendamento.hora && novoAgendamento.name && novoAgendamento.fantasy_name) {
-      const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
+      const novo: Agendamento = { ...novoAgendamento };
 
       try {
         // Fazendo a requisição para a API (ajuste a URL da sua API)
         const response = await fetch("/api/gen-meet", {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -62,7 +67,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         });
 
         if (response.ok) {
-          alert("Agendamento salvo com sucesso!");
+          alert("Agendamento editado com sucesso!");
           setNovoAgendamento({
             id: '',
             psicologoId: '',
@@ -77,7 +82,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           });
           onClose(); // Fecha o modal após salvar
         } else {
-          alert("Erro ao salvar o agendamento. Tente novamente.");
+          alert("Erro ao editar o agendamento. Tente novamente.");
         }
       } catch (error) {
         alert("Erro de conexão. Tente novamente.");

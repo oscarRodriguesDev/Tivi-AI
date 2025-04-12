@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   try {
     const body: Paciente = await req.json();
     const {id, nome,fantasy_name, idade,sintomas, telefone,convenio, cpf, sexo,cep,cidade,bairro,rua,numero,pais,complemento,estado,email,rg,psicoloId} = body;
-    console.log(body)
+   
 
     // Validação dos campos obrigatórios
     if ( !nome || !fantasy_name  || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg ||!psicoloId) {
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.log(error)
+   
     return NextResponse.json(
       { error: "Erro ao processar a requisição", details: error.message },
       { status: 500 }

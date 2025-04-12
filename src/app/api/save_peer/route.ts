@@ -22,7 +22,8 @@ export async function GET(req: Request) {
     const peerId = peerStorage[iddinamico];
 
     if (!peerId) {
-      return NextResponse.json({ message: 'Nenhum peerId encontrado para o iddinamico fornecido.' }, { status: 404 });
+     
+      return NextResponse.json({ message: 'Nenhum peerId encontrado para o iddinamico fornecido.' }, { status: 404 }); 
     }
 
     // Retornar o peerId e o iddinamico
@@ -44,15 +45,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Faltam parâmetros obrigatórios.' }, { status: 400 });
     }
 
-    console.log('salvando', peerId);
-
     // Armazenar o peerId no peerStorage
     peerStorage[iddinamico] = peerId; // Salva o peerId com a chave iddinamico
-    console.log(`O ID do usuaro ${peerId} para reunião na sala com id ${iddinamico} foi salvo com sucesso.`);
-
     return NextResponse.json({ message: 'ID salvo com sucesso.' }, { status: 200 });
   } catch (error) {
-    console.error('Erro interno do servidor:', error);
+  
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
   }
 }

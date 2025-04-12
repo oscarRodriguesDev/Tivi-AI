@@ -1,7 +1,29 @@
 'use client';
-import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+
+
+/**
+ * Importações necessárias para o componente de agendamento e controle de acesso.
+ *
+ * @module AgendamentoPage
+ *
+ * @requires useState - Hook do React para gerenciar o estado local do componente.
+ * @requires useEffect - Hook do React para lidar com efeitos colaterais, como requisições ou sincronizações.
+ * @requires format - Função da biblioteca `date-fns` usada para formatar datas de forma flexível.
+ * @requires redirect - Função do Next.js usada para redirecionar o usuário para outra rota programaticamente.
+ * @requires useAccessControl - Hook personalizado que fornece informações de controle de acesso do usuário, como permissões e roles.
+ *
+ * @requires FaCalendarAlt - Ícone de calendário da biblioteca `react-icons`, usado para representar ações ou seções relacionadas a datas.
+ * @requires Modal - Componente de modal personalizado utilizado para exibir e manipular agendamentos.
+ * @requires HeadPage - Componente responsável pelo cabeçalho da página, incluindo título e navegação contextual.
+ * @requires ViewMes - Componente que renderiza a visualização do mês atual no calendário ou agendamentos.
+ *
+ * @requires FaTrash - Ícone de lixeira usado para ações de exclusão.
+ * @requires FaEdit - Ícone de lápis usado para ações de edição.
+ * @requires FaWhatsapp - Ícone do WhatsApp, normalmente usado para ações de compartilhamento ou comunicação via app.
+ */
+
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
 import { redirect } from 'next/navigation';
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
 import { FaCalendarAlt } from 'react-icons/fa';
@@ -9,106 +31,164 @@ import Modal from '../components/modalAgendamentos';
 import HeadPage from '../components/headPage';
 import ViewMes from '../components/viewMes';
 import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
-import ModalMeet from '../components/[id-paciente]/modalmeet';
+import { Agendamento } from '../../../../types/agendamentos';
+import ModalMeetEdit from '../components/modal-meet-edit';
 
 
-interface Agendamento {
-  id: string;
-  psicologoId: string;
-  fantasy_name: string;
-  name: string;
-  titulo: string;
-  data: string;
-  hora: string;
-  tipo_consulta: string;
-  observacao: string;
-  recorrencia: string;
-}
 
-//definir as variaveis de url
+/**
+ * @file AgendamentoPage.tsx
+ * @description Página de agendamentos voltada para usuários com papel de psicólogo no sistema.
+ * 
+ * Esta página permite a visualização, criação e gerenciamento de consultas psicológicas,
+ * com suporte a exibição por dia, semana ou mês. Também permite a geração de links de chamada,
+ * compartilhamento via WhatsApp, e integração com sistema P2P para chamadas em tempo real.
+ *
+ * ### Principais Funcionalidades:
+ * - Verifica o papel do usuário com `useAccessControl`, permitindo acesso apenas a psicólogos.
+ * - Busca agendamentos na API (`/api/gen-meet`) e armazena-os no estado local.
+ * - Organiza a exibição dos agendamentos por período: Dia, Semana ou Mês.
+ * - Inicia reuniões via integração com PeerJS e gera links de acesso.
+ * - Copia links da reunião para a área de transferência ou WhatsApp.
+ * - Oferece modal para criação de novos agendamentos.
+ * - Monitora continuamente o status dos `peerIds` dos agendamentos a cada 20 segundos.
+ *
+ * ### Estados Utilizados:
+ * - `agendamentos`: lista de agendamentos obtidos da API.
+ * - `novoAgendamento`: estrutura usada para criação de novos agendamentos.
+ * - `peerIds`: controle de peerId de cada agendamento (chamadas P2P).
+ * - `loading`, `error`: estados auxiliares para controle de carregamento e erros.
+ * - `periodo`: filtro de visualização (Dia, Semana, Mês).
+ * - `copiedLinks`: controle visual de links copiados para feedback do usuário.
+ *
+ * ### Restrições:
+ * - Apenas usuários com o papel `PSYCHOLOGIST` podem visualizar e interagir com a página.
+ *
+ * @component
+ * @returns {JSX.Element} A interface de gerenciamento de agendamentos para psicólogos.
+ */
+
 export default function AgendamentoPage() {
 
+  /**
+  * Controla a visibilidade do modal principal.
+  */
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
-
-  const[isModalMeet,setIsModalMeet] = useState(false);
-  const handleOpenModalMeet = () => setIsModalMeet(true);
-  const handleCloseModalMeet = () => setIsModalMeet(false);
-
-
-  const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
-
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([
-
-
-  ]);
-
-  const [novoAgendamento, setNovoAgendamento] = useState<Omit<Agendamento, 'id'>>({
-    psicologoId: '', // Certifique-se de incluir todos os campos necessários
-    fantasy_name: '', // como os campos psicologoId, fantasy_name, etc.
-    name: '',
-    titulo: '', // Título da reunião
-    data: '', // Data da reunião
-    hora: '',
-    tipo_consulta: '', // Tipo da consulta (presencial, online, etc.)
-    observacao: '',
-    recorrencia: '', // Recorrência da consulta (diária, semanal, mensal, etc.)
-  });
-
-
-  const [peerIds, setPeerIds] = useState<{ [key: string]: string }>({}); // Armazena o peerId por agendamento
-  const [idUser, setIdUser] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);     // Para controle de loading
-  const hoje = format(new Date(), 'dd/MM/yyyy');
-  const [error, setError] = useState<string | null>(null);     // Para mostrar erros
-
-  const [copied, setCopied] = useState(false);
-
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setNovoAgendamento((prev) => ({ ...prev, [name]: value }));
-  };
-  const [periodo, setPeriodo] = useState<string>('Dia')
-
-
-  //essa função vai continuar gerando o usuauario para mim
 
   /**
-   * @deprecated Esta função será removida em breve. 
-   * Utilize o modal para manipular o envio de agendamentos.
+   * Abre o modal principal.
    */
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.warn("⚠️ handleSubmit está depreciada. Use handleNewSubmit.");
+  const handleOpenModal = () => setIsModalOpen(true);
 
-    if (novoAgendamento.name && novoAgendamento.hora) {
-      const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
-      setAgendamentos([...agendamentos, novo]);
-      setNovoAgendamento({
-        psicologoId: '',
-        fantasy_name: '',
-        name: '',
-        titulo: '',
-        data: '',
-        hora: '',
-        tipo_consulta: '',
-        observacao: '',
-        recorrencia: ''
-      });
-    }
+  /**
+   * Fecha o modal principal.
+   */
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  /**
+   * Controla a visibilidade do modal de reunião.
+   */
+  const [isModalMeet, setIsModalMeet] = useState(false);
+
+  /**
+   * Abre o modal de reunião.
+   */
+  const handleOpenModalMeet = () => setIsModalMeet(true);
+
+  /**
+   * Fecha o modal de reunião.
+   */
+  const handleCloseModalMeet = () => setIsModalMeet(false);
+
+  /**
+   * Obtém o papel do usuário e a função para verificar permissões.
+   */
+  const { role, hasRole } = useAccessControl();
+
+  /**
+   * Lista de agendamentos.
+   */
+  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
+
+  /**
+   * Estado para armazenar dados do novo agendamento (sem id).
+   */
+  const [novoAgendamento, setNovoAgendamento] = useState<Omit<Agendamento, 'id'>>({
+    psicologoId: '',
+    fantasy_name: '',
+    name: '',
+    titulo: '',
+    data: '',
+    hora: '',
+    tipo_consulta: '',
+    observacao: '',
+    recorrencia: '',
+    code: '',
+  });
+
+  /**
+   * Mapeia o ID do agendamento para o peerId (chamada P2P).
+   */
+  const [peerIds, setPeerIds] = useState<{ [key: string]: string }>({});
+
+  /**
+   * ID do usuário atual.
+   */
+  const [idUser, setIdUser] = useState<string>("");
+
+  /**
+   * Estado de carregamento de ações assíncronas.
+   */
+  const [loading, setLoading] = useState<boolean>(false);
+
+  /**
+   * Data atual formatada como dd/MM/yyyy.
+   */
+  const hoje = format(new Date(), 'dd/MM/yyyy');
+
+  /**
+   * Armazena mensagens de erro.
+   */
+  const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Indica quais links de agendamento já foram copiados.
+   */
+  const [copiedLinks, setCopiedLinks] = useState<{ [key: string]: boolean }>({});
+
+  /**
+   * Define o filtro de período para exibição (ex: Dia, Semana).
+   */
+  const [periodo, setPeriodo] = useState<string>('Dia');
+
+  const [modalAberto, setModalAberto] = useState(false);
+  const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
+
+
+
+  //função para editar o agendamento
+  const handleEditar = (agendamento: any) => {
+    setAgendamentoSelecionado(agendamento);
+    setModalAberto(true);
+   
   };
 
 
-  //função para buscar os agendamentos no banco de dados
+
+  /**
+  * Busca os agendamentos na API e atualiza o estado com os dados recebidos.
+  * 
+  * Faz uma requisição GET para a rota "/api/gen-meet".
+  * Em caso de sucesso, atualiza o estado `agendamentos` com os dados retornados.
+  * Em caso de erro, exibe mensagens no console.
+  */
   const buscarAgendamentos = async () => {
 
     try {
       const response = await fetch("/api/gen-meet");
       if (response.ok) {
         const data = await response.json();
-        console.log("Dados recebidos:", data); // Verifique os dados aqui
+        //console.log("Dados recebidos:", data); // Verifique os dados aqui
         setAgendamentos(data);
 
       } else {
@@ -119,13 +199,30 @@ export default function AgendamentoPage() {
     }
   };
 
-  // Executa a função de buscar os dados quando o componente for montado
-  useEffect(() => {
-    buscarAgendamentos();
-  }, []);
+  /**
+ * Executa a função `buscarAgendamentos` uma única vez ao montar o componente.
+ * 
+ * Equivalente ao `componentDidMount`. Garante que os agendamentos sejam carregados ao iniciar.
+ */
+ useEffect(() => {
+  //definir tempo de atualização dos agendamentos
+  const intervalId = setInterval(() => {
+      buscarAgendamentos();
+  }, 10000);
+
+  //limpar o intervalo ao desmontar o componente
+  return () => clearInterval(intervalId);
+}, [agendamentos]);
 
 
-  //monitora se o paciente ja esta em reunião
+  /**
+   * Monitora os agendamentos e tenta buscar o `peerId` correspondente para cada um deles.
+   * 
+   * A cada 20 segundos, faz uma requisição para `/api/save_peer` usando o ID do agendamento.
+   * Se encontrar o `peerId`, atualiza o estado correspondente. Para quando o componente desmonta.
+   * 
+   * Dependências: `agendamentos`, `peerIds`.
+   */
   useEffect(() => {
     const fetchPeerId = async (id: string) => {
       try {
@@ -148,39 +245,44 @@ export default function AgendamentoPage() {
       }
     };
 
-    // Faz uma requisição a cada 5 segundos (5000ms) até encontrar o peerId
+   
     const intervalId = setInterval(() => {
       agendamentos.forEach((ag) => {
-        if (!peerIds[ag.id]) {  // Verifica se ainda não encontrou o peerId para este agendamento
+        if (!peerIds[ag.id]) {
           fetchPeerId(ag.id);
         }
       });
-    }, 20000);  // Requisição a cada 5 segundos
+    }, 10000);  
 
     // Limpeza do intervalo ao desmontar o componente
     return () => clearInterval(intervalId);
   }, [agendamentos, peerIds]);
 
 
+  //função ainda será definida
   const handleDayClick = (dia: number) => {
     // Exemplo: você pode usar o console ou redirecionar para uma página com os detalhes desse dia.
     alert(`Abrindo consultas para o dia ${dia}`);
-
-    // Aqui você pode fazer algo como mostrar uma modal, ou redirecionar para uma página com mais detalhes do dia
-    // Por exemplo:
-    // router.push(`/detalhes-do-dia/${dia}`);
   };
 
-  //função que permite copia
+  /**
+ * Copia o link da chamada pública para a área de transferência e atualiza o estado visual de cópia.
+ * 
+ * @param {string} id - ID do agendamento usado para montar o link da chamada.
+ * 
+ * Exibe feedback visual por 1 segundo indicando que o link foi copiado com sucesso.
+ */
   const handleCopy = (id: string) => {
     const link = `${window.location.origin}/publiccall/${id}`;
     navigator.clipboard.writeText(link).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Resetando o estado após 2 segundos
+      setCopiedLinks((prev) => ({ ...prev, [id]: true }));
+      setTimeout(() => {
+        setCopiedLinks((prev) => ({ ...prev, [id]: false }));
+      }, 1000);
     });
   };
 
-  //função para copiar para whatsapp
+  
   const copiarLinkParaWhatsApp = (idReuniao: string, data: string, hora: string) => {
     const linkReuniao = `/publiccall/${idReuniao}`;
     const mensagem = `Olá! Aqui está o link para acessar sua reunião agendada:
@@ -189,39 +291,74 @@ export default function AgendamentoPage() {
   Hora: ${hora}
   
   Clique no link para acessar a reunião: ${window.location.origin}${linkReuniao}`;
+
+
   
-    // Copiar a mensagem para a área de transferência
+   /**
+ * Gera uma mensagem com data, hora e link de reunião, copia para a área de transferência
+ * e abre o WhatsApp Web com a mensagem preenchida.
+ * 
+ * @param {string} idReuniao - ID da reunião para compor o link de acesso.
+ * @param {string} data - Data da reunião (formato legível).
+ * @param {string} hora - Hora da reunião.
+ * 
+ * Exibe um alerta informando que a mensagem foi copiada e abre o WhatsApp Web em nova aba.
+ */
     navigator.clipboard.writeText(mensagem).then(() => {
       alert('Mensagem copiada! Agora, abra o WhatsApp e cole a mensagem.');
-  
-      // Abrir o WhatsApp Web com a mensagem copiada
       const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-      
-      // Abrir o WhatsApp Web em uma nova aba
       window.open(url, '_blank');
     }).catch(err => {
       console.error('Erro ao copiar a mensagem: ', err);
     });
   };
+
   
-  
+  const  handleDeletar = async(id: string) => {
+    const response = await fetch(`/api/gen-meet`, {
+      method: 'DELETE',
+      body: JSON.stringify({ id }),
+    });
+    if (response.ok) {
+    alert("Agendamento deletado com sucesso");
+    buscarAgendamentos();
+    } else {
+    alert("Erro ao deletar agendamento");
+  }; 
+  }
 
 
+
+/**
+ * Componente principal da página de Agendamentos.
+ * 
+ * Renderiza a interface de visualização e controle de consultas agendadas,
+ * com filtros por período (Dia, Semana, Mês), além de botões para copiar e
+ * compartilhar o link da reunião. Disponível apenas para usuários com o papel de psicólogo.
+ * 
+ * @returns {JSX.Element} Interface de agendamentos com filtros, botões de ação e visualização por período.
+ * 
+ * - Role != 'PSYCHOLOGIST': Mostra a interface completa de agendamentos.
+ * - Role == 'PSYCHOLOGIST': Mostra aviso de acesso restrito.
+ * 
+ * Funcionalidades:
+ * - Filtragem por Dia, Semana e Mês
+ * - Iniciar chamada se `peerId` estiver disponível
+ * - Copiar link ou compartilhar via WhatsApp
+ * - Abertura de modal para novo agendamento
+ */
   return (
     <>
-    
-
       {/* componente cabeçalho das paginas */}
       <HeadPage
         title='Agendamentos'
         icon={<FaCalendarAlt />}
       />
 
+      {/* Essa regra de acesso é para essa pagina na verdade deve ser role===psicologo*/}
       {role !== 'PSYCHOLOGIST' ? (
         <div className="flex-col h-[80vh]  p-8 text-white">
           <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
-          <ModalMeet isOpen={isModalMeet} onClose={handleCloseModalMeet} />
-
 
           {/* Filtro */}
           <div className="flex space-x-4 mb-0">
@@ -252,7 +389,7 @@ export default function AgendamentoPage() {
                   {agendamentos.map((ag) => (
                     <li key={ag.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
                       <p className="text-lg font-bold text-blue-950">Consulta OnLine</p>
-                      <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p> 
+                      <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p>
                       <p className="text-sm  text-blue-950">Horário: {ag.hora}</p>
                       <p className="text-sm  text-blue-950">{ag.observacao}</p>
                       <p className="text-sm text-blue-400">
@@ -262,8 +399,8 @@ export default function AgendamentoPage() {
                           </span>
                         ) : peerIds[ag.id] ? (
                           <button
-                          onClick={() => redirect(`/call/${idUser}`)} 
-                         
+                            onClick={() => redirect(`/call/${ag.id}/?iddinamico=${idUser}`)}
+
                             className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
                           >
                             Iniciar Reunião com {ag.name}
@@ -274,25 +411,31 @@ export default function AgendamentoPage() {
                             Link:
                             <p
                               className="text-black cursor-pointer w-full"
-                              onClick={()=>{handleCopy(ag.id)}}
+                              onClick={() => { handleCopy(ag.id) }}
                             >
                               /publiccall/{ag.id}
                             </p>
-                            {copied && <span className="text-green-500 text-sm">Link copiado!</span>}
+                            {copiedLinks[ag.id] && <span className="text-green-500 text-sm">Link copiado!</span>}
+
 
                           </span>
 
                         )}
                       </p>
                       <div className="flex space-x-2 pt-5">
-                        <button className="text-blue-500 hover:text-blue-700">
+                        <button className="text-blue-500 hover:text-blue-700"
+                          onClick={() => handleEditar(ag)}
+                        >
                           <FaEdit size={20} />
                         </button>
-                        <button className="text-red-500 hover:text-red-700">
+                        <button className="text-red-500 hover:text-red-700"
+                          onClick={() => handleDeletar(ag.id)}
+                        >
                           <FaTrash size={20} />
+                          
                         </button>
                         <button className="text-green-600 hover:text-green-400"
-                        onClick={()=>{copiarLinkParaWhatsApp(ag.id,ag.data,ag.hora)}}
+                          onClick={() => { copiarLinkParaWhatsApp(ag.id, ag.data, ag.hora) }}
                         >
                           <FaWhatsapp size={20} />
                         </button>
@@ -348,9 +491,6 @@ export default function AgendamentoPage() {
             )}
 
 
-
-
-
             <div className="w-full h-auto mt-5 flex justify-end items-end">
               <button
                 onClick={handleOpenModal}
@@ -362,7 +502,14 @@ export default function AgendamentoPage() {
 
 
           </div>
-
+ {/* Modal para edição */}
+ {agendamentoSelecionado && (
+        <ModalMeetEdit
+          isOpen={modalAberto}
+          onClose={() => setModalAberto(false)}
+          meet={agendamentoSelecionado}
+        />
+      )}
 
         </div>
       ) : (

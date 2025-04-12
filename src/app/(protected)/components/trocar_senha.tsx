@@ -2,19 +2,14 @@ import React, { useState } from 'react';
 import bcrypt from 'bcryptjs';
 import { Psicologo } from '../../../../types/psicologos';
 
-const AlteracaoSenha: React.FC<Psicologo> = ({ id, email, name, password, first_acess }) => {
+const AlteracaoSenha: React.FC<Psicologo> = ({ id, email, nome, password, first_acess }) => {
   const [senhaAntiga, setSenhaAntiga] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [repetirSenha, setRepetirSenha] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
-  const [psicologo, setPsicologo] = useState<Psicologo>({
-    id: id,
-    name: name, 
-    email:email, 
-    password: password, 
-    first_acess: first_acess
-  });
+  const [lastname, setLastname] = useState(''); 
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

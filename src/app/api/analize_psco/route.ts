@@ -1,18 +1,40 @@
+/** 
+ * Módulo de dependências utilizado para o endpoint de cadastro e envio de email de verificação.
+ * Este módulo integra:
+ * - Prisma ORM para manipulação de banco de dados.
+ * - Next.js API Response.
+ * - Nodemailer para envio de emails.
+ * - crypto-random-string para geração de códigos aleatórios.
+ * - bcrypt para criptografia de senhas.
+ */
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import nodemailer from 'nodemailer';
 import cryptoRandomString from 'crypto-random-string';
 import bcrypt from 'bcrypt';
 
-
+/**
+ * Instância do Prisma Client para interações com o banco de dados.
+ * Deve ser reutilizada sempre que possível para evitar múltiplas conexões simultâneas.
+ * 
+ * @const {PrismaClient} prisma - Cliente do Prisma para acesso ao banco.
+ */
 const prisma = new PrismaClient();
 
 
 
 
 
-//retorna todos os psicologos
-export async function GET() {
+/**
+ * Manipulador HTTP GET para recuperar todos os pré-psicólogos cadastrados no banco de dados.
+ *
+ * @async
+ * @function GET
+ * @param {Request} req - Requisição HTTP contendo os dados do pré-cadastro no corpo da requisição.
+ * @returns {Promise<NextResponse>} Uma resposta JSON contendo os dados dos pré-psicólogos ou uma mensagem de erro.
+ */
+
+export async function GET(req: Request) {
   try {
     // Busca todos os pré-psicólogos no banco
     const prePsicologos = await prisma.prePsicologo.findMany();
@@ -25,15 +47,27 @@ export async function GET() {
 }
 
 
+/**
+ * Manipulador HTTP POST que cria um novo pré-cadastro de psicólogo.
+ *
+ * Recebe os dados enviados pelo formulário e armazena no banco de dados.
+ * Campos obrigatórios: cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone.
+ * Em caso de sucesso, retorna os dados do novo pré-psicólogo cadastrado.
+ * Em caso de erro, retorna mensagens apropriadas, incluindo erro de duplicação (CPF/CFP).
+ *
+ * @async
+ * @function POST
+ * @param {Request} req - Requisição HTTP contendo os dados do pré-cadastro no corpo da requisição.
+ * @returns {Promise<NextResponse>} Resposta com status 201 e dados do pré-cadastro criado, 
+ *                                  ou mensagem de erro com status apropriado.
+ */
 
-
-/*Esse endpoint cria um novo pré cadastro do psicologo, com os dados enviados pelo formulario de pré cadastro*/
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone } = body;
+    const { cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone,lastname } = body;
 
-    if (!cpf || !cfp || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone) {
+    if (!cpf || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone||!lastname) {
       return NextResponse.json({ error: "Todos os campos são obrigatórios!" }, { status: 400 });
     }
     const newPrePsicologo = await prisma.prePsicologo.create({
@@ -42,6 +76,7 @@ export async function POST(req: Request) {
         cfp,
         crp,
         nome,
+        lastname,
         rg,
         email,
         data_nasc,
@@ -135,8 +170,8 @@ function gerarSenhaAleatoria(tamanho: number = 8): string {
  * 
  * @returns {Promise<void>} - Retorna uma Promise que não resolve nenhum valor explícito.
  */
-async function efetivarPsicologo(nome: string, email_confirm: string, cpf: string, cfp: string, crp: string, telefone: string, celular: string, data_nasc: string) {
-  let cname = nome.replace(/\s+/g, "")
+async function efetivarPsicologo(nome: string, lastname: string, email_confirm: string, cpf: string, cfp: string, crp: string, telefone: string, celular: string, data_nasc: string) {
+  let cname = `${nome.replace(/\s+/g, "")}.${lastname.replace(/\s+/g, "")}`
   const senha = gerarSenhaAleatoria().toLowerCase()
   const hashedPassword = await bcrypt.hash(senha, 10);
 
@@ -157,6 +192,7 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
   const psicologo = await prisma.user.create({
     data: {
       name: nome,
+      lastname: lastname,
       email: `${cname}@tiviai.com.br`,
       email_confirm: email_confirm,
       password: hashedPassword,
@@ -168,6 +204,7 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
       celular: celular,
       idade: String(defIdade(data_nasc)), //passamos a idade para o objeto a ser salvo
       first_acess: true, //primeiro acesso definido
+    
 
     }
   });
@@ -202,7 +239,19 @@ async function efetivarPsicologo(nome: string, email_confirm: string, cpf: strin
 
 
 
-/* Nesse endpoint salvamos o novo psicologo no sisteam pelo cpf informado */
+/**
+ * Manipulador HTTP PUT que habilita um psicólogo previamente cadastrado no sistema.
+ *
+ * Recebe o CPF do psicólogo no corpo da requisição, valida a existência do registro,
+ * atualiza o campo `habilitado` para `true`, efetiva o cadastro e envia um e-mail de notificação.
+ *
+ * @async
+ * @function PUT
+ * @param {Request} req - Requisição HTTP contendo o CPF do psicólogo a ser habilitado.
+ * @returns {Promise<NextResponse>} Resposta com status 200 e dados do psicólogo habilitado,
+ *                                  ou mensagem de erro com status apropriado.
+ */
+
 export async function PUT(req: Request) {
   try {
     const { cpf } = await req.json();
@@ -225,9 +274,14 @@ export async function PUT(req: Request) {
       data: { habilitado: true },
     });
 
+    //garante que o sobrenome do psicólogo é obrigatório
+    if (!updatedPsicologo.lastname) {
+      return NextResponse.json({ error: "Sobrenome do psicólogo é obrigatório" }, { status: 400 });
+    }
     // Efetiva o psicólogo no sistema e envia e-mail de notificação
     await efetivarPsicologo(
       updatedPsicologo.nome,
+      updatedPsicologo.lastname,
       updatedPsicologo.email,
       updatedPsicologo.cfp,
       updatedPsicologo.cfp,
@@ -235,6 +289,7 @@ export async function PUT(req: Request) {
       updatedPsicologo.telefone,
       updatedPsicologo.celular,
       updatedPsicologo.data_nasc,
+    
     );
 
     // Retorna todos os dados disponíveis do psicólogo após habilitação

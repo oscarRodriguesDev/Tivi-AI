@@ -216,7 +216,7 @@ const Pacientes = () => {
 
         } catch (error) {
             // Lidando com erros de rede ou de formatação de CEP
-            console.error('Erro:', error);
+            alert(`Erro ${error}`);
         }
     };
 
@@ -230,7 +230,7 @@ const Pacientes = () => {
 
 
             {/* Verificação do Role aqui vai mudar para role=== 'PSYCHOLOGIST'*/}
-            {role === 'PSYCHOLOGIST' ? (
+            {role !== 'PSYCHOLOGIST' ? (
 
                 <form onSubmit={handleSubmit}>
 

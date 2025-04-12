@@ -11,10 +11,16 @@ interface Psicologo {
     id: string;
   
     /**
-     * Nome completo do psicólogo.
+     * Primeiro do psicólogo.
      * @type {string}
      */
-    name: string;
+    nome: string;
+  
+    /**
+     * Segundo  do psicólogo.
+     * @type {string}
+     */
+    lastname: string;
   
     /**
      * Endereço de e-mail do psicólogo.
@@ -34,7 +40,7 @@ interface Psicologo {
      * Opcional.
      * @type {string | undefined}
      */
-    cfp?: string;
+    cpf?: string;
   
     /**
      * Número do Conselho Regional de Psicologia (CRP).

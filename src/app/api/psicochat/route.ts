@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-import prompt from "@/app/util/prompt";
+//import prompt from "@/app/util/prompt";
+import { generateTrasnctipionPrompt } from "@/app/util/prompt2";
 
 
 
@@ -29,9 +30,19 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
    /*  const prompt = process.env.PERSONA_PSICO_PROMPT; */
+   const { message } = await req.json();
+   const prompt = generateTrasnctipionPrompt(
+    'Andre',
+    '15',
+    '2024-01-01',
+    'Adolescente',
+    'irmão',
+    'Tatiane de Souza Pontes Correa',
+    '16/10466',
+    message
+   )
     try {
         // Lendo o corpo da requisição
-        const { message } = await req.json();
 
         if (!message) {
             return NextResponse.json({ error: "Mensagem não fornecida." }, { status: 400 });
@@ -39,9 +50,7 @@ export async function POST(req: Request) {
 
         // Combinando o prompt com a mensagem do paciente
         const promptMessage = `${prompt} ${message}`;
-        console.log("Valor do prompt:", prompt);
-
-        console.log('aguardando resposta do modelo')
+        NextResponse.json({ error: "aguardando resposta do modelo" }, { status: 404 });
 
         // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida
         const completion = await openai.chat.completions.create({
@@ -50,8 +59,6 @@ export async function POST(req: Request) {
             messages: [{ role: "user", content: promptMessage }],
         });
 
-        // Retornando a resposta do modelo
-        console.log(completion.choices[0])
         return NextResponse.json({ response: completion.choices[0].message.content });
 
     } catch (error) {
