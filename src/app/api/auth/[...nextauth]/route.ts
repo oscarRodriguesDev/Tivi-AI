@@ -78,9 +78,9 @@ const handler = NextAuth({
 
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/login",
-    signOut: "/",
-    error: "/login"
+    signIn: `${process.env.PUBLIC_URL}/login`,
+    signOut: `${process.env.PUBLIC_URL}/`,
+    error: `${process.env.PUBLIC_URL}/login`,
 
   },
 });
