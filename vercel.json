@@ -1,32 +1,7 @@
 {
-  "functions": {
-    "app/api/*": {
-      "maxDuration": 60
+    "functions": {
+      "app/api/*": {
+        "maxDuration": 60
+      }
     }
-  },
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "localhost:3000"
-        }
-      ],
-      "destination": "https://tiviai.com.br/:1",
-      "permanent": true
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "homologa.tiviai.com.br"
-        }
-      ],
-      "destination": "/:1"
-    }
-  ]
-}
+  }
