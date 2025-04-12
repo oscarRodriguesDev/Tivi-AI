@@ -22,7 +22,7 @@ export default function LoginPage() {
   const handleLogin = async () => {
     
     try {
-      const result = await signIn("credentials", { email, password, callbackUrl: `${process.env.NEXTAUTH_URL}/dating`, redirect:true });
+      const result = await signIn("credentials", { email, password, callbackUrl: `/dating`, redirect:true });
 
       if (result?.error) {
      
