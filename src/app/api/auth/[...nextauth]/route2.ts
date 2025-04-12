@@ -3,16 +3,12 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient, UserRole } from "@prisma/client";
 import { compare } from "bcryptjs";
-
+import type { NextAuthOptions } from "next-auth";
 
 const prisma = new PrismaClient();
 
-
-
-const handler = NextAuth({
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-
-
 
   providers: [
     CredentialsProvider({
@@ -22,11 +18,12 @@ const handler = NextAuth({
         email: { label: "Email", type: "email", placeholder: "exemplo@email.com" },
         password: { label: "Senha", type: "password" },
         role: { label: "role", type: 'UserRole' },
-
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
+        const host = req?.headers?.host || "localhost:3000";
+        console.log("Origem da requisição:", host);
+
         if (!credentials?.email || !credentials?.password) {
-          console.log("Email e senha são obrigatórios.");
           throw new Error("Email e senha são obrigatórios.");
         }
 
@@ -35,13 +32,11 @@ const handler = NextAuth({
         });
 
         if (!user) {
-
           throw new Error("Usuário não encontrado.");
         }
 
         const isValid = await compare(credentials.password, user.password);
         if (!isValid) {
-
           throw new Error("Senha incorreta.");
         }
 
@@ -60,11 +55,9 @@ const handler = NextAuth({
 
   callbacks: {
     async jwt({ token, user }) {
-      // Adiciona `role` ao token quando o usuário faz login
       if (user) {
-        token.id = user.id
-        token.role = user.role; // Adiciona o role do usuário ao token
-
+        token.id = user.id;
+        token.role = user.role;
       }
       return token;
     },
@@ -73,21 +66,24 @@ const handler = NextAuth({
       if (token) {
         session.user.role = token.role as UserRole;
         session.user.id = token.id as string;
-
       }
       return session;
     },
+
+    async redirect({ url, baseUrl }) {
+      // Detecta a origem dinamicamente com base na url da requisição
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      return url;
+    },
   },
 
-  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: `/login`,
     signOut: `/`,
     error: `/login`,
-
   },
-});
+};
 
-
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
