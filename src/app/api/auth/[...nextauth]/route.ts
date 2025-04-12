@@ -7,8 +7,12 @@ import { compare } from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+
+
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
+
+
 
   providers: [
     CredentialsProvider({
@@ -78,9 +82,9 @@ const handler = NextAuth({
 
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: `${process.env.NEXTAUTH_URL}/login`,
-    signOut: `${process.env.NEXTAUTH_URL}/`,
-    error: `${process.env.NEXTAUTH_URL}/login`,
+    signIn: `/login`,
+    signOut: `/`,
+    error: `/login`,
 
   },
 });
