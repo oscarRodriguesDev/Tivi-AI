@@ -14,14 +14,15 @@ const handler = NextAuth({
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        id:{label:'Id',type:'id'},
+        id: { label: 'Id', type: 'id' },
         email: { label: "Email", type: "email", placeholder: "exemplo@email.com" },
         password: { label: "Senha", type: "password" },
-        role: { label: "role", type:'UserRole'},
-       
+        role: { label: "role", type: 'UserRole' },
+
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log("Email e senha são obrigatórios.");
           throw new Error("Email e senha são obrigatórios.");
         }
 
@@ -30,13 +31,13 @@ const handler = NextAuth({
         });
 
         if (!user) {
-        
+
           throw new Error("Usuário não encontrado.");
         }
 
         const isValid = await compare(credentials.password, user.password);
         if (!isValid) {
-         
+
           throw new Error("Senha incorreta.");
         }
 
@@ -59,27 +60,29 @@ const handler = NextAuth({
       if (user) {
         token.id = user.id
         token.role = user.role; // Adiciona o role do usuário ao token
-       
+
       }
       return token;
     },
-  
+
     async session({ session, token }) {
       // Passa o `role` do token para a sessão
       if (token) {
         session.user.role = token.role as UserRole; // Faz o cast para UserRole
-        session.user.id =  token.id as string;
-        
+        session.user.id = token.id as string;
+
       }
       return session;
     },
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-   pages: {
+  pages: {
     signIn: "/login",
-  
-  }, 
+    signOut: "/",
+    error: "/login"
+
+  },
 });
 
 

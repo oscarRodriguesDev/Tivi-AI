@@ -20,17 +20,19 @@ export default function LoginPage() {
 
 
   const handleLogin = async () => {
-    setAviso('')
+    
     try {
       const result = await signIn("credentials", { email, password, callbackUrl: "/dating", redirect:true });
 
       if (result?.error) {
+     
         throw new Error(result.error);
       }
 
       // Se não houver erro, o usuário será redirecionado automaticamente pelo NextAuth
     } catch (error) {
       setAviso('Usuário ou senha incorretos')
+      alert(aviso)
       setPassword(""); // Limpa a senha, mantendo o email
     }
   };

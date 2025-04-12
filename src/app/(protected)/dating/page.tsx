@@ -32,6 +32,7 @@ import HeadPage from '../components/headPage';
 import ViewMes from '../components/viewMes';
 import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
 import { Agendamento } from '../../../../types/agendamentos';
+import ModalMeetEdit from '../components/modal-meet-edit';
 
 
 
@@ -160,6 +161,17 @@ export default function AgendamentoPage() {
    */
   const [periodo, setPeriodo] = useState<string>('Dia');
 
+  const [modalAberto, setModalAberto] = useState(false);
+  const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
+
+
+
+  //função para editar o agendamento
+  const handleEditar = (agendamento: any) => {
+    setAgendamentoSelecionado(agendamento);
+    setModalAberto(true);
+   
+  };
 
 
 
@@ -176,7 +188,7 @@ export default function AgendamentoPage() {
       const response = await fetch("/api/gen-meet");
       if (response.ok) {
         const data = await response.json();
-        console.log("Dados recebidos:", data); // Verifique os dados aqui
+        //console.log("Dados recebidos:", data); // Verifique os dados aqui
         setAgendamentos(data);
 
       } else {
@@ -194,7 +206,7 @@ export default function AgendamentoPage() {
  */
   useEffect(() => {
     buscarAgendamentos();
-  }, []);
+  }, [agendamentos]);
 
 
   /**
@@ -391,7 +403,9 @@ export default function AgendamentoPage() {
                         )}
                       </p>
                       <div className="flex space-x-2 pt-5">
-                        <button className="text-blue-500 hover:text-blue-700">
+                        <button className="text-blue-500 hover:text-blue-700"
+                          onClick={() => handleEditar(ag)}
+                        >
                           <FaEdit size={20} />
                         </button>
                         <button className="text-red-500 hover:text-red-700">
@@ -465,7 +479,14 @@ export default function AgendamentoPage() {
 
 
           </div>
-
+ {/* Modal para edição */}
+ {agendamentoSelecionado && (
+        <ModalMeetEdit
+          isOpen={modalAberto}
+          onClose={() => setModalAberto(false)}
+          meet={agendamentoSelecionado}
+        />
+      )}
 
         </div>
       ) : (
