@@ -9,11 +9,8 @@ import { useSession, signOut } from "next-auth/react"; // Importe o hook useSess
 
 
 const CardUser = () => {
-  const [agendamentoOpen, setAgendamentoOpen] = useState(false);
-  const [transcricoesOpen, setTranscricoesOpen] = useState(false);
+
   const [id, setId] = useState<string | null>('')
-
-
 
   const { data: session, status } = useSession(); // Obtém os dados da sessão
 
