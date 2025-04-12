@@ -82,11 +82,11 @@ const handler = NextAuth({
 
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: `/login`,
-    signOut: `/`,
+   /*  signIn: `/login`,
+    signOut: `/`, */
     error: `/login`,
 
-  },
+  }, 
 });
 
 

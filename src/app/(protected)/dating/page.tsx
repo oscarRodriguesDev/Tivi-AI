@@ -204,9 +204,15 @@ export default function AgendamentoPage() {
  * 
  * Equivalente ao `componentDidMount`. Garante que os agendamentos sejam carregados ao iniciar.
  */
-  useEffect(() => {
-    buscarAgendamentos();
-  }, [agendamentos]);
+ useEffect(() => {
+  //definir tempo de atualização dos agendamentos
+  const intervalId = setInterval(() => {
+      buscarAgendamentos();
+  }, 10000);
+
+  //limpar o intervalo ao desmontar o componente
+  return () => clearInterval(intervalId);
+}, [agendamentos]);
 
 
   /**
@@ -306,6 +312,20 @@ export default function AgendamentoPage() {
       console.error('Erro ao copiar a mensagem: ', err);
     });
   };
+
+  
+  const  handleDeletar = async(id: string) => {
+    const response = await fetch(`/api/gen-meet`, {
+      method: 'DELETE',
+      body: JSON.stringify({ id }),
+    });
+    if (response.ok) {
+    alert("Agendamento deletado com sucesso");
+    buscarAgendamentos();
+    } else {
+    alert("Erro ao deletar agendamento");
+  }; 
+  }
 
 
 
@@ -408,8 +428,11 @@ export default function AgendamentoPage() {
                         >
                           <FaEdit size={20} />
                         </button>
-                        <button className="text-red-500 hover:text-red-700">
+                        <button className="text-red-500 hover:text-red-700"
+                          onClick={() => handleDeletar(ag.id)}
+                        >
                           <FaTrash size={20} />
+                          
                         </button>
                         <button className="text-green-600 hover:text-green-400"
                           onClick={() => { copiarLinkParaWhatsApp(ag.id, ag.data, ag.hora) }}
