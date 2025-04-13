@@ -26,8 +26,6 @@ const CardUser = () => {
         const response = await fetch(`/api/uploads?userId=${session?.user?.id}`);
         const data = await response.json();
         setFotoPerfil(data.url);
-        alert(data.url)
-       
         // Passa apenas a parte relativa para o estado
       } catch (error) {
         console.error("Erro ao buscar foto de perfil:", error);
