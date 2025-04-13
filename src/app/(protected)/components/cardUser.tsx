@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react"; // Importe o hook useSession e signOut
-
+import Image from "next/image";
+import userDefault from "../../../../public/profile_pictures_ps/userdefault.png";
+import { redirect } from "next/dist/server/api-utils";
 
 
 
@@ -13,6 +15,28 @@ const CardUser = () => {
   const [id, setId] = useState<string | null>('')
 
   const { data: session, status } = useSession(); // Obtém os dados da sessão
+  const [cardOpen, setCardOpen] = useState(false);
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+
+
+
+  useEffect(() => {
+    const fetchFotoPerfil = async () => {
+      try {
+        const response = await fetch(`/api/uploads?userId=${session?.user?.id}`);
+        const data = await response.json();
+        setFotoPerfil(data.url);
+        alert(data.url)
+       
+        // Passa apenas a parte relativa para o estado
+      } catch (error) {
+        console.error("Erro ao buscar foto de perfil:", error);
+      }
+    };
+    fetchFotoPerfil();
+  }, [session?.user?.id]);
+
+  
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -31,40 +55,49 @@ const CardUser = () => {
 
   return (
     <>
-      <div className="relative px-2 w-[220px] left-[83%] bg-emerald-800 p-0  text-black z-50 rounded-sm ">
-        {/* Meu Perfil Link, devo criar a forma de pegar o id do usuario para que ele possa visualizer o perfil dele*/}
+      <div className="relative px-2 w-[220px] left-[83%]  text-black z-50 rounded-sm cursor-pointer"
+        onClick={() => setCardOpen(!cardOpen)}
+      >
 
-        <Link href={urlPerfil} className="text-white text-xs hover:text-red-400 px-2 py-2 rounded-md transition duration-300 ease-in-out">
-         Acessar Perfil
-        </Link>
-
-        {/* Status de Usuário */}
         {status === "authenticated" ? (
-          <div className="flex items-center space-x-2">
-            
-            {session.user.role!=='ADMIN' ? ( /* se common user entrar no sistema tem que alterar isso */
-            <span className="text-sm text-gray-300">
-              Psicologo: {session.user?.name}
-            </span>
-            ):
-            (
-              <span className="text-sm text-gray-300">
-              Admin: {session.user?.name}
-            </span>
-            )
-            }
+          <div className="flex items-center space-x-3 "
+
+          >
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
+              <Image
+                src={fotoPerfil || userDefault}
+                alt="Foto de perfil"
+                width={40}
+                height={40}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <span className="text-sm text-black truncate">{session.user?.name}</span>
+          </div>
+        ) : (
+          <>
+            redirect("/login")
+          </>
+        )}
+
+        {cardOpen && (
+          <div className="absolute top-10  w-[220px] left-[0%] bg-white shadow-md rounded-md p-2">
+
+            <Link href={urlPerfil} className="text-black  hover:text-red-400 px-0 py-2 rounded-md transition duration-300 ease-in-out">
+
+              Meu perfil
+            </Link>
+
+            <br />
+
 
             <button
               onClick={handleLogout}
-              className=" text-white hover:text-red-400 px-4 py-2 rounded-md transition duration-300 ease-in-out"
+              className=" text-black hover:text-red-400 px-0 py-2 rounded-md transition duration-300 ease-in-out"
             >
-              Logout
+              Sair
             </button>
           </div>
-        ) : (
-          <Link href="/login" className="hover:bg-gray-600 px-4 py-2 rounded-md transition duration-300 ease-in-out">
-            Login
-          </Link>
         )}
 
       </div>
@@ -75,3 +108,15 @@ const CardUser = () => {
   );
 };
 export default CardUser;
+
+
+{/*    <button
+              onClick={handleLogout}
+              className=" text-white hover:text-red-400 px-4 py-2 rounded-md transition duration-300 ease-in-out"
+            >
+              Logout
+            </button> 
+            
+             <Link href={urlPerfil} className="text-white text-xs hover:text-red-400 px-2 py-2 rounded-md transition duration-300 ease-in-out">
+            </Link>
+            */}
