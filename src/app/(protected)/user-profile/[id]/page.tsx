@@ -3,7 +3,8 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect, useId } from "react";
 import Image from "next/image";
-import tiviai from "../../../../../public/patern_capa/tivia.jpg";
+import tiviai from "../../../../../public/patern_capa/banner_pattern.png";
+import capa_default from "../../../../../public/patern_capa/tivia.jpg";
 import userDefault from "../../../../../public/profile_pictures_ps/userdefault.png";
 import AlteracaoSenha from "../../components/trocar_senha";
 import { Psicologo } from "../../../../../types/psicologos";
@@ -180,7 +181,7 @@ const Perfil = () => {
             const fileData = new FormData();
             fileData.append("file", file);
 
-            const res = await fetch("/api/uploads", {
+            const res = await fetch("/api/uploads/?path=profile-pictures", {
                 method: "POST",
                 body: fileData,
             });
@@ -204,6 +205,40 @@ const Perfil = () => {
 
 
 
+
+    //função para alterar banner
+    const handleBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !formData) return;
+
+        try {
+            const fileData = new FormData();
+            fileData.append("file", file);
+
+            const res = await fetch("/api/uploads/?path=banner", {
+                method: "POST",
+                body: fileData,
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || "Erro no upload");
+            }
+
+            const data = await res.json();
+            alert("Banner atualizado!");
+
+            // Atualiza com a URL correta
+            setFormData((prevFormData) =>
+                prevFormData ? { ...prevFormData, banner: data.url } : null
+            );
+        } catch (error) {
+            alert("Erro ao enviar o banner. Tente novamente.");
+        }
+    };
+
+
+
     /**
   * Condicional que verifica se os dados do psicólogo ou o formulário estão carregados.
   * Caso contrário, exibe a mensagem de "Carregando..." enquanto os dados são carregados.
@@ -220,22 +255,71 @@ const Perfil = () => {
 
         return (
             <>
+
                 {!renderBox ? (
+
                     <div className="w-full min-h-screen bg-gray-100 flex flex-col items-center">
                         {/* Banner */}
-                        <div className="w-full h-60 bg-gray-800">
-                            <Image
-                                src={tiviai}
-                                width={800}
-                                alt="Banner"
-                                quality={100}
-                                className="w-full h-60"
-                            />
-                        </div>
+                        {!editando ? (
+                            <div className="w-full h-60 bg-gray-800">
+                                <Image
+                                    src={formData.banner || capa_default}
+                                    width={800}
+                                    height={375}
+                                    alt="Banner"
+                                    quality={100}
+                                    className="w-full h-60"
+                                />
+                            </div>
+
+                        ) : (
+                            /* 1472 x375 padrão do banner*/
+
+                            <div className="w-full rounded-xl overflow-hidden border border-gray-300 shadow-md bg-white">
+                                <div className="relative w-full h-60 bg-gray-800">
+                                    <Image
+                                        src={tiviai}
+                                        width={800}
+                                        height={375}
+                                        alt="Banner"
+                                        quality={100}
+                                        className=" w-full h-60"
+                                    />
+                                </div>
+
+                                <div className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                    <label
+                                        htmlFor="file-input"
+                                        className="text-sm font-medium text-gray-700"
+                                    >
+                                        Escolha uma foto de banner
+                                    </label>
+
+                                    <input
+                                        name="banner"
+                                        id="file-input"
+                                        type="file"
+                                        className="absolute top-0 w-full sm:w-auto text-sm text-gray-700 
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-lg file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-indigo-50 file:text-indigo-700
+                                        hover:file:bg-indigo-100 transition duration-150 ease-in-out"
+                                        onChange={handleBanner}
+                                    />
+                                </div>
+                            </div>
+
+
+
+                        )}
+
 
                         {/* Perfil */}
                         <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg -mt-16 p-6 flex flex-col items-center">
                             {editando ? (
+                                /* edição de dados do perfil */
+
                                 <>
                                     <label htmlFor="foto">Escolha uma foto de perfil</label>
                                     <input
@@ -366,7 +450,10 @@ const Perfil = () => {
                                         placeholder="Estado"
                                     />
                                 </>
+
+
                             ) : (
+                                /* Dados renderizados caso não esteja editando */
                                 <>
                                     <p className="text-gray-500 mt-2 text-center">
                                         {psicologo.description || "descrição de psicologo"}

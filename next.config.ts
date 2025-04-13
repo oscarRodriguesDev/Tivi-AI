@@ -5,10 +5,16 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: process.env.SUPABASE_URL?.replace(/^https?:\/\//, '') || 'qfpygaqyldmthqakmisq.supabase.co',
-        pathname: '/storage/v1/object/public/tiviai-images/profile-pictures/**', // Ajustado para o caminho correto das imagens
+        hostname: 'qfpygaqyldmthqakmisq.supabase.co',
+        pathname: '/storage/v1/object/public/tiviai-images/**',
       },
     ],
+  },
+  // Caso queira aumentar o limite de upload, adicione isso no arquivo
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',  // Ajusta o limite para 10MB ou conforme sua necessidade
+    },
   },
 };
 

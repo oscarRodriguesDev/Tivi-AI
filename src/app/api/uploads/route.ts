@@ -1,47 +1,41 @@
+
+
+
 import { supabase } from '@/lib/supabaseClient';
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
+
+/**
+ * PrismaClient é o client do ORM Prisma para realizar consultas e transações com o banco de dados.
+ * Recomendado criar apenas uma instância por execução, especialmente em ambientes serverless.
+ *
+ * @see https://www.prisma.io/docs/concepts/components/prisma-client
+ */
+
 const prisma = new PrismaClient();
 
-// Função para fazer upload de arquivo no Supabase Storage
-async function uploadFile(file: File) {
-  const fileName = `${Date.now()}-${file.name}`; // Garante um nome único
-  
-  // Faz o upload do arquivo no bucket "tiviai-images"
-  const { data, error } = await supabase.storage
-    .from('tiviai-images')
-    .upload(`profile-pictures/${fileName}`, file, {
-      cacheControl: '3600', 
-      upsert: false,
-    });
+ 
+/**
+ * Função assíncrona para fazer upload de um arquivo no Supabase Storage.
+ *
+ * @param {File} file - O arquivo a ser enviado.
+ * @returns {Promise<string | null>} A URL pública do arquivo salvo ou null em caso de erro.
+ */
+async function uploadFile(file: File, path: string) {
+  // Limpa o nome do arquivo: remove espaços, acentos e caracteres especiais
+  const sanitizedFileName = file.name
+    .normalize("NFD") // Remove acentos
+    .replace(/[\u0300-\u036f]/g, "") // Remove marcas de acento
+    .replace(/\s+/g, '-') // Substitui espaços por hífen
+    .replace(/[^a-zA-Z0-9.-]/g, ''); // Remove caracteres não permitidos (exceto ponto e hífen)
 
-  if (error) {
-    console.error('Erro no upload:', error);
-    return null;
-  }
+  const fileName = `${Date.now()}-${sanitizedFileName}`; // Nome único e limpo
 
-  console.log('Arquivo enviado com sucesso:', data);
-
-  // Obtém a URL pública do arquivo
-  const { data: publicUrl } = supabase
-    .storage
-    .from('tiviai-images')
-    .getPublicUrl(`profile-pictures/${fileName}`);
-
-  return publicUrl.publicUrl; // Retorna a URL pública do arquivo salvo
-}
-
-
-// Função para fazer upload de qualquer arquivo no Supabase Storage
-async function uploadPhotos(file: File,path:string) {
-  const fileName = `${Date.now()}-${file.name}`; // Garante um nome único
-  
-  // Faz o upload do arquivo no bucket "tiviai-images"
   const { data, error } = await supabase.storage
     .from('tiviai-images')
     .upload(`${path}/${fileName}`, file, {
-      cacheControl: '3600', 
+      cacheControl: '3600',
       upsert: false,
     });
 
@@ -52,17 +46,19 @@ async function uploadPhotos(file: File,path:string) {
 
   console.log('Arquivo enviado com sucesso:', data);
 
-  // Obtém a URL pública do arquivo
   const { data: publicUrl } = supabase
     .storage
     .from('tiviai-images')
     .getPublicUrl(`${path}/${fileName}`);
 
-  return publicUrl.publicUrl; // Retorna a URL pública do arquivo salvo
+  return publicUrl?.publicUrl;
 }
+
+
 
 // Função que recebe a requisição POST e chama `uploadFile`
 export async function POST(req: Request) {
+    const path = new URL(req.url).searchParams.get('path');
   try {
     // Obtém os dados da requisição
     const formData = await req.formData();
@@ -73,7 +69,13 @@ export async function POST(req: Request) {
     }
 
     // Chama a função de upload
-    const fileUrl = await uploadFile(file);
+    //testar se o path é profile-pictures ou banner 
+    let fileUrl: string | null = null;
+    if (path === 'profile-pictures') {
+      fileUrl = await uploadFile(file, 'profile-pictures');
+    } else if (path === 'banner') {
+      fileUrl = await uploadFile(file, 'banner');
+    }
     if (!fileUrl) {
       return NextResponse.json({ error: 'Erro ao salvar o arquivo' }, { status: 500 });
     }
@@ -82,5 +84,50 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error('Erro inesperado:', err);
     return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
+  }
+}
+
+
+
+
+//buscar a image do usuaio
+// buscar a imagem do usuário
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get("userId");
+
+  if (!userId) {
+    return NextResponse.json({ error: "ID do usuário não fornecido" }, { status: 400 });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.photoprofile) {
+      return NextResponse.json({ error: "Usuário ou imagem não encontrada" }, { status: 404 });
+    }
+
+    // Se o campo photoprofile tiver URL completa, extrai só o path
+    const path = user.photoprofile.replace(
+      'https://qfpygaqyldmthqakmisq.supabase.co/storage/v1/object/public/tiviai-images/',
+      ''
+    );
+
+    const { data: publicUrlData } = supabase
+      .storage
+      .from("tiviai-images")
+      .getPublicUrl(path);
+
+    if ( !publicUrlData?.publicUrl) {
+      console.error("Erro ao gerar URL pública:");
+      return NextResponse.json({ error: "Erro ao obter URL da imagem" }, { status: 500 });
+    }
+
+    return NextResponse.json({ url: publicUrlData.publicUrl });
+  } catch (err) {
+    console.error("Erro ao buscar imagem:", err);
+    return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
   }
 }
