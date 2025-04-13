@@ -423,3 +423,10 @@ const [transcription, setTranscription] = useState<string>("");
 
   );
 }
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+
