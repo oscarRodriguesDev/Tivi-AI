@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: 'Upload realizado com sucesso!', url: fileUrl });
   } catch (err) {
-    console.error('Erro inesperado:', err);
+    console.error('Erro inesperado:' ,err);
     return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
   }
 }
@@ -127,7 +127,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ url: publicUrlData.publicUrl });
   } catch (err) {
-    console.error("Erro ao buscar imagem:", err);
+  
     return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
   }
 }

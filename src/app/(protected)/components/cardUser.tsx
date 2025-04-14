@@ -53,9 +53,12 @@ const CardUser = () => {
 
   return (
     <>
-      <div className="relative px-2 w-[220px] left-[83%]  text-black z-50 rounded-sm cursor-pointer"
-        onClick={() => setCardOpen(!cardOpen)}
-      >
+     <div
+className="relative px-2 py-2 w-[220px] left-[83%] text-black z-50 rounded-sm cursor-pointer 
+           bg-white hover:bg-gray-100 transition-colors duration-200 shadow-md"
+  onClick={() => setCardOpen(!cardOpen)}
+>
+  {/* conteúdo aqui */}
 
         {status === "authenticated" ? (
           <div className="flex items-center space-x-3 "

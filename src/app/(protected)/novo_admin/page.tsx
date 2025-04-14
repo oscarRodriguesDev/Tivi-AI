@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import HeadPage from "../components/headPage";
+import { FaRegCreditCard, FaUserCheck } from "react-icons/fa";
 
 export default function CadastroAdmin() {
   const [formData, setFormData] = useState({
@@ -58,6 +60,8 @@ export default function CadastroAdmin() {
   };
 
   return (
+    <>
+      <HeadPage title="Novo Administrador" icon={<FaUserCheck size={20} />} />
     <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4">Cadastro de Usuário</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -120,5 +124,6 @@ export default function CadastroAdmin() {
         </button>
       </form>
     </div>
+    </>
   );
 }
