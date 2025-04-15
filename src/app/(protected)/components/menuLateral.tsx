@@ -11,6 +11,7 @@ import { PiUserCheckFill } from "react-icons/pi";
 import { useRouter } from "next/navigation";
 import Logomarca from '../../../../public/marca/marca tiviai.png'
 import Image from "next/image";
+import CardUser from "./cardUser";
 
 // Tipagem do MenuItemProps
 type MenuItemProps = {
@@ -27,6 +28,8 @@ const Menu: React.FC = () => {
 
 
     <div className="absolute w-[244px] h-auto bg-white p-5">
+
+      <CardUser/>
 
       {/* logomarca */}
       <div className="w-[187px] h-[78px] bg-white  mb-5">
