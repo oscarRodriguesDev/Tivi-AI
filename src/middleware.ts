@@ -9,3 +9,4 @@ export default withAuth({
 export const config = {
   matcher: ["/app/:path*", ], // Rotas protegidas
 };
+

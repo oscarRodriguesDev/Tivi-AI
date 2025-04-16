@@ -78,7 +78,7 @@ className="absolute top-9 left-[680%] w-[220px]  text-black z-50 rounded-sm curs
           </div>
         ) : (
           <>
-           { redirect("/login")}
+        <div>Usuario não autenticado</div>
           </>
         )}
 

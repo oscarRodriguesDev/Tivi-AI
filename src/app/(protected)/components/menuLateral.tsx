@@ -28,18 +28,17 @@ const Menu: React.FC = () => {
 
 
     <div className="absolute w-[244px] h-auto bg-white p-5">
-
-      <CardUser/>
+       <CardUser/> 
 
       {/* logomarca */}
       <div className="w-[187px] h-[78px] bg-white  mb-5">
         <Image src={Logomarca} alt="logomarca tiviai" className="w-full h-full object-contain" />
+       
       </div>
 
       {/* Itens do menu */}
       <nav className="space-y-5"> 
         <MenuItem icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push('/dashboard')} />
-        {/* Você pode descomentar os outros itens se necessário */}
         <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push('/pacientes/123')} />{/* vai pegar o id do psicolog */}
         <MenuItem icon={<LuCalendarDays size={25} />} label="Agendamentos" onClick={() => router.push('/dating')} />
         <MenuItem icon={<MdOutlineSick size={25} />} label="Pacientes" onClick={() => router.push('/atendimentos')} />
@@ -48,14 +47,19 @@ const Menu: React.FC = () => {
         <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push('/credit')} />
         <MenuItem icon={<PiUserCheckFill size={25} />} label="Novos psicologos" onClick={() => router.push('/aprove-psc')} />
         <MenuItem icon={<PiUserCheckFill size={25} />} label="Novo Administrador" onClick={() => router.push('/novo_admin')} />
+    
       </nav>
     </div>
   );
 };
 
+
+
 // Componente MenuItem agora recebe e utiliza o onClick
 const MenuItem: React.FC<MenuItemProps> = ({ icon, label, onClick }) => {
   return (
+    <>
+    
     <div
       className="flex items-center space-x-3 hover:bg-gray-100 active:scale-95 active:bg-gray-200 transition-transform duration-300 rounded-lg cursor-pointer"
       onClick={onClick} // Utilizando o onClick passado como prop
@@ -63,6 +67,8 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, label, onClick }) => {
       {icon}
       <span className="text-black text-sm font-medium">{label}</span>
     </div>
+    
+    </>
   );
 };
 
