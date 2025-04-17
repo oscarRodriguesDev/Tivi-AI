@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react"; // Importe o hook useSession e signOut
 import Image from "next/image";
 import userDefault from "../../../../public/profile_pictures_ps/userdefault.png";
-import { redirect } from "next/dist/server/api-utils";
+import { redirect } from "next/navigation";
+
 
 
 
@@ -54,7 +55,7 @@ const CardUser = () => {
   return (
     <>
      <div
-className="relative px-2 py-2 w-[220px] left-[83%] text-black z-50 rounded-sm cursor-pointer 
+className="absolute top-9 left-[680%] w-[220px]  text-black z-50 rounded-sm cursor-pointer 
            bg-white hover:bg-gray-100 transition-colors duration-200 shadow-md"
   onClick={() => setCardOpen(!cardOpen)}
 >
@@ -77,7 +78,7 @@ className="relative px-2 py-2 w-[220px] left-[83%] text-black z-50 rounded-sm cu
           </div>
         ) : (
           <>
-            redirect("/login")
+        <div>Usuario não autenticado</div>
           </>
         )}
 
