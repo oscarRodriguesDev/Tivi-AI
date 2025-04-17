@@ -189,9 +189,9 @@ export default function Home() {
       analyser.getByteFrequencyData(dataArray);
       const volume = dataArray.reduce((a, b) => a + b) / dataArray.length; // Calcula o volume médio
 
-      if (remoteAudioRef.current) {
+     /*  if (remoteAudioRef.current) {
         remoteAudioRef.current.muted = volume > 10; // Se estiver falando, muta o alto-falante
-      }
+      } */
       handleTranscription('text', isPsychologist);
       requestAnimationFrame(checkVolume);
     };
@@ -258,6 +258,16 @@ export default function Home() {
 
         call.on("stream", (remoteStream) => {
           if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = remoteStream;
+          }
+        
+          // Se quiser, também pode criar um elemento <audio> separado
+          if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = remoteStream;
+            remoteAudioRef.current.play();
+          }
+          
         });
 
         call.on("close", () => endCall()); // Listener para quando a chamada for encerrada
@@ -393,6 +403,7 @@ export default function Home() {
             autoPlay
             playsInline
             className="w-full h-full bg-gray-600 rounded-lg shadow-lg z-50"
+            muted={true}
           />
           <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm z-50">Psicologo</div>
         </div>

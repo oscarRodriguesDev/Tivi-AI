@@ -266,6 +266,18 @@ const [transcription, setTranscription] = useState<string>("");
 
         call.on("stream", (remoteStream) => {
           if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = remoteStream;
+          }
+        
+          // Se quiser, também pode criar um elemento <audio> separado
+          if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = remoteStream;
+            remoteAudioRef.current.play();
+          }
+
+          
         });
 
         call.on("close", () => endCall());
@@ -329,7 +341,13 @@ const [transcription, setTranscription] = useState<string>("");
       {/* Vídeo do Psicólogo - Menor no canto inferior esquerdo */}
       <div className="absolute bottom-4 left-4 w-1/4 h-auto">
         {/* <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" /> */}
-        <video ref={videoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" />
+        <video
+         ref={videoRef}
+          autoPlay
+           playsInline
+           className="w-full h-auto bg-black object-cover border-2 border-indigo-500" 
+           muted={true}
+           />
         <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 font-semibold text-sm">
           você
         </div>
@@ -405,3 +423,10 @@ const [transcription, setTranscription] = useState<string>("");
 
   );
 }
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+//subindo para o github para homologar o codigo com o de teste
+

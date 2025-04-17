@@ -44,6 +44,7 @@ const Menu: React.FC = () => {
         <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push('/finance')} />
         <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push('/credit')} />
         <MenuItem icon={<PiUserCheckFill size={25} />} label="Novos psicologos" onClick={() => router.push('/aprove-psc')} />
+        <MenuItem icon={<PiUserCheckFill size={25} />} label="Novo Administrador" onClick={() => router.push('/novo_admin')} />
       </nav>
     </div>
   );

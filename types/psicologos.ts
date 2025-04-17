@@ -92,6 +92,13 @@ interface Psicologo {
     photoprofile?: string;
   
     /**
+     * URL do banner do psicólogo.
+     * Opcional.
+     * @type {string | undefined}
+     */
+    banner?: string;
+  
+    /**
      * Descrição ou biografia do psicólogo.
      * Opcional.
      * @type {string | undefined}
