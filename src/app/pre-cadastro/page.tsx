@@ -15,6 +15,7 @@ import { IoIosInformationCircle } from "react-icons/io";
 import { useMemo, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { validarCPF } from "../util/validarCPF";
+import ModalConsent from "../components/modal-consent";
 
 
 
@@ -142,7 +143,7 @@ const Cadastro = () => {
  * console.log(idade); // Saída: 34 (dependendo do ano atual)
  */
     const defIdade = (data: string) => Math.floor((new Date().getTime() - new Date(data).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-    
+
 
 
 
@@ -151,6 +152,25 @@ const Cadastro = () => {
  * Atualiza dinamicamente conforme o valor de `nasc` muda.
  */
     const idade = useMemo(() => defIdade(nasc), [nasc])
+
+    const [showModal, setShowModal] = useState(false); // ou false inicialmente, se preferir
+    const [consentido, setConsentido] = useState<boolean | null>(null);
+
+    const handleConsent = (consent: boolean) => {
+        setShowModal(false);
+        setConsentido(consent);
+        console.log('Usuário consentiu?', consent);
+    };
+
+
+
+    const userData = {
+        nome: nome,
+        cpf: cpf,
+    };
+
+
+
 
 
     /**
@@ -181,12 +201,15 @@ const Cadastro = () => {
      */
 
     const handleSubmit = async (event: React.FormEvent) => {
+       
+
         if (idade < 18) {
             alert('Você não tem idade para se cadastrar')
             setNasc('')
             return null
 
         }
+
 
         event.preventDefault()
         setCFP(crp)
@@ -207,37 +230,41 @@ const Cadastro = () => {
         }
 
         try {
-            const response = await fetch("/api/analize_psco", {
+            setShowModal(true)
+            if (!consentido) {
+                alert('usuario precisa dar aceite no temro de dados')
+            }else{
 
+            
+            const response = await fetch("/api/analize_psco", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(dados) // Converte para JSON antes de enviar
+                //body: JSON.stringify(dados) // Converte para JSON antes de enviar
             });
-
             const result = await response.json(); // Transforma a resposta em JSON
-
-
             if (response.ok) {
-
                 alert("Pré-cadastro realizado com sucesso");
                 event.preventDefault()
                 clearInputs()
-
             } else {
-
                 alert('Dados não foram salvos no banco de dados')
                 setTelefone('')
                 setCelular('')
             }
+        }
         } catch (error) {
             alert('Erro ao enviar dados ' + error)
             console.error("Erro na requisição:", error);
             setTelefone('')
             setCelular('')
         }
-    };
+        finally {
+          
+            console.log("Verifique os logs do sistema!")
+    }}
+;
 
 
 
@@ -338,9 +365,16 @@ const Cadastro = () => {
      */
 
     return (
-       <>
-       
+        <>
+
             <div className="flex items-center  justify-center mt-48 ">
+
+                <ModalConsent
+                    show={showModal}
+                    onConsent={handleConsent}
+                    userData={userData}
+                />
+
                 <form onSubmit={handleSubmit}>
                     <div className="relative w-[1260px] h-auto bg-white p-5 rounded-lg shadow-md">
                         {/* Header */}
@@ -366,8 +400,8 @@ const Cadastro = () => {
                                 <label className="text-sm font-medium"> Sobrenome:</label>
                                 <input type="text"
                                     className="border border-gray-300 rounded p-1"
-                                   onChange={(e) => setLastName(e.target.value)}
-                                    value={lastName} 
+                                    onChange={(e) => setLastName(e.target.value)}
+                                    value={lastName}
                                     required
                                 />
                             </div>
@@ -437,7 +471,7 @@ const Cadastro = () => {
                                     />
                                 </div>
                             </div>
-                            
+
                         </div>
 
                         <div className="grid grid-cols-2 w-full  gap-6 mt-4">
@@ -532,12 +566,12 @@ const Cadastro = () => {
                 </form>
 
             </div>
-       </>
-       
-       
-       
+        </>
 
-      
+
+
+
+
 
 
     );
