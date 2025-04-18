@@ -207,8 +207,8 @@ export default function AgendamentoPage() {
  useEffect(() => {
   //definir tempo de atualização dos agendamentos
   const intervalId = setInterval(() => {
-      buscarAgendamentos();
-  }, 10000);
+     buscarAgendamentos();
+  }, 1000);
 
   //limpar o intervalo ao desmontar o componente
   return () => clearInterval(intervalId);
@@ -252,7 +252,7 @@ export default function AgendamentoPage() {
           fetchPeerId(ag.id);
         }
       });
-    }, 10000);  
+    }, 5000);  
 
     // Limpeza do intervalo ao desmontar o componente
     return () => clearInterval(intervalId);
@@ -386,24 +386,26 @@ export default function AgendamentoPage() {
             {periodo == 'Dia' &&
               <div className="bg-gray-200 p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
                 <ul>
-                  {agendamentos.map((ag) => (
-                    <li key={ag.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
-                      <p className="text-lg font-bold text-blue-950">Consulta OnLine</p>
-                      <p className="text-lg font-bold  text-blue-950"> Reunião com {ag.fantasy_name}</p>
-                      <p className="text-sm  text-blue-950">Horário: {ag.hora}</p>
-                      <p className="text-sm  text-blue-950">{ag.observacao}</p>
+                  {agendamentos.map((meet) => (
+                    /* melhorar esse layout */
+                    <li key={meet.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
+                    <p className="text-xl w-full font-semibold text-white text-center bg-slate-600">Consulta Online com {meet.name}</p>
+                    <p className="text-lg font-medium text-blue-800">Nick name {meet.fantasy_name}</p>
+                    <span className="text-base text-blue-800">Data da reunião: <span className="font-medium">{meet.data}</span></span>
+                    <p className="text-sm text-blue-700">Horário: {meet.hora}</p>
+                    <p className="text-sm text-blue-600">{meet.observacao}</p>
                       <p className="text-sm text-blue-400">
                         {loading ? (
                           <span className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-semibold">
                             Carregando...
                           </span>
-                        ) : peerIds[ag.id] ? (
+                        ) : peerIds[meet.id] ? (
                           <button
-                            onClick={() => redirect(`/call/${ag.id}/?iddinamico=${idUser}`)}
+                            onClick={() => redirect(`/call/${meet.id}/?iddinamico=${idUser}`)}
 
                             className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
                           >
-                            Iniciar Reunião com {ag.name}
+                            Iniciar Reunião com {meet.name}
                           </button>
                         ) : (
 
@@ -411,11 +413,11 @@ export default function AgendamentoPage() {
                             Link:
                             <p
                               className="text-black cursor-pointer w-full"
-                              onClick={() => { handleCopy(ag.id) }}
+                              onClick={() => { handleCopy(meet.id) }}
                             >
-                              /publiccall/{ag.id}
+                              /publiccall/{meet.id}
                             </p>
-                            {copiedLinks[ag.id] && <span className="text-green-500 text-sm">Link copiado!</span>}
+                            {copiedLinks[meet.id] && <span className="text-green-500 text-sm">Link copiado!</span>}
 
 
                           </span>
@@ -424,18 +426,18 @@ export default function AgendamentoPage() {
                       </p>
                       <div className="flex space-x-2 pt-5">
                         <button className="text-blue-500 hover:text-blue-700"
-                          onClick={() => handleEditar(ag)}
+                          onClick={() => handleEditar(meet)}
                         >
                           <FaEdit size={20} />
                         </button>
                         <button className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDeletar(ag.id)}
+                          onClick={() => handleDeletar(meet.id)}
                         >
                           <FaTrash size={20} />
                           
                         </button>
                         <button className="text-green-600 hover:text-green-400"
-                          onClick={() => { copiarLinkParaWhatsApp(ag.id, ag.data, ag.hora) }}
+                          onClick={() => { copiarLinkParaWhatsApp(meet.id, meet.data, meet.hora) }}
                         >
                           <FaWhatsapp size={20} />
                         </button>
