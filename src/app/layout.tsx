@@ -18,7 +18,7 @@ export const metadata: Metadata = {
       "Aumente sua produtividade com o Tivi AI, o assistente inteligente para reuniões que transcreve, agenda e fornece insights em tempo real.",
     url: "https://tivi.ai",
     type: "website",
-    locale: "pt_BR",
+    locale: "PT_BR",
     siteName: "Tivi AI",
   },
 };
@@ -29,13 +29,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt">
+    <html lang="pt-br">
       <body>
-        {/* IMPORTANTE: AuthProvider deve ser um client component */}
-        <AuthProvider> {children} </AuthProvider>
+        
+       <AuthProvider>{children} </AuthProvider>
       </body>
     </html>
   );
 }
-//enviando para homologação
-//https://tivi-ai-git-homologacao-tivi-ai-app.vercel.app/
+

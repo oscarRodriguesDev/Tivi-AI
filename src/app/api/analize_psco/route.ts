@@ -172,6 +172,7 @@ function gerarSenhaAleatoria(tamanho: number = 8): string {
  */
 async function efetivarPsicologo(nome: string, lastname: string, email_confirm: string, cpf: string, cfp: string, crp: string, telefone: string, celular: string, data_nasc: string) {
   let cname = `${nome.replace(/\s+/g, "")}.${lastname.replace(/\s+/g, "")}`
+  cname= cname.toLowerCase()
   const senha = gerarSenhaAleatoria().toLowerCase()
   const hashedPassword = await bcrypt.hash(senha, 10);
 

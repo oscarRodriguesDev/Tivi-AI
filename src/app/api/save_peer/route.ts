@@ -13,6 +13,7 @@ export async function GET(req: Request) {
     // Extrair o iddinamico da URL
     const url = new URL(req.url);
     const iddinamico = url.searchParams.get('iddinamico'); // Supondo que iddinamico é passado como parâmetro na URL
+    console.log(iddinamico)
 
     if (!iddinamico) {
       return NextResponse.json({ message: 'Falta o parâmetro iddinamico.' }, { status: 400 });
@@ -42,14 +43,16 @@ export async function POST(req: Request) {
     const { iddinamico, peerId } = await req.json();
 
     if (!iddinamico || !peerId) {
+      console.log('error')
       return NextResponse.json({ message: 'Faltam parâmetros obrigatórios.' }, { status: 400 });
     }
 
     // Armazenar o peerId no peerStorage
     peerStorage[iddinamico] = peerId; // Salva o peerId com a chave iddinamico
+    console.log('post',peerStorage)
     return NextResponse.json({ message: 'ID salvo com sucesso.' }, { status: 200 });
   } catch (error) {
-  
+    console.log(error)
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
   }
 }

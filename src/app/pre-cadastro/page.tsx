@@ -241,7 +241,7 @@ const Cadastro = () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                //body: JSON.stringify(dados) // Converte para JSON antes de enviar
+                body: JSON.stringify(dados) // Converte para JSON antes de enviar
             });
             const result = await response.json(); // Transforma a resposta em JSON
             if (response.ok) {

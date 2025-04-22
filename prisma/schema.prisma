@@ -109,3 +109,19 @@ model Consulta{
   code           String? @unique
   duracao        String? //tempo de duração da reunião
 }
+
+// registro do consentimento do usuário
+model Consents_Agreements{
+  ipNumber        String @unique
+   data_consent   String
+   hora_consent   String 
+   nome_consent   String
+   cpf_consent    String  @unique
+}
+
+model cookies_consent{
+  ipNumber        String @unique
+  data            String
+  Hora            String
+  permissão       Boolean
+}
