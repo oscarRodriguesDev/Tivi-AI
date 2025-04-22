@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import bcrypt from 'bcryptjs';
-import { Psicologo } from '../../../../types/psicologos';
+import { Psicologo } from '../../../types/psicologos';
 
 const AlteracaoSenha: React.FC<Psicologo> = ({ id, email, nome, password, first_acess }) => {
   const [senhaAntiga, setSenhaAntiga] = useState('');
