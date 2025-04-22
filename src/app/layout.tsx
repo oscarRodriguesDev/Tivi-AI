@@ -4,6 +4,7 @@ import '../app/globals.css'
 
 // ⚠️ NÃO use useSession nem outros hooks aqui
 import AuthProvider from "./context/AuthProvider";
+import CookiesAlert from "./components/cookies-alert";
 
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body>
         
        <AuthProvider>{children} </AuthProvider>
+       <CookiesAlert/>
       </body>
     </html>
   );

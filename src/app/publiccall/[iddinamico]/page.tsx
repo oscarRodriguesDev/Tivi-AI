@@ -327,6 +327,16 @@ const [transcription, setTranscription] = useState<string>("");
  *
  * @returns {JSX.Element} JSX do layout da chamada com controles e transcrição.
  */
+  const [hasShownAlert, setHasShownAlert] = useState(false);
+
+  useEffect(() => {
+    if (!hasShownAlert) {
+      alert('Por favor, aguarde o psicólogo entrar na sala. Não saia desta página ou você poderá perder a conexão.');
+      setHasShownAlert(true);
+    }
+  }, [hasShownAlert]);
+
+
 
   return (
     <div className="relative w-screen h-screen bg-gradient-to-r from-blue-400 to-green-300">
@@ -353,8 +363,9 @@ const [transcription, setTranscription] = useState<string>("");
         </div>
       </div>
 
+
       {/* Botão de Sair - Ajustado para ficar acima do vídeo */}
-      {callActive && (
+     {/*  {callActive && (
         <div className="absolute top-4 right-4">
           <button
             onClick={endCall}
@@ -363,11 +374,12 @@ const [transcription, setTranscription] = useState<string>("");
             Sair
           </button>
         </div>
-      )}
+      )} */}
+
       {/* nessa versão vamos buscar a transcrição do paciente e enviar para o psicólogo, 
       mas estamos trabalhando para conseguir buscar a trasncriçao diretor do auto falante do psicologo */}
 
-      <div className=" absolute  bottom-[40%] right-4 w-auto max-w-[30%]">
+      <div className=" hidden  bottom-[40%] right-4 w-auto max-w-[30%]">
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription}
@@ -423,10 +435,5 @@ const [transcription, setTranscription] = useState<string>("");
 
   );
 }
-//subindo para o github para homologar o codigo com o de teste
-//subindo para o github para homologar o codigo com o de teste
-//subindo para o github para homologar o codigo com o de teste
-//subindo para o github para homologar o codigo com o de teste
-//subindo para o github para homologar o codigo com o de teste
-//subindo para o github para homologar o codigo com o de teste
+
 
