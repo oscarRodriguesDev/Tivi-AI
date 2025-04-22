@@ -55,7 +55,7 @@ const CookiesAlert = () => {
     setShowAlert(false);
 
     try {
-      const response = await fetch('/api/cookie-consent', {
+      const response = await fetch('/api/cookies-consent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
