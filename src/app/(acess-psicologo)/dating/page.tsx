@@ -251,7 +251,7 @@ export default function AgendamentoPage() {
     };
 
    
-/*  const intervalId = setInterval(() => {
+  const intervalId = setInterval(() => {
       agendamentos.forEach((ag) => {
         if (!peerIds[ag.id]) {
           fetchPeerId(ag.id);
@@ -260,10 +260,10 @@ export default function AgendamentoPage() {
        
         }
       });
-    }, 1500);  
+    }, 3000);  
 
     // Limpeza do intervalo ao desmontar o componente
-    return () => clearInterval(intervalId);  */
+    return () => clearInterval(intervalId);  
 
    
 
@@ -408,11 +408,7 @@ export default function AgendamentoPage() {
                     <p className="text-sm text-blue-700">Horário: {meet.hora}</p>
                     <p className="text-sm text-blue-600">{meet.observacao}</p>
                       <p className="text-sm text-blue-400">
-                        {loading ? (
-                          <span className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-semibold">
-                            Carregando...
-                          </span>
-                        ) : peerIds[meet.id] ? (
+                        { peerIds[meet.id] ? (
                           <button
                             onClick={() => redirect(`/call/${meet.id}/?iddinamico=${idUser}`)}
 
