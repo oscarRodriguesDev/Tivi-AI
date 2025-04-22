@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="pt-br">
       <body>
         
-       <AuthProvider>{children} </AuthProvider>
+      {children} 
        <CookiesAlert/>
       </body>
     </html>
