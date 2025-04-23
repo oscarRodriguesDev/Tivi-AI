@@ -45,7 +45,8 @@ const CardUser = () => {
 
   // Função de Logout usando o signOut do NextAuth
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/" }); // Redireciona para /login após sair
+    await signOut({ callbackUrl: "/login" });
+   
   };
 
   return (
@@ -107,14 +108,3 @@ className="absolute top-9 left-[680%] w-[220px]  text-black z-50 rounded-sm curs
 };
 export default CardUser;
 
-
-{/*    <button
-              onClick={handleLogout}
-              className=" text-white hover:text-red-400 px-4 py-2 rounded-md transition duration-300 ease-in-out"
-            >
-              Logout
-            </button> 
-            
-             <Link href={urlPerfil} className="text-white text-xs hover:text-red-400 px-2 py-2 rounded-md transition duration-300 ease-in-out">
-            </Link>
-            */}

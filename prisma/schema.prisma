@@ -112,7 +112,8 @@ model Consulta{
 
 // registro do consentimento do usuário
 model Consents_Agreements{
-  ipNumber        String @unique
+   id             String @id @default(uuid()) //id do termos de dados        
+   ipNumber        String @unique
    data_consent   String
    hora_consent   String 
    nome_consent   String
@@ -120,6 +121,7 @@ model Consents_Agreements{
 }
 
 model cookies_consent{
+  id              String @id @default(uuid()) //id do consentimento de cookies   
   ipNumber        String @unique
   data            String
   Hora            String
