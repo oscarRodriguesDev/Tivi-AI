@@ -253,8 +253,10 @@ const [transcription, setTranscription] = useState<string>("");
       }
     });
 
+
+    //codigo antigo do peeron call
     // Responder chamadas do psicólogo
-    peer.on("call", (call) => {
+  /*   peer.on("call", (call) => {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
         if (videoRef.current) videoRef.current.srcObject = stream;
         call.answer(stream);
@@ -283,7 +285,36 @@ const [transcription, setTranscription] = useState<string>("");
         call.on("close", () => endCall());
       });
     });
-
+ */
+   
+    peer.on("call", (call) => {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          if (videoRef.current) videoRef.current.srcObject = stream;
+          call.answer(stream);
+          setCallActive(true);
+          currentCall.current = call;
+          monitorMicrophone(stream);
+          setMsg('Transcrevendo Chamada...');
+    
+          call.on("stream", (remoteStream) => {
+            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+            if (remoteAudioRef.current) {
+              remoteAudioRef.current.srcObject = remoteStream;
+              remoteAudioRef.current.play();
+            }
+          });
+    
+          call.on("close", () => endCall());
+        })
+        .catch((error) => {
+          console.error("Erro ao acessar microfone/câmera:", error);
+          alert("Não foi possível acessar o microfone ou a câmera. Verifique as permissões do navegador.");
+        });
+    });
+    
+   
+   
     return () => peer.destroy(); // Limpa o peer ao desmontar
   }, [iddinamico]);
 
@@ -379,7 +410,7 @@ const [transcription, setTranscription] = useState<string>("");
       {/* nessa versão vamos buscar a transcrição do paciente e enviar para o psicólogo, 
       mas estamos trabalhando para conseguir buscar a trasncriçao diretor do auto falante do psicologo */}
 
-      <div className=" hidden  bottom-[40%] right-4 w-auto max-w-[30%]">
+      <div className=" absolute  bottom-[30%] right-4 w-auto max-w-[30%]">
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription}
@@ -413,6 +444,7 @@ const [transcription, setTranscription] = useState<string>("");
             setVideo(!video)
             if (video) {
               //LIGAR VIDEO
+              
             } else {
               //DESLIGAR VIDEO
             }

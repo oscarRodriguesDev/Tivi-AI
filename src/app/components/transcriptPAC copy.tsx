@@ -129,6 +129,67 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
 
 
 
+/**
+ * Inicializa o reconhecimento de voz assim que o componente é montado.
+ * 
+ * - Verifica se o navegador suporta a API `SpeechRecognition`.
+ * - Configura o reconhecimento contínuo de fala em português (PT-BR).
+ * - Escuta os resultados finais e atualiza a transcrição com o nome do usuário.
+ * - Salva cada trecho transcrito na API (`/api/message`).
+ * - Trata possíveis erros durante o reconhecimento.
+ * 
+ * A instância de reconhecimento é parada e o intervalo de verificação é limpo ao desmontar o componente.
+ */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+  
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  
+    if (!SpeechRecognition) {
+      setError("Seu navegador não suporta reconhecimento de voz.");
+      return;
+    }
+  
+    const recognitionInstance = new SpeechRecognition();
+    recognitionInstance.continuous = true;
+    recognitionInstance.interimResults = false;
+    recognitionInstance.lang = "PT-BR";
+  
+    recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
+      let transcript = "";
+  
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+           transcript =   result[0].transcript + "\n";
+        }
+      }
+  
+      if (transcript.trim()) {
+        setTranscription((prev) => {
+          const updatedTranscription = /* prev +  */`${usuario}: ${transcript}`; //solução para não repetir a transcrição foi tirar a prev
+          saveMessage(updatedTranscription); // Salvar transcrição na API
+          return updatedTranscription;
+        });
+      }
+    };
+  
+    recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
+      setError(`Erro no reconhecimento: ${event.error}`);
+    };
+  
+    setRecognition(recognitionInstance);
+    // Verifica as novas mensagens a cada 5 segundos
+    const intervalId = setInterval(() => {
+    }, 5000); // Ajuste o intervalo conforme necessário
+  
+    return () => {
+      recognitionInstance.stop();
+      clearInterval(intervalId); // Limpar o intervalo quando o componente for desmontado
+    };
+  }, []);
+
 
   
 
@@ -363,13 +424,7 @@ const saveMessage = async (transcript: string) => {
       try {
         // Tentamos acessar o microfone. O prompt de permissão é exibido automaticamente.
         await navigator.mediaDevices.getUserMedia({ audio: true });
-       
-        const confirmTranscription = window.confirm("Deseja iniciar a transcrição automática da sessão?");
-        if (!confirmTranscription) {
-          setError("Transcrição não iniciada - usuário não autorizou");
-          return;
-        }
-
+  
         const recognitionInstance = new SpeechRecognition();
         recognitionInstance.continuous = true;
         recognitionInstance.interimResults = false;
@@ -392,9 +447,7 @@ const saveMessage = async (transcript: string) => {
         };
   
         recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.log('A transcrição foi desativada')
-          //setError(`Erro no reconhecimento: ${event.error}`);
-         
+          setError(`Erro no reconhecimento: ${event.error}`);
         };
   
         setRecognition(recognitionInstance);
@@ -407,8 +460,6 @@ const saveMessage = async (transcript: string) => {
   
     // Dispara a solicitação de permissão
     requestMicrophonePermission();
-
-    
   
     // Cleanup
     return () => {

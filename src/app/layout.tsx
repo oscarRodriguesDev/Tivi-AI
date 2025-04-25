@@ -1,10 +1,10 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import '../app/globals.css'
-
-// ⚠️ NÃO use useSession nem outros hooks aqui
-import AuthProvider from "./context/AuthProvider";
+import './globals.css'
 import CookiesAlert from "./components/cookies-alert";
+import Navbar from "./components/navbar";
+import Footer from "./components/footer";
+import WhatsappButton from "./components/whatsapp-button";
 
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",
@@ -32,12 +32,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br">
-      <body>
-      {children} 
-       <CookiesAlert/>
-      </body>
-    </html>
+
+    <html lang="pt-BR">
+    <body>
+      <Navbar />
+      <main className="min-h-screen pt-16">{children}</main>
+      <Footer />
+      <WhatsappButton />
+    <CookiesAlert/>
+    </body>
+  </html>
   );
 }
 
