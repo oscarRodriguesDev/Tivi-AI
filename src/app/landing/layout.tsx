@@ -1,7 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
 import '../globals.css'
-import CookiesAlert from "../components/cookies-alert";
+
 import Footer from "../components/footer";
 import WhatsappButton from "../components/whatsapp-button";
 
@@ -39,7 +39,7 @@ export default function RootLayout({
       <main className="min-h-screen">{children}</main>
       <Footer />
       <WhatsappButton />
-      <CookiesAlert />
+     
     </>
 
 

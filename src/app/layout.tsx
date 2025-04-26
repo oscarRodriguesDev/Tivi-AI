@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
 import './globals.css'
+import CookiesAlert from "./components/cookies-alert";
 
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",
@@ -34,6 +35,7 @@ export default function RootLayout({
     <html lang="pt-BR">
     <body>
         {children}
+        <CookiesAlert/>
     </body>
   </html>
   );
