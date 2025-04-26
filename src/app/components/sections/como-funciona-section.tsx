@@ -47,8 +47,11 @@ export default function ComoFuncionaSection() {
                 </p>
                 <div className="bg-tivi-light p-4 rounded-lg">
                   <p className="text-sm text-gray-600">
-                    O Whisper é capaz de reconhecer nuances da fala, diferentes sotaques e até mesmo identificar emoções
-                    através de padrões vocais.
+                    Transcrição com precisão humana. Escuta como ninguém.
+                    O Whisper, modelo de inteligência artificial da OpenAI, foi treinado com mais de 680 mil horas de áudio real em múltiplos idiomas e sotaques. Isso significa que ele entende a fala com uma precisão impressionante — mesmo em ambientes com ruído, pronúncias regionais ou linguagem técnica.
+                    Ideal para gerar legendas, transcrever entrevistas e desbloquear o valor de qualquer conteúdo falado.
+
+                    Resultados consistentes, em qualquer idioma
                   </p>
                 </div>
               </div>
