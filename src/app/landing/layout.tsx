@@ -1,10 +1,10 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import './globals.css'
+import '../globals.css'
 import CookiesAlert from "../components/cookies-alert";
 import Footer from "../components/footer";
 import WhatsappButton from "../components/whatsapp-button";
-import Navbar from "../components/navbar";
+
 
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",
