@@ -1,6 +1,10 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
 import './globals.css'
+import CookiesAlert from "../components/cookies-alert";
+import Footer from "../components/footer";
+import WhatsappButton from "../components/whatsapp-button";
+import Navbar from "../components/navbar";
 
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",
@@ -22,8 +26,6 @@ export const metadata: Metadata = {
   },
 };
 
-/* Layout principal da aplicação */
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,11 +33,16 @@ export default function RootLayout({
 }>) {
   return (
 
-    <html lang="pt-BR">
-    <body>
-        {children}
-    </body>
-  </html>
+
+    <>
+    
+      <main className="min-h-screen">{children}</main>
+      <Footer />
+      <WhatsappButton />
+      <CookiesAlert />
+    </>
+
+
   );
 }
 

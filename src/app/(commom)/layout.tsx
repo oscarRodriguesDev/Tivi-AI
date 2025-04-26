@@ -80,8 +80,7 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="pt-br">
-      <body>
+   
         <AuthProvider>
             <AccessControlProvider>
           <Menu />
@@ -91,8 +90,7 @@ export default function RootLayout({
           </div>
             </AccessControlProvider>
         </AuthProvider>
-      </body>
-    </html>
+    
   );
 }
 

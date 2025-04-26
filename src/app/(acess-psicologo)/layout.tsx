@@ -77,8 +77,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br">
-      <body>
+   
         <AuthProvider>
             <AccessControlProvider>
           <Menu />
@@ -88,8 +87,7 @@ export default function RootLayout({
           </div>
             </AccessControlProvider>
         </AuthProvider>
-      </body>
-    </html>
+    
   );
 }
 
