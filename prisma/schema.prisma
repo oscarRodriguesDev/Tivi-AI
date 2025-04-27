@@ -113,7 +113,7 @@ model Consulta{
 // registro do consentimento do usuário
 model Consents_Agreements{
    id             String @id @default(uuid()) //id do termos de dados        
-   ipNumber        String @unique
+   ipNumber       String @unique
    data_consent   String
    hora_consent   String 
    nome_consent   String

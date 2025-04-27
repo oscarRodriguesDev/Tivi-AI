@@ -16,6 +16,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { validarCPF } from "../util/validarCPF";
 import ModalConsent from "../components/modal-consent";
+import { showErrorMessage, showSuccessMessage } from "../util/messages";
+
 
 
 
@@ -127,6 +129,7 @@ const Cadastro = () => {
      */
     const [ddi2, setDDI2] = useState<string>('+55')
 
+    const [dados, setDados] = useState({})
 
     const router = useRouter()
 
@@ -159,7 +162,7 @@ const Cadastro = () => {
     const handleConsent = (consent: boolean) => {
         setShowModal(false);
         setConsentido(consent);
-        console.log('Usuário consentiu?', consent);
+
     };
 
 
@@ -201,70 +204,58 @@ const Cadastro = () => {
      */
 
     const handleSubmit = async (event: React.FormEvent) => {
-       
+        event.preventDefault();
 
+        // Validação antes de enviar
         if (idade < 18) {
-            alert('Você não tem idade para se cadastrar')
-            setNasc('')
-            return null
+            showErrorMessage('Você não tem idade pra utilizar o sistema!');
+            return;
+        } else if (!consentido) {
+            showErrorMessage('Você precisa assinar o nosso Termo de Privacidade, Uso e Proteção de Dados!');
+            return
+        } else {
 
-        }
+            const dados = {
+                cpf,
+                cfp,
+                crp,
+                nome,
+                lastname: lastName,
+                rg,
+                email,
+                data_nasc: nasc,
+                celular: ddi2 + celular,
+                telefone: ddi + telefone,
+            };
 
+            try {
+                const response = await fetch("/api/analize_psco", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dados),
+                });
 
-        event.preventDefault()
-        setCFP(crp)
-        setCelular(ddi2 + celular)
-        setTelefone(ddi + telefone)
+                const result = await response.json();
 
-        const dados = {
-            cpf: cpf,
-            cfp: cfp,
-            crp: crp,
-            nome: nome,
-            lastname: lastName,
-            rg: rg,
-            email: email,
-            data_nasc: nasc,
-            celular: celular,
-            telefone: telefone,
-        }
+                if (response.ok) {
+                    showSuccessMessage(`Pré-cadastro realizado com sucesso!
+                     A equipe TiviAi vai verificar suas informçções e enviaremos seus dados de acesso no email informado`);
+                    clearInputs();
+                } else {
+                    showErrorMessage("Dados não foram salvos no banco de dados");
 
-        try {
-            setShowModal(true)
-            if (!consentido) {
-                alert('usuario precisa dar aceite no temro de dados')
-            }else{
-
-            
-            const response = await fetch("/api/analize_psco", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(dados) // Converte para JSON antes de enviar
-            });
-            const result = await response.json(); // Transforma a resposta em JSON
-            if (response.ok) {
-                alert("Pré-cadastro realizado com sucesso");
-                event.preventDefault()
-                clearInputs()
-            } else {
-                alert('Dados não foram salvos no banco de dados')
-                setTelefone('')
-                setCelular('')
+                }
+            } catch (error) {
+                console.error("Erro no envio de dados:", error);
+            } finally {
+                console.log("Verifique os logs do sistema!");
             }
         }
-        } catch (error) {
-            alert('Erro ao enviar dados ' + error)
-            console.error("Erro na requisição:", error);
-            setTelefone('')
-            setCelular('')
-        }
-        finally {
-          
-            console.log("Verifique os logs do sistema!")
-    }}
-;
+    };
+
+
 
 
 
@@ -297,6 +288,8 @@ const Cadastro = () => {
         setCelular('')
         setNome('')
         setLastName('')
+        setConsentido(false)
+
     }
 
 
@@ -329,7 +322,7 @@ const Cadastro = () => {
             setCPF(cpfLimpo)
         } catch (error) {
             if (error) {
-                alert('Cpf invalido!')
+                showErrorMessage('Cpf invalido!')
                 setCPF('')
             }
         }
@@ -363,6 +356,9 @@ const Cadastro = () => {
      * - Redireciona para a página inicial ao cancelar.
      * - Atualiza múltiplos estados locais com `useState`.
      */
+
+    //teste
+
 
     return (
         <>
@@ -560,6 +556,13 @@ const Cadastro = () => {
                                 onClick={() => router.push('/')}
                             />
                         </div>
+
+                        <input
+                            type="button"
+                            onClick={() => setShowModal(true)}
+                            value="Assinar Termos de Uso, Privacidade e Proteção de Dados"
+                            className="absolute mt-4 px-6 py-3  bg-blue-600 hover:bg-blue-700 text-xs text-white font-semibold rounded-lg shadow-md cursor-pointer text-center transition duration-300 ease-in-out"
+                        />
 
 
                     </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PrivacyPolicy from './termsAndPolicies';
+import { showErrorMessage, showSuccessMessage } from '../util/messages';
 
 interface ModalConsentProps {
   show: boolean;
@@ -56,12 +57,14 @@ const ModalConsent: React.FC<ModalConsentProps> = ({ show, onConsent, userData }
 
       if (response.ok) {
         onConsent(true);
+      showSuccessMessage('Consentimento registrado com sucesso! Seus dados foram salvos de forma segura.');
       } else {
-        alert('Erro ao salvar consentimento');
+        showErrorMessage('Erro ao salvar consentimento' );
       }
     } catch (error) {
       console.error('Erro:', error);
-      alert('Erro ao processar consentimento');
+      /* nesse caso tenho que verificar no sistema se o cpf está la para dar tratativa */
+      showErrorMessage("Erro ao salvar consentimento, talvez você ja tenha usado esse cpf");
     }
   };
 

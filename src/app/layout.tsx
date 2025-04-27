@@ -1,5 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Importante!
 import './globals.css'
 import CookiesAlert from "./components/cookies-alert";
 
@@ -35,6 +37,7 @@ export default function RootLayout({
     <html lang="pt-BR">
     <body>
         {children}
+        <ToastContainer/>
         <CookiesAlert/>
     </body>
   </html>
