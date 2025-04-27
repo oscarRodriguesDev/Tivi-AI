@@ -35,12 +35,14 @@ export default function RootLayout({
 
 
     <>
+      <main className="min-h-screen">
+        {children}
+      </main>
     
-      <main className="min-h-screen">{children}</main>
-      <Footer />
-      <WhatsappButton />
      
     </>
+
+
 
 
   );

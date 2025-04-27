@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Importante!
 import './globals.css'
 import CookiesAlert from "./components/cookies-alert";
+import Footer from "./components/footer";
 
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",

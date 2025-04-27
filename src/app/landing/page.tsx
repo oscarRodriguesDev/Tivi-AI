@@ -7,6 +7,8 @@ import ComoFuncionaSection from "../components/sections/como-funciona-section"
 import EquipeSection from "../components/sections/equipe-section"
 import ContatoSection from "../components/sections/contato-section" // Importando useEffect
 import Navbar from "../components/navbar";
+import Footer from "../components/footer"
+import WhatsappButton from "../components/whatsapp-button"
 
 
 export default function Home() {
@@ -90,6 +92,11 @@ export default function Home() {
       <div id="contato" ref={sectionRefs.contato} className="min-h-screen pt-16">
         <ContatoSection />
       </div>
+      <WhatsappButton/>
+      <div >
+        <Footer />
+      </div>
+
     </div>
   )
 }
