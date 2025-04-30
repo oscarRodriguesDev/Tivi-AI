@@ -40,6 +40,7 @@ import Image from "next/image";
 import Logo from '../../../../public/marca/logo.png'
 import Link from "next/link";
 import { KeyboardEvent } from 'react';
+import { showErrorMessage } from "@/app/util/messages";
 
 
 
@@ -70,6 +71,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [aviso, setAviso] = useState('')
 
+ 
+
 
   /**
    * Função assíncrona que gerencia o processo de login do usuário.
@@ -89,20 +92,23 @@ export default function LoginPage() {
    * @returns {Promise<void>} Uma Promise que resolve quando o processo de login é concluído
    */
   const handleLogin = async () => {
+    
 
     try {
       const result = await signIn("credentials", { email, password, callbackUrl: `/common-page`, redirect: true });
-
+    
 
       if (result?.error) {
-
+        
         throw new Error(result.error);
+      
+      }else{
+        alert("erro");
       }
 
       // Se não houver erro, o usuário será redirecionado automaticamente pelo NextAuth
     } catch (error) {
       setAviso('Usuário ou senha incorretos')
-      alert(aviso)
       setPassword(""); // Limpa a senha, mantendo o email
     }
   };

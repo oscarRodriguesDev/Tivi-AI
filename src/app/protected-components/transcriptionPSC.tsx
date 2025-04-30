@@ -12,8 +12,11 @@
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import { FaBrain, FaDochub, FaEraser, FaFilePdf, FaStop, FaWalking } from "react-icons/fa";
+import { HiDocumentMagnifyingGlass } from "react-icons/hi2";
+
 import { RiPlayList2Fill } from "react-icons/ri";
 import TranscriptionModal from "./modalTranscription";
+
 
 
 /**
@@ -471,26 +474,26 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
 
 
 
-   /**
- * Renderiza a interface do componente principal de transcrição.
- *
- * Componentes e elementos incluídos:
- * - `TranscriptionModal`: Modal que exibe a análise da transcrição.
- * - Título da transcrição.
- * - Mensagem de erro (se houver).
- * - Bloco de exibição da transcrição (rolável, com altura máxima de 60vh).
- * - Conjunto de botões fixos para ações:
- *   - Exibir modal com análise (`setIsOpen`).
- *   - Salvar a transcrição em PDF (`handleSavePDF`).
- *   - Gerar insights com base na transcrição (`handleGetInsights`).
- *   - Iniciar ou parar a escuta do microfone (toggle entre `handleStartListening` e `handleStopListening`).
- *
- * A interface é responsiva e utiliza ícones (FaEraser, FaFilePdf, FaBrain, RiPlayList2Fill, FaStop)
- * para facilitar a interação do usuário com as funções principais.
- *
- * @returns {JSX.Element} Interface completa da transcrição de voz e controles de interação.
- */
- 
+  /**
+* Renderiza a interface do componente principal de transcrição.
+*
+* Componentes e elementos incluídos:
+* - `TranscriptionModal`: Modal que exibe a análise da transcrição.
+* - Título da transcrição.
+* - Mensagem de erro (se houver).
+* - Bloco de exibição da transcrição (rolável, com altura máxima de 60vh).
+* - Conjunto de botões fixos para ações:
+*   - Exibir modal com análise (`setIsOpen`).
+*   - Salvar a transcrição em PDF (`handleSavePDF`).
+*   - Gerar insights com base na transcrição (`handleGetInsights`).
+*   - Iniciar ou parar a escuta do microfone (toggle entre `handleStartListening` e `handleStopListening`).
+*
+* A interface é responsiva e utiliza ícones (FaEraser, FaFilePdf, FaBrain, RiPlayList2Fill, FaStop)
+* para facilitar a interação do usuário com as funções principais.
+*
+* @returns {JSX.Element} Interface completa da transcrição de voz e controles de interação.
+*/
+
   return (
 
     <>
@@ -518,24 +521,35 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
           /*  onClick={handleClearTranscription} */
           onClick={() => setIsOpen(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+          title="Ver Transcrição"
+        >
+
+          <HiDocumentMagnifyingGlass size={14} />
+        </button>
+
+        <button
+          onClick={handleClearTranscription}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
           title="Limpar Transcrição"
         >
-          <FaEraser size={10} />
+          <FaEraser size={14} />
         </button>
         <button
           onClick={handleSavePDF}
           className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
           title="Salvar PDF"
         >
-          <FaFilePdf size={10} />
+          <FaFilePdf size={14} />
         </button>
         <button
           onClick={() => handleGetInsights(transcription)}
           className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
           title="Análise"
         >
-          <FaBrain size={10} />
+          <FaBrain size={14} />
         </button>
+
+
 
 
 
@@ -545,7 +559,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
             className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition"
             title="Iniciar Transcrição"
           >
-            <RiPlayList2Fill size={10} />
+            <RiPlayList2Fill size={14} />
           </button>
         ) : (
           <button
@@ -553,7 +567,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
             className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition"
             title="Parar Transcrição"
           >
-            <FaStop size={10} />
+            <FaStop size={14} />
 
           </button>
         )}

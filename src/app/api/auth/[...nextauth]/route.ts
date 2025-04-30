@@ -23,6 +23,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient, UserRole } from "@prisma/client";
 import { compare } from "bcryptjs";
+import { redirect } from "next/dist/server/api-utils";
+
 
 
 const prisma = new PrismaClient();
@@ -52,7 +54,7 @@ const handler = NextAuth({
       name: "credentials",
       credentials: {
         id: { label: 'Id', type: 'id' },
-        email: { label: "Email", type: "email", placeholder: "exemplo@email.com" },
+        email: { label: "Email", type: "email" },
         password: { label: "Senha", type: "password" },
         role: { label: "role", type: 'UserRole' },
       },
@@ -65,11 +67,13 @@ const handler = NextAuth({
           where: { email: credentials.email },
         });
         if (!user) {
-          throw new Error("Usuário não encontrado.");
+          throw new Error("Usuario não existe no sistema"); //teste de erro
         }
         const isValid = await compare(credentials.password, user.password);
         if (!isValid) {
-          throw new Error("Senha incorreta.");
+         //redirecionar para tela de login
+         throw new Error("Usuario ou senha incorretos!");
+          //throw new Error("erro senha");
         }
         if (![UserRole.ADMIN, UserRole.PSYCHOLOGIST, UserRole.COMMON].includes(user.role)) {
           throw new Error("Acesso negado: este usuário não tem permissão.");
