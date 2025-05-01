@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Logomarca from '../../../public/marca/marca tiviai.png'
 import Image from "next/image";
 import CardUser from "./cardUser";
+import { useSession } from "next-auth/react";
 
 // Tipagem do MenuItemProps
 type MenuItemProps = {
@@ -23,6 +24,9 @@ type MenuItemProps = {
 const Menu: React.FC = () => {
 
   const router = useRouter()
+  const { data: session, status } = useSession(); // Obtém os dados da sessão
+
+  const id =  session?.user.id
   return (
 
 
@@ -39,7 +43,7 @@ const Menu: React.FC = () => {
       {/* Itens do menu */}
       <nav className="space-y-5"> 
         <MenuItem icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push('/dashboard')} />
-        <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push('/pacientes/123')} />{/* vai pegar o id do psicolog */}
+        <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push(`/pacientes/${id}`)} />{/* vai pegar o id do psicolog */}
         <MenuItem icon={<LuCalendarDays size={25} />} label="Agendamentos" onClick={() => router.push('/dating')} />
         <MenuItem icon={<MdOutlineSick size={25} />} label="Pacientes" onClick={() => router.push('/atendimentos')} />
         <MenuItem icon={<LuLibraryBig size={25} />} label="Base Científica" onClick={() => router.push('/cientific')} />
