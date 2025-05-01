@@ -31,8 +31,9 @@ import Modal from '@/app/protected-components/modalAgendamentos';
 import HeadPage from '@/app/protected-components/headPage';
 import ViewMes from '@/app/protected-components/viewMes';
 import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
-import { Agendamento } from '../../../../types/agendamentos';
+import { Agendamento } from '../../../../../types/agendamentos';
 import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
+import { useParams } from 'next/navigation';
 
 
 
@@ -69,6 +70,10 @@ import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
  */
 
 export default function AgendamentoPage() {
+
+  const psicologo = useParams().id;//recupera o id do psicologo, será usado para buscar as reunioes agendadas por ele
+  
+ 
 
   /**
   * Controla a visibilidade do modal principal.
@@ -185,7 +190,7 @@ export default function AgendamentoPage() {
   const buscarAgendamentos = async () => {
 
     try {
-      const response = await fetch("/api/gen-meet");
+      const response = await fetch(`/api/gen-meet/?id=${psicologo}`);
       if (response.ok) {
         const data = await response.json();
         console.log("Dados recebidos:", data); // Verifique os dados aqui

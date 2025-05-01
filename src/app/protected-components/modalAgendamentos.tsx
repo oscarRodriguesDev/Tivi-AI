@@ -2,6 +2,7 @@ import React, { useState, FormEvent, ChangeEvent } from "react";
 import { FaCalendar, FaCalendarAlt, FaClock, FaPhoneAlt, FaPen, FaUserFriends, FaTimes, FaCalendarTimes, FaUserClock } from "react-icons/fa";
 import { MdNotes } from "react-icons/md";
 import { v4 as uuidv4 } from 'uuid';
+import { useSession } from "next-auth/react";
 
 interface Agendamento {
   id: string;
@@ -22,9 +23,13 @@ type ModalProps = {
 };
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+  const { data: session, status } = useSession(); // Obtém os dados da sessão
+
+  const psicologo =  session?.user.id
+  
   const [novoAgendamento, setNovoAgendamento] = useState<Agendamento>({
     id: '',
-    psicologoId: '',
+    psicologoId:String(psicologo),
     fantasy_name: '',
     name: '',
     data: '',

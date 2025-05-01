@@ -113,16 +113,30 @@ export async function POST(req: Request) {
  * ]
  */
 
-export async function GET() {
-
-
+export async function GET(req: Request) {
   try {
-    const consultas = await prisma.consulta.findMany();
+    const { searchParams } = new URL(req.url);
+    const idPsicologo = searchParams.get('id');
+
+    if (!idPsicologo) {
+      return NextResponse.json({ error: "ID do psicólogo é obrigatório" }, { status: 400 });
+    }
+
+    const consultas = await prisma.consulta.findMany({
+      where: {
+        psicologoId: idPsicologo,
+       
+      }
+    });
+
     return NextResponse.json(consultas, { status: 200 });
   } catch (error) {
+    console.error("Erro no GET /gen-meet", error);
     return NextResponse.json({ error: "Erro ao buscar reuniões" }, { status: 500 });
   }
 }
+
+
 
 
 
