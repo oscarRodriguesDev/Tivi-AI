@@ -22,7 +22,7 @@
  * @requires FaWhatsapp - Ícone do WhatsApp, normalmente usado para ações de compartilhamento ou comunicação via app.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { format } from 'date-fns';
 import { redirect } from 'next/navigation';
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
@@ -128,6 +128,7 @@ export default function AgendamentoPage() {
     tipo_consulta: '',
     observacao: '',
     recorrencia: '',
+    duracao:'',
     code: '',
   });
 
@@ -299,7 +300,6 @@ export default function AgendamentoPage() {
     if (id === "fake-id") {
       alert("O link de demonstração não pode ser copiado!");
     } else {
-
       const link = `${window.location.origin}/publiccall/${id}`;
       navigator.clipboard.writeText(link).then(() => {
         setCopiedLinks((prev) => ({ ...prev, [id]: true }));
@@ -315,17 +315,11 @@ export default function AgendamentoPage() {
     if (idReuniao === "fake-id") {
       alert("O link de demonstração não pode ser copiado!");
     } else {
-
-
-
       const linkReuniao = `/publiccall/${idReuniao}`;
       const mensagem = `Olá! Aqui está o link para acessar sua reunião agendada:
-  
       Data: ${data}
       Hora: ${hora}
-  
       Clique no link para acessar a reunião: ${window.location.origin}${linkReuniao}`;
-
       navigator.clipboard.writeText(mensagem).then(() => {
         alert('Mensagem copiada! Agora, abra o WhatsApp e cole a mensagem.');
         const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
@@ -342,8 +336,6 @@ export default function AgendamentoPage() {
     if(id === "fake-id") {
       alert('Impossivel deletar a demonstração')
     }else{
-
-    
     const response = await fetch(`/api/gen-meet`, {
       method: 'DELETE',
       body: JSON.stringify({ id }),
@@ -352,10 +344,68 @@ export default function AgendamentoPage() {
       alert("Agendamento deletado com sucesso");
       buscarAgendamentos();
     } else {
-      alert("Erro ao deletar agendamento");
+     
     };
   }
   }
+
+
+  //criar doc depois
+
+  const deletarConsultasPassadas = async () => {
+    const hoje = new Date();
+    const horaAtual = hoje.getHours() * 60 + hoje.getMinutes(); // Converter hora atual para minutos
+  
+    for (const agendamento of agendamentos) {
+      if (agendamento.id === "fake-id") {
+       continue
+      }
+  
+      try {
+        const dataConsulta = new Date(agendamento.data ?? "");
+  
+        if (isNaN(dataConsulta.getTime())) {
+          console.warn(`Data inválida em agendamento ID: ${agendamento.id}`);
+          continue;
+        }
+  
+        if (!agendamento.hora) {
+          console.warn(`Hora ausente em agendamento ID: ${agendamento.id}`);
+          continue;
+        }
+  
+        const [hora, minutos] = agendamento.hora.split(":").map(Number);
+        const horaConsulta = hora * 60 + minutos;
+        const duracao = parseInt(agendamento.duracao || "0", 10); // duração em minutos
+  
+        const consultaTerminou =
+          dataConsulta < hoje ||
+          (dataConsulta.toDateString() === hoje.toDateString() &&
+            horaConsulta + duracao < horaAtual);
+  
+        if (consultaTerminou) {
+          console.log(
+            `Deletando agendamento ID ${agendamento.id} | Data: ${dataConsulta}, Hora: ${agendamento.hora}, Duração: ${duracao}`
+          );
+          await handleDeletar(agendamento.id);
+        }
+      } catch (err) {
+        console.error(`Erro ao processar agendamento ID ${agendamento.id}:`, err);
+      }
+    }
+  };
+  
+
+
+  // Executar a limpeza de consultas passadas a cada 5 minutos
+  useEffect(() => {
+    const intervalId = setInterval(deletarConsultasPassadas,(1 * 60)*100);
+    return () => clearInterval(intervalId);
+  }, []);
+
+
+
+
 
 
 

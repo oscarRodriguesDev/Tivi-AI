@@ -57,5 +57,11 @@ export interface Agendamento {
      * Código único de identificação ou uso interno (ex: usado para entrar em salas online).
      */
     code: string;
+    /** 
+     * duração da reunião 
+     */
+    duracao: string;
+
+
   }
   

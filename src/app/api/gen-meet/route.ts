@@ -134,7 +134,7 @@ export async function GET(req: Request) {
       const fakeConsulta = {
         id: "fake-id",
         pacienteId: null,
-        fantasy_name: "Paciente Exemplo",
+        fantasy_name: "Este agendamento é apenas um exemplo",
         name: "Consulta Demonstrativa",
         titulo: "Sessão de Demonstração",
         psicologoId: idPsicologo,
