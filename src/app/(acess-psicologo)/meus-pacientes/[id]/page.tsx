@@ -38,7 +38,7 @@ const mockAtendimentos = [
     cidade: "Serra",
     estado: "Espírito Santo",
     convenio: "Unimed",
-    status: "ok"
+    status: "stoped"
   }
 ]
 
@@ -104,7 +104,7 @@ const MeusAtendimentos = () => {
   <table className="min-w-full bg-white border border-gray-200 rounded-xl shadow">
     <thead className="bg-gray-100 text-gray-700 text-sm">
       <tr>
-        <th className="px-4 py-2 text-left">ID</th>
+       {/*  <th className="px-4 py-2 text-left">ID</th> */}
         <th className="px-4 py-2 text-left">Nome</th>
         <th className="px-4 py-2 text-left">Idade</th>
         <th className="px-4 py-2 text-left">Telefone</th>
@@ -119,7 +119,7 @@ const MeusAtendimentos = () => {
       {pacientes && pacientes.length > 0 ? (
         pacientes.map((item, index) => (
           <tr key={index} className="border-t border-gray-200 text-sm">
-            <td className="px-4 py-2">{item.id}</td>
+          {/*   <td className="px-4 py-2">{name_psico}</td> */}
             <td className="px-4 py-2">{item.nome}</td>
             <td className="px-4 py-2">{item.idade}</td>
             <td className="px-4 py-2">{item.telefone}</td>
@@ -139,7 +139,7 @@ const MeusAtendimentos = () => {
       ) : (
         mockAtendimentos.map((item, index) => (
           <tr key={index} className="border-t border-gray-200 text-sm">
-            <td className="px-4 py-2">{item.id}</td>
+           {/*  <td className="px-4 py-2">{name_psico}</td> */}
             <td className="px-4 py-2">{item.nome}</td>
             <td className="px-4 py-2">{item.idade}</td>
             <td className="px-4 py-2">{item.telefone}</td>
