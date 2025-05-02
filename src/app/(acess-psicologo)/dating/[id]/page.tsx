@@ -359,39 +359,41 @@ export default function AgendamentoPage() {
     for (const agendamento of agendamentos) {
       if (agendamento.id === "fake-id") {
        continue
+      }else{
+
+        try {
+          const dataConsulta = new Date(agendamento.data ?? "");
+    
+          if (isNaN(dataConsulta.getTime())) {
+            console.log(`Data inválida em agendamento ID: ${agendamento.id}`);
+            continue;
+          }
+    
+          if (!agendamento.hora) {
+            console.log(`Hora ausente em agendamento ID: ${agendamento.id}`);
+            continue;
+          }
+    
+          const [hora, minutos] = agendamento.hora.split(":").map(Number);
+          const horaConsulta = hora * 60 + minutos;
+          const duracao = parseInt(agendamento.duracao || "0", 10); // duração em minutos
+    
+          const consultaTerminou =
+            dataConsulta < hoje ||
+            (dataConsulta.toDateString() === hoje.toDateString() &&
+              horaConsulta + duracao < horaAtual);
+    
+          if (consultaTerminou) {
+            console.log(
+              `Deletando agendamento ID ${agendamento.id} | Data: ${dataConsulta}, Hora: ${agendamento.hora}, Duração: ${duracao}`
+            );
+            await handleDeletar(agendamento.id);
+          }
+        } catch (err) {
+          console.error(`Erro ao processar agendamento ID ${agendamento.id}:`, err);
+        }
       }
   
-      try {
-        const dataConsulta = new Date(agendamento.data ?? "");
-  
-        if (isNaN(dataConsulta.getTime())) {
-          console.warn(`Data inválida em agendamento ID: ${agendamento.id}`);
-          continue;
-        }
-  
-        if (!agendamento.hora) {
-          console.warn(`Hora ausente em agendamento ID: ${agendamento.id}`);
-          continue;
-        }
-  
-        const [hora, minutos] = agendamento.hora.split(":").map(Number);
-        const horaConsulta = hora * 60 + minutos;
-        const duracao = parseInt(agendamento.duracao || "0", 10); // duração em minutos
-  
-        const consultaTerminou =
-          dataConsulta < hoje ||
-          (dataConsulta.toDateString() === hoje.toDateString() &&
-            horaConsulta + duracao < horaAtual);
-  
-        if (consultaTerminou) {
-          console.log(
-            `Deletando agendamento ID ${agendamento.id} | Data: ${dataConsulta}, Hora: ${agendamento.hora}, Duração: ${duracao}`
-          );
-          await handleDeletar(agendamento.id);
-        }
-      } catch (err) {
-        console.error(`Erro ao processar agendamento ID ${agendamento.id}:`, err);
-      }
     }
   };
   
@@ -399,9 +401,9 @@ export default function AgendamentoPage() {
 
   // Executar a limpeza de consultas passadas a cada 5 minutos
   useEffect(() => {
-    const intervalId = setInterval(deletarConsultasPassadas,(1 * 60)*100);
+    const intervalId = setInterval(deletarConsultasPassadas,1000);
     return () => clearInterval(intervalId);
-  }, []);
+  }, [agendamentos]);
 
 
 

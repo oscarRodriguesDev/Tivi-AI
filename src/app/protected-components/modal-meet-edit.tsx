@@ -92,6 +92,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, meet }) => {
     }
   };
 
+  
+
   if (!isOpen) return null;
 
   return (
