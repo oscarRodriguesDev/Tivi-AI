@@ -35,7 +35,7 @@ const Pacientes = () => {
 
 
     const limparCampos = () => {
-        setUserId('');
+        //setUserId('');
         setNome('');
         setCpf('');
         setNick('');

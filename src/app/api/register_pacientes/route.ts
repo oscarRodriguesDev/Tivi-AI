@@ -5,6 +5,44 @@ import { Paciente } from "../../../../types/paciente";
 const prisma = new PrismaClient();
 
 
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const psicoloId = searchParams.get('psicoloId');
+
+    if (!psicoloId) {
+      return NextResponse.json(
+        { error: "ID do psicólogo é obrigatório" },
+        { status: 400 }
+      );
+    }
+
+    const pacientes = await prisma.paciente.findMany({
+      where: {
+        psicoloId: psicoloId
+      },
+      select: {
+        id: true,
+        nome: true,
+        fantasy_name: true,
+        idade: true,
+        telefone: true,
+        cidade: true,
+        estado: true,
+        convenio: true,
+      }
+    });
+
+    return NextResponse.json(pacientes, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: "Erro ao buscar pacientes" },
+      { status: 500 }
+    );
+  }
+}
+
+
 export async function POST(req: Request) {
   try {
     const body: Paciente = await req.json();
