@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Importante!
-import './globals.css'
+import './globals.csss'
 import CookiesAlert from "./components/cookies-alert";
 
 
