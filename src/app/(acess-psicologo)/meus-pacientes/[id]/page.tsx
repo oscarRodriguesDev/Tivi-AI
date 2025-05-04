@@ -3,9 +3,9 @@ import { useAccessControl } from "@/app/context/AcessControl"
 import { FaList, FaFileAlt, FaThumbsUp, FaThumbsDown } from "react-icons/fa"//icones de like e dislike
 import HeadPage from "@/app/protected-components/headPage"
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { redirect, useParams } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { mock } from "node:test"
+import { FaCirclePlus } from "react-icons/fa6";
 
 
 
@@ -96,11 +96,17 @@ const MeusAtendimentos = () => {
   return (
     <>
       <HeadPage
-        title="Meus Pacientes"
+        title={'Meus Pacientes'}
         icon={<FaList size={20} />}
       />
 
 <div className="overflow-x-auto p-4">
+  <div className=" h-full px-5 py-3 flex justify-end">
+    <FaCirclePlus size={30} className="text-green-800" 
+     onClick={()=>{redirect(`/cadastro-pacientes/${id}`)}}
+     title='Adcionar novo paciente'
+    />
+  </div>
   <table className="min-w-full bg-white border border-gray-200 rounded-xl shadow">
     <thead className="bg-gray-100 text-gray-700 text-sm">
       <tr>
@@ -110,8 +116,8 @@ const MeusAtendimentos = () => {
         <th className="px-4 py-2 text-left">Telefone</th>
         <th className="px-4 py-2 text-left">Cidade</th>
         <th className="px-4 py-2 text-left">Estado</th>
-        <th className="px-4 py-2 text-left">Operadora</th>
-        <th className="px-4 py-2 text-left">Documentos</th>
+        <th className="px-4 py-2 text-left">Convenio</th>
+        <th className="px-4 py-2 text-left">Prontuario</th>
         <th className="px-4 py-2 text-left">Status</th>
       </tr>
     </thead>

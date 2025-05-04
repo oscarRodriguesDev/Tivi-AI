@@ -42,7 +42,7 @@ const Menu: React.FC = () => {
       {/* Itens do menu */}
       <nav className="space-y-5 border-r-[1px] border-gray-400"> 
         <MenuItem  icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
-        <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push(`/cadastro-pacientes/${id}`)} />{/* vai pegar o id do psicolog */}
+        {/* <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push(`/cadastro-pacientes/${id}`)} /> */}{/* vai pegar o id do psicolog */}
         <MenuItem icon={<LuCalendarDays size={25} />} label="Agendamentos" onClick={() => router.push(`/dating/${id}`)} />
         <MenuItem icon={<BsCalendarCheckFill size={25} />} label="Meus atendimentos" onClick={() => router.push(`/atendimentos/${id}`)} />
         <MenuItem icon={<FaSadTear size={25} />} label="Meus Pacientes" onClick={() => router.push(`/meus-pacientes/${id}`)} />
