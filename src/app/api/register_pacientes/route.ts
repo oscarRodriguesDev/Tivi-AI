@@ -30,6 +30,19 @@ export async function GET(req: Request) {
         cidade: true,
         estado: true,
         convenio: true,
+        cpf: true,
+        sexo: true,
+        cep: true,
+        bairro: true,
+        numero: true,
+        pais: true, 
+        complemento: true,
+        email: true,
+        rg: true, 
+        sintomas: true,
+        rua: true,  
+        
+
       }
     });
 
@@ -93,6 +106,90 @@ export async function POST(req: Request) {
    
     return NextResponse.json(
       { error: "Erro ao processar a requisição", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+
+//rota deletar um paciente
+export async function DELETE(request: Request) {
+  try {
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "ID do paciente é obrigatório" },
+        { status: 400 }
+      );
+    }
+
+    // Verifica se o paciente existe
+    const paciente = await prisma.paciente.findUnique({
+      where: { id },
+    });
+
+    if (!paciente) {
+      return NextResponse.json(
+        { error: "Paciente não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    // Deleta o paciente
+    await prisma.paciente.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(
+      { message: "Paciente deletado com sucesso" },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: "Erro ao deletar paciente", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+//edição de pacientes
+export async function PUT(request: Request) {
+  try {
+    const data = await request.json();
+    const { id, ...updateData } = data;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "ID do paciente é obrigatório" },
+        { status: 400 }
+      );
+    }
+
+    // Verifica se o paciente existe
+    const paciente = await prisma.paciente.findUnique({
+      where: { id },
+    });
+
+    if (!paciente) {
+      return NextResponse.json(
+        { error: "Paciente não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    // Atualiza os dados do paciente
+    const updatedPaciente = await prisma.paciente.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return NextResponse.json(updatedPaciente, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: "Erro ao atualizar paciente", details: error.message },
       { status: 500 }
     );
   }

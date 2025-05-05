@@ -1,13 +1,14 @@
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"
-import { FaList, FaFileAlt, FaThumbsUp, FaThumbsDown } from "react-icons/fa"//icones de like e dislike
+import { FaList, FaFileAlt, FaThumbsUp, FaThumbsDown,FaTrash,FaEdit } from "react-icons/fa"//icones de like e dislike
 import HeadPage from "@/app/protected-components/headPage"
 import { useEffect, useState } from "react"
 import { redirect, useParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { FaCirclePlus } from "react-icons/fa6";
-
-
+import { showErrorMessage, showSuccessMessage } from "@/app/util/messages"
+import { ModalPacientes } from "./components/modal-pacientes"
+import { Paciente } from "../../../../../types/paciente"
 
 const mockAtendimentos = [
   {
@@ -55,15 +56,62 @@ const getStatus = (status: string) => {
 
 
 
+
+//alterar depois meus atendimentos para meus pacientes
 const MeusAtendimentos = () => {
   const { role } = useAccessControl()
   const [pacientes, setPacientes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const { id } = useParams()
 
+  
+
+
+  //controle de edição de pacientes:
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [pacienteSelecionado, setPacienteSelecionado] = useState<any | null>(null)
+
+  const abrirModal = (paciente: any) => {
+    
+    setPacienteSelecionado(paciente)
+    console.log(paciente)
+    setIsModalOpen(true)
+
+  }
+
+  const fecharModal = () => {
+    setIsModalOpen(false)
+    setPacienteSelecionado(null)
+  }
+
   const { data: session, status } = useSession(); // Obtém os dados da sessão
   const name_psico = session?.user.name
 
+
+
+  const handleDeletePaciente = async (pacienteId: string) => {
+    try {
+      const response = await fetch('/api/register_pacientes', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: pacienteId }),
+      });
+  
+      if (response.ok) {
+        // Atualiza a lista de pacientes após a deleção
+        setPacientes(pacientes.filter(paciente => paciente.id !== pacienteId));
+        showSuccessMessage('Paciente deletado com sucesso!');
+      } else {
+        const data:Paciente = await response.json();
+        showErrorMessage(`Erro ao deletar paciente: ${data}`);
+      }
+    } catch (error) {
+      showErrorMessage('Erro ao deletar paciente. Tente novamente mais tarde.');
+    }
+  };
+  
 
   useEffect(() => {
     const fetchPacientes = async () => {
@@ -118,7 +166,7 @@ const MeusAtendimentos = () => {
         <th className="px-4 py-2 text-left">Estado</th>
         <th className="px-4 py-2 text-left">Convenio</th>
         <th className="px-4 py-2 text-left">Prontuario</th>
-        <th className="px-4 py-2 text-left">Status</th>
+        <th className="px-4 py-2 text-left">Action</th>
       </tr>
     </thead>
     <tbody>
@@ -136,9 +184,22 @@ const MeusAtendimentos = () => {
               <FaFileAlt className="text-blue-500 hover:text-blue-700 cursor-pointer" />
             </td>
             <td className="px-4 py-2">
-              <span className="px-2 py-1 rounded-full text-xs font-semibold">
-                {getStatus(item.status)}
+              <span className="px-2 py-1 flex  rounded-full text-xs font-semibold">
+              <FaTrash 
+                className="text-red-500 hover:text-red-700 cursor-pointer" 
+                onClick={() => handleDeletePaciente(item.id)}
+                title="Deletar paciente"
+              />
+              <FaEdit 
+                className="text-red-500 hover:text-red-700 cursor-pointer" 
+                onClick={() => {
+               abrirModal(item)
+                }}
+                title="editar paciente"
+              />
+
               </span>
+              
             </td>
           </tr>
         ))
@@ -166,6 +227,15 @@ const MeusAtendimentos = () => {
     </tbody>
   </table>
 </div>
+
+    {isModalOpen && (
+      <ModalPacientes
+        isOpen={isModalOpen}
+        onClose={fecharModal}
+        paciente={pacienteSelecionado}
+      />
+    )}
+
 
     </>
   )

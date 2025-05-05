@@ -1,12 +1,13 @@
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
-import { useRouter } from "next/navigation"; // Para redirecionamento
+import { redirect, useRouter } from "next/navigation"; // Para redirecionamento
 import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone, FaExclamationTriangle } from 'react-icons/fa';
 import { ChangeEvent, useState } from "react";
 import { useParams } from "next/navigation";
 import { Endereco } from "../../../../../types/adress";
 import HeadPage from "@/app/protected-components/headPage";
 import { FaBookMedical } from "react-icons/fa";
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
 
 
 const Pacientes = () => {
@@ -55,6 +56,7 @@ const Pacientes = () => {
         setEstado('');
         setEmail('');
         setRg('');
+      
     };
 
 
@@ -102,14 +104,16 @@ const Pacientes = () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert("Paciente cadastrado com sucesso!");
+                showSuccessMessage("Paciente cadastrado com sucesso!");
                 limparCampos()
+                window.location.href = `/meus-pacientes/${userId}`;
+               
 
             } else {
-                alert(`Erro: ${data.error}`);
+                showErrorMessage(`Erro: ${data.error}`);
             }
         } catch (error) {
-            alert("Erro ao cadastrar paciente.");
+            showErrorMessage("Erro ao cadastrar paciente. " + error);
         } finally {
 
         }
@@ -128,7 +132,7 @@ const Pacientes = () => {
 
         // Verifica se o CPF tem 11 dígitos ou se é uma sequência inválida
         if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-            alert('O campo de cpf deve ter 11 digitos')
+            showInfoMessage('O campo de cpf deve ter 11 digitos')
             setCpf('')
 
         }
@@ -149,7 +153,7 @@ const Pacientes = () => {
 
         let valido = digito1 === parseInt(cpf[9]) && digito2 === parseInt(cpf[10]);
         if (!valido) {
-            alert('o cpf digitado não é valido!')
+            showErrorMessage('o cpf digitado não é valido!')
             setCpf('')
         }
     }
@@ -216,7 +220,7 @@ const Pacientes = () => {
 
         } catch (error) {
             // Lidando com erros de rede ou de formatação de CEP
-            alert(`Erro ${error}`);
+            showErrorMessage(`Erro ${error}`);
         }
     };
 
