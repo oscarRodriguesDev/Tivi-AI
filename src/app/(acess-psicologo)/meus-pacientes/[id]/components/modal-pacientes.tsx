@@ -79,7 +79,8 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
 
       if (response.ok) {
         showSuccessMessage('Paciente atualizado com sucesso!')
-        onClose()
+        window.location.reload()
+       // onClose()
       } else {
         const data = await response.json()
         showErrorMessage(`Erro ao atualizar paciente: ${data.error}`)
