@@ -459,24 +459,32 @@ const saveMessage = async (transcript: string) => {
 
       </div>
 
-      <div className=" fixed left-[90%] grid grid-cols-2  justify-center gap-2">
+
+
+      <div className="absolute top-5  mt-auto mb-auto w-24">
+
+      
+        <div className="pb-1">
+
+
         <button
           onClick={handleClearTranscription}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+          className="bg-blue-500 text-white px-4 py-2 ml-1 rounded-md hover:bg-blue-600 transition"
           title="Limpar Transcrição"
         >
           <FaEraser size={10} />
         </button>
         <button
           onClick={handleSavePDF}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+          className="bg-yellow-500 text-white px-4 py-2 ml-1 rounded-md hover:bg-yellow-600 transition"
           title="Salvar PDF"
         >
           <FaFilePdf size={10} />
         </button>
+        </div>
         <button
           onClick={() => handleGetInsights(transcription)}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+          className="bg-yellow-500 text-white px-4 py-2 rounded-md ml-1 hover:bg-yellow-600 transition"
           title="Análise"
         >
           <FaBrain size={10} />
@@ -486,7 +494,7 @@ const saveMessage = async (transcript: string) => {
         {!listening ? (
           <button
             onClick={handleStartListening}
-            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition"
+            className="bg-red-600 text-white px-4 py-2 ml-1 rounded-md hover:bg-red-500 transition"
             title="Iniciar Transcrição"
           >
             <RiPlayList2Fill size={10} />
@@ -501,7 +509,12 @@ const saveMessage = async (transcript: string) => {
 
           </button>
         )}
+       
       </div>
+ *
+
+ 
+      
     </div>
   );
 }

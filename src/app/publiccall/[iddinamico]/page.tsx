@@ -370,7 +370,11 @@ const [transcription, setTranscription] = useState<string>("");
 
 
   return (
-   /*  <div className="">
+
+    //codigo antigo da tela de call do paciente ainda podemos utilziar alguma coisa daqui
+    
+ /*    
+    <div className="">
       <video ref={remoteVideoRef} autoPlay playsInline className="" />
       <div className="">
         Psicologo
@@ -431,9 +435,9 @@ const [transcription, setTranscription] = useState<string>("");
           <LogOut size={12} />
         </button>
       </div>
-    </div> */
+    </div>
 
- 
+  */
     <div className="min-h-screen bg-gray-900 text-white p-4 relative">
       {/* Video Container */}
       <div className="relative w-full h-[calc(100vh-200px)] rounded-lg overflow-hidden">
