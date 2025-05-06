@@ -469,3 +469,4 @@ const [transcription, setTranscription] = useState<string>("");
 }
 
 
+//testando
