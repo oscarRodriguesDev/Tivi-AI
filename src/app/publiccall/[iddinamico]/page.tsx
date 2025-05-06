@@ -370,18 +370,12 @@ const [transcription, setTranscription] = useState<string>("");
 
 
   return (
-    <div className=" flex flex-col items-center justify-center">
-      {/* Vídeo do Paciente - Ocupa 100% da tela */}
-      {/*  <video ref={videoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" /> */}
+   /*  <div className="">
       <video ref={remoteVideoRef} autoPlay playsInline className="" />
       <div className="">
         Psicologo
       </div>
-
-
-      {/* Vídeo do Psicólogo - Menor no canto inferior esquerdo */}
       <div className="">
-        {/* <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" /> */}
         <video
          ref={videoRef}
           autoPlay
@@ -393,36 +387,15 @@ const [transcription, setTranscription] = useState<string>("");
           você
         </div>
       </div>
-
-
-      {/* Botão de Sair - Ajustado para ficar acima do vídeo */}
-     {/*  {callActive && (
-        <div className="absolute top-4 right-4">
-          <button
-            onClick={endCall}
-            className="py-3 px-6 text-white bg-gradient-to-r from-red-600 to-red-400 shadow-lg hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
-          >
-            Sair
-          </button>
-        </div>
-      )} */}
-
-      {/* nessa versão vamos buscar a transcrição do paciente e enviar para o psicólogo, 
-      mas estamos trabalhando para conseguir buscar a trasncriçao diretor do auto falante do psicologo */}
-
       <div className="">
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription}
           sala={iddinamico as string}
-
         />
       </div>
-
-
       <div className="">
-
-        {/* botão para desativar o microfone */}
+      
         <button
           className=""
           onClick={() => {
@@ -436,8 +409,6 @@ const [transcription, setTranscription] = useState<string>("");
         >
           {mic ? <Mic size={12} /> : <MicOff size={12} />}
         </button>
-
-
         <button
           className=""
           onClick={() => {
@@ -460,12 +431,87 @@ const [transcription, setTranscription] = useState<string>("");
           <LogOut size={12} />
         </button>
       </div>
+    </div> */
 
+ 
+    <div className="min-h-screen bg-gray-900 text-white p-4 relative">
+      {/* Video Container */}
+      <div className="relative w-full h-[calc(100vh-200px)] rounded-lg overflow-hidden">
+        {/* Remote Video (Psychologist) */}
+        <video 
+          ref={remoteVideoRef} 
+          autoPlay 
+          playsInline 
+          className="w-full h-full object-cover"
+        />
+        
+        {/* Local Video (Patient) */}
+        <div className="absolute bottom-4 right-4 w-48 h-36 rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            className="w-full h-full object-cover"
+            muted={true}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-1 text-xs text-center">
+            Você
+          </div>
+        </div>
+      </div>
+
+      {/* Transcription Area */}
+      <div className="mt-4 bg-gray-800 rounded-lg p-4 h-[150px] overflow-y-auto">
+        <LiveTranscription
+          usuario={'Paciente'}
+          mensagem={transcription}
+          sala={iddinamico as string}
+        />
+      </div>
+
+      {/* Control Buttons */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 bg-gray-800/80 p-3 rounded-full backdrop-blur-sm">
+        <button
+          className="p-3 rounded-full hover:bg-gray-700 transition-colors"
+          onClick={() => {
+            setMic(!mic);
+            if (mic) {
+              //LIGAR MICROFONE
+            } else {
+              //DESLIGAR MICROFONE
+            }
+          }}
+        >
+          {mic ? <Mic size={20} className="text-white" /> : <MicOff size={20} className="text-red-500" />}
+        </button>
+
+        <button
+          className="p-3 rounded-full hover:bg-gray-700 transition-colors"
+          onClick={() => {
+            setVideo(!video);
+            if (video) {
+              //LIGAR VIDEO
+            } else {
+              //DESLIGAR VIDEO
+            }
+          }}
+        >
+          {video ? <Video size={20} className="text-white" /> : <VideoOff size={20} className="text-red-500" />}
+        </button>
+
+        <button
+          className="p-3 rounded-full hover:bg-red-600 transition-colors bg-red-500"
+          onClick={endCall}
+        >
+          <LogOut size={20} className="text-white" />
+        </button>
+      </div>
     </div>
-
-
-
   );
+
+
+
+  
 }
 
 
