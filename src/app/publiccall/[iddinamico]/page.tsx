@@ -370,26 +370,26 @@ const [transcription, setTranscription] = useState<string>("");
 
 
   return (
-    <div className="relative w-screen h-screen bg-gradient-to-r from-blue-400 to-green-300">
+    <div className=" flex flex-col items-center justify-center">
       {/* Vídeo do Paciente - Ocupa 100% da tela */}
       {/*  <video ref={videoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" /> */}
-      <video ref={remoteVideoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute top-2 left-2 text-blue-800 p-2 font-semibold text-sm">
+      <video ref={remoteVideoRef} autoPlay playsInline className="" />
+      <div className="">
         Psicologo
       </div>
 
 
       {/* Vídeo do Psicólogo - Menor no canto inferior esquerdo */}
-      <div className="absolute bottom-4 left-4 w-1/4 h-auto">
+      <div className="">
         {/* <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" /> */}
         <video
          ref={videoRef}
           autoPlay
            playsInline
-           className="w-full h-auto bg-black object-cover border-2 border-indigo-500" 
+           className="" 
            muted={true}
            />
-        <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 font-semibold text-sm">
+        <div className="">
           você
         </div>
       </div>
@@ -410,7 +410,7 @@ const [transcription, setTranscription] = useState<string>("");
       {/* nessa versão vamos buscar a transcrição do paciente e enviar para o psicólogo, 
       mas estamos trabalhando para conseguir buscar a trasncriçao diretor do auto falante do psicologo */}
 
-      <div className=" absolute  bottom-[30%] right-4 w-auto max-w-[30%]">
+      <div className="">
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription}
@@ -420,11 +420,11 @@ const [transcription, setTranscription] = useState<string>("");
       </div>
 
 
-      <div className="absolute bottom-6 left-[50%] transform -translate-x-1/2 flex space-x-6 p-4 rounded-xl">
+      <div className="">
 
         {/* botão para desativar o microfone */}
         <button
-          className="p-3 bg-gray-700 text-white rounded-full shadow-md hover:bg-gray-800 transition"
+          className=""
           onClick={() => {
             setMic(!mic)
             if (mic) {
@@ -439,7 +439,7 @@ const [transcription, setTranscription] = useState<string>("");
 
 
         <button
-          className="p-3 bg-gray-700 text-white rounded-full shadow-md hover:bg-gray-800 transition"
+          className=""
           onClick={() => {
             setVideo(!video)
             if (video) {
@@ -454,7 +454,7 @@ const [transcription, setTranscription] = useState<string>("");
         </button>
 
         <button
-          className="p-3 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 transition"
+          className=""
           onClick={endCall}
         >
           <LogOut size={12} />
