@@ -34,6 +34,7 @@ import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
 import { Agendamento } from '../../../../../types/agendamentos';
 import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
 import { useParams } from 'next/navigation';
+import { showInfoMessage } from '@/app/util/messages';
 
 
 
@@ -128,7 +129,7 @@ export default function AgendamentoPage() {
     tipo_consulta: '',
     observacao: '',
     recorrencia: '',
-    duracao:'',
+    duracao: '',
     code: '',
   });
 
@@ -169,18 +170,21 @@ export default function AgendamentoPage() {
 
   const [modalAberto, setModalAberto] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
+  //status da reunião
+
+  const [expirada,setExpirada] =  useState<string>("");
 
 
 
   //função para editar o agendamento
   const handleEditar = (agendamento: any) => {
-    if(agendamento.id==='fake-id') {
+    if (agendamento.id === 'fake-id') {
       alert("impossivel editar demonstração");
-    }else{
+    } else {
 
-    
-    setAgendamentoSelecionado(agendamento);
-    setModalAberto(true);
+
+      setAgendamentoSelecionado(agendamento);
+      setModalAberto(true);
     }
   };
 
@@ -211,6 +215,7 @@ export default function AgendamentoPage() {
     }
   };
 
+
   /**
  * Executa a função `buscarAgendamentos` uma única vez ao montar o componente.
  * 
@@ -225,7 +230,7 @@ export default function AgendamentoPage() {
 
     //limpar o intervalo ao desmontar o componente
     return () => clearInterval(intervalId);
-  }, [agendamentos]);
+  }, []);
 
 
   /**
@@ -333,82 +338,49 @@ export default function AgendamentoPage() {
 
   //criar doc do delete
   const handleDeletar = async (id: string) => {
-    if(id === "fake-id") {
+    if (id === "fake-id") {
       alert('Impossivel deletar a demonstração')
-    }else{
-    const response = await fetch(`/api/gen-meet`, {
-      method: 'DELETE',
-      body: JSON.stringify({ id }),
-    });
-    if (response.ok) {
-      alert("Agendamento deletado com sucesso");
-      buscarAgendamentos();
     } else {
-     
-    };
-  }
-  }
+      const response = await fetch(`/api/gen-meet`, {
+        method: 'DELETE',
+        body: JSON.stringify({ id }),
+      });
+      if (response.ok) {
+        alert("Agendamento deletado com sucesso");
+        buscarAgendamentos();
+      } else {
 
-
-  //criar doc depois
-
-  const deletarConsultasPassadas = async () => {
-    const hoje = new Date();
-    const horaAtual = hoje.getHours() * 60 + hoje.getMinutes(); // Converter hora atual para minutos
-  
-    for (const agendamento of agendamentos) {
-      if (agendamento.id === "fake-id") {
-       continue
-      }else{
-
-        try {
-          const dataConsulta = new Date(agendamento.data ?? "");
-    
-          if (isNaN(dataConsulta.getTime())) {
-            console.log(`Data inválida em agendamento ID: ${agendamento.id}`);
-            continue;
-          }
-    
-          if (!agendamento.hora) {
-            console.log(`Hora ausente em agendamento ID: ${agendamento.id}`);
-            continue;
-          }
-    
-          const [hora, minutos] = agendamento.hora.split(":").map(Number);
-          const horaConsulta = hora * 60 + minutos;
-          const duracao = parseInt(agendamento.duracao || "0", 10); // duração em minutos
-    
-          const consultaTerminou =
-            dataConsulta < hoje ||
-            (dataConsulta.toDateString() === hoje.toDateString() &&
-              horaConsulta + duracao < horaAtual);
-    
-          if (consultaTerminou) {
-            console.log(
-              `Deletando agendamento ID ${agendamento.id} | Data: ${dataConsulta}, Hora: ${agendamento.hora}, Duração: ${duracao}`
-            );
-            await handleDeletar(agendamento.id);
-          }
-        } catch (err) {
-          console.error(`Erro ao processar agendamento ID ${agendamento.id}:`, err);
-        }
-      }
-  
+      };
     }
-  };
-  
+  }
 
-
-  // Executar a limpeza de consultas passadas a cada 5 minutos
   useEffect(() => {
-    const intervalId = setInterval(deletarConsultasPassadas,1000);
-    return () => clearInterval(intervalId);
+    function verifica(ag: Agendamento[]) {
+      const agora = new Date().getTime();
+      let expirada = false; // Variável local para saber se há alguma reunião expirada
+    
+      ag.forEach((item) => {
+        const dataAgendamento = new Date(item.data).getTime();
+        if (dataAgendamento < agora && item.id !== 'fake-id') {
+          console.log(`Agendamento expirado: ${item.id}`);
+          expirada = true; // Marca como expirada
+        }
+      });
+    
+      // Aqui você pode tomar a ação desejada
+      if (expirada) {
+        console.log('Reunião expirada');
+        // Ação para agendamento expirado
+      } else {
+        console.log('Não há reuniões expiradas');
+      }
+    }
+    
+    
+    
+
+    verifica(agendamentos);
   }, [agendamentos]);
-
-
-
-
-
 
 
   /**
@@ -474,6 +446,7 @@ export default function AgendamentoPage() {
                     <li key={meet.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
                       <div className="text-xl w-full font-semibold text-white text-center bg-slate-600">
                         Consulta Online com {meet.name}
+                        <h5 className='text-red-500 text-lg'>{expirada}</h5>
                       </div>
                       <div className="text-lg font-medium text-blue-800">
                         Nick name {meet.fantasy_name}
@@ -614,3 +587,6 @@ export default function AgendamentoPage() {
 
   );
 }
+
+
+//amanha definir no prisma o status da reunião para controlar por la se ela está ou não vencida e ai decidir se delta ou mantam
