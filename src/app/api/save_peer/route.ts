@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 
 let peerStorage: Record<string, string> = {}; // Armazena temporariamente os peerIds
 
-// Método GET para recuperar o peerId associado ao iddinamico
+
+
 export async function GET(req: Request) {
   interface peerProps {
     peerId: string;
@@ -23,7 +24,7 @@ export async function GET(req: Request) {
     const peerId = peerStorage[iddinamico];
 
     if (!peerId) {
-     
+     console.log("erro ao recuperar peer id");
       return NextResponse.json({ message: 'Nenhum peerId encontrado para o iddinamico fornecido.' }, { status: 404 }); 
     }
 
@@ -36,6 +37,11 @@ export async function GET(req: Request) {
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
   }
 }
+ 
+ 
+
+
+
 
 // Método POST para salvar o peerId
 export async function POST(req: Request) {
