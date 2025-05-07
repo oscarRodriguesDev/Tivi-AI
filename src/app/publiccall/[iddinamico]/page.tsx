@@ -71,96 +71,96 @@ export default function PublicCallPage() {
 
 
 
-/**
- * ID do peer remoto (opcionalmente utilizado para referência futura).
- * Pode ser usado para reconectar ou registrar a chamada.
- */
-const [remoteId, setRemoteId] = useState<string>("");
+  /**
+   * ID do peer remoto (opcionalmente utilizado para referência futura).
+   * Pode ser usado para reconectar ou registrar a chamada.
+   */
+  const [remoteId, setRemoteId] = useState<string>("");
 
-/**
- * Mensagem de status exibida durante a transcrição (ex: "Aguardando transcrição").
- */
-const [msg, setMsg] = useState<string>("Aguardando transcrição");
+  /**
+   * Mensagem de status exibida durante a transcrição (ex: "Aguardando transcrição").
+   */
+  const [msg, setMsg] = useState<string>("Aguardando transcrição");
 
-/**
- * Referência ao contexto de áudio utilizado para processar e analisar o som do microfone.
- */
-const audioContextRef = useRef<AudioContext | null>(null);
+  /**
+   * Referência ao contexto de áudio utilizado para processar e analisar o som do microfone.
+   */
+  const audioContextRef = useRef<AudioContext | null>(null);
 
-/**
- * Referência ao analisador de frequência da Web Audio API.
- * Utilizado para monitorar o volume do microfone em tempo real.
- */
-const analyserRef = useRef<AnalyserNode | null>(null);
+  /**
+   * Referência ao analisador de frequência da Web Audio API.
+   * Utilizado para monitorar o volume do microfone em tempo real.
+   */
+  const analyserRef = useRef<AnalyserNode | null>(null);
 
-/**
- * Fonte de áudio conectada ao microfone local, usada como entrada para o analisador.
- */
-const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  /**
+   * Fonte de áudio conectada ao microfone local, usada como entrada para o analisador.
+   */
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
 
-/**
- * Referência ao elemento de áudio do participante remoto, utilizado para controlar o som recebido.
- */
-const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+  /**
+   * Referência ao elemento de áudio do participante remoto, utilizado para controlar o som recebido.
+   */
+  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
 
-/**
- * ID dinâmico da sala de atendimento, extraído da URL usando o App Router do Next.js.
- */
-const { iddinamico } = useParams();
+  /**
+   * ID dinâmico da sala de atendimento, extraído da URL usando o App Router do Next.js.
+   */
+  const { iddinamico } = useParams();
 
-/**
- * ID único gerado para o peer atual ao se conectar ao servidor PeerJS.
- */
-const [peerId, setPeerId] = useState<string>("");
+  /**
+   * ID único gerado para o peer atual ao se conectar ao servidor PeerJS.
+   */
+  const [peerId, setPeerId] = useState<string>("");
 
-/**
- * Indica se uma chamada de vídeo está ativa no momento.
- */
-const [callActive, setCallActive] = useState<boolean>(false);
+  /**
+   * Indica se uma chamada de vídeo está ativa no momento.
+   */
+  const [callActive, setCallActive] = useState<boolean>(false);
 
-/**
- * Referência ao objeto PeerJS que representa o peer local.
- */
-const peerRef = useRef<Peer | null>(null);
+  /**
+   * Referência ao objeto PeerJS que representa o peer local.
+   */
+  const peerRef = useRef<Peer | null>(null);
 
-/**
- * Referência ao elemento de vídeo local (do próprio usuário).
- */
-const videoRef = useRef<HTMLVideoElement | null>(null);
+  /**
+   * Referência ao elemento de vídeo local (do próprio usuário).
+   */
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-/**
- * Referência ao vídeo do participante remoto.
- */
-const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  /**
+   * Referência ao vídeo do participante remoto.
+   */
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
-/**
- * Representa a conexão de mídia ativa com o outro participante da chamada.
- */
-const currentCall = useRef<MediaConnection | null>(null);
+  /**
+   * Representa a conexão de mídia ativa com o outro participante da chamada.
+   */
+  const currentCall = useRef<MediaConnection | null>(null);
 
-/**
- * Estado que controla se o microfone local está ligado ou desligado.
- */
-const [mic, setMic] = useState<boolean>(true);
+  /**
+   * Estado que controla se o microfone local está ligado ou desligado.
+   */
+  const [mic, setMic] = useState<boolean>(true);
 
-/**
- * Estado que controla se a câmera local está ligada ou desligada.
- */
-const [video, setVideo] = useState<boolean>(true);
+  /**
+   * Estado que controla se a câmera local está ligada ou desligada.
+   */
+  const [video, setVideo] = useState<boolean>(true);
 
-/**
- * Define se o usuário atual é o psicólogo.
- * Usado para rotular corretamente as falas na transcrição.
- */
-const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
+  /**
+   * Define se o usuário atual é o psicólogo.
+   * Usado para rotular corretamente as falas na transcrição.
+   */
+  const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
 
-/**
- * Armazena a transcrição da conversa realizada durante a chamada.
- */
-const [transcription, setTranscription] = useState<string>("");
+  /**
+   * Armazena a transcrição da conversa realizada durante a chamada.
+   */
+  const [transcription, setTranscription] = useState<string>("");
 
 
- 
+
 
   /**
    * Função para monitorar o volume do microfone.
@@ -219,18 +219,18 @@ const [transcription, setTranscription] = useState<string>("");
 
 
 
-/**
- * Efeito que inicializa a conexão PeerJS para chamadas de vídeo.
- *
- * - Cria um novo `Peer` e obtém seu ID ao abrir a conexão.
- * - Envia o `peerId` gerado para a API associando-o ao `iddinamico` da URL.
- * - Escuta chamadas recebidas e responde com mídia local (áudio/vídeo).
- * - Conecta os fluxos de mídia local e remota aos elementos de vídeo correspondentes.
- * - Inicia o monitoramento do microfone para controlar o áudio remoto com base no volume.
- * - Limpa e destrói o peer ao desmontar o componente.
- *
- * @dependency `iddinamico` - ID dinâmico extraído da URL, necessário para associar o `peerId` na API.
- */
+  /**
+   * Efeito que inicializa a conexão PeerJS para chamadas de vídeo.
+   *
+   * - Cria um novo `Peer` e obtém seu ID ao abrir a conexão.
+   * - Envia o `peerId` gerado para a API associando-o ao `iddinamico` da URL.
+   * - Escuta chamadas recebidas e responde com mídia local (áudio/vídeo).
+   * - Conecta os fluxos de mídia local e remota aos elementos de vídeo correspondentes.
+   * - Inicia o monitoramento do microfone para controlar o áudio remoto com base no volume.
+   * - Limpa e destrói o peer ao desmontar o componente.
+   *
+   * @dependency `iddinamico` - ID dinâmico extraído da URL, necessário para associar o `peerId` na API.
+   */
 
   useEffect(() => {
     if (!iddinamico) return; // Se não tem ID na URL, não faz nada
@@ -256,37 +256,37 @@ const [transcription, setTranscription] = useState<string>("");
 
     //codigo antigo do peeron call
     // Responder chamadas do psicólogo
-  /*   peer.on("call", (call) => {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-        if (videoRef.current) videoRef.current.srcObject = stream;
-        call.answer(stream);
-        setCallActive(true);
-        currentCall.current = call;
-        monitorMicrophone(stream);
-        setMsg('Transcrevendo Chamada...');
-
-
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = remoteStream;
-          }
-        
-          // Se quiser, também pode criar um elemento <audio> separado
-          if (remoteAudioRef.current) {
-            remoteAudioRef.current.srcObject = remoteStream;
-            remoteAudioRef.current.play();
-          }
-
+    /*   peer.on("call", (call) => {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+          if (videoRef.current) videoRef.current.srcObject = stream;
+          call.answer(stream);
+          setCallActive(true);
+          currentCall.current = call;
+          monitorMicrophone(stream);
+          setMsg('Transcrevendo Chamada...');
+  
+  
+          call.on("stream", (remoteStream) => {
+            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+  
+            if (remoteVideoRef.current) {
+              remoteVideoRef.current.srcObject = remoteStream;
+            }
           
+            // Se quiser, também pode criar um elemento <audio> separado
+            if (remoteAudioRef.current) {
+              remoteAudioRef.current.srcObject = remoteStream;
+              remoteAudioRef.current.play();
+            }
+  
+            
+          });
+  
+          call.on("close", () => endCall());
         });
-
-        call.on("close", () => endCall());
       });
-    });
- */
-   
+   */
+
     peer.on("call", (call) => {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((stream) => {
@@ -296,7 +296,7 @@ const [transcription, setTranscription] = useState<string>("");
           currentCall.current = call;
           monitorMicrophone(stream);
           setMsg('Transcrevendo Chamada...');
-    
+
           call.on("stream", (remoteStream) => {
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
             if (remoteAudioRef.current) {
@@ -304,7 +304,7 @@ const [transcription, setTranscription] = useState<string>("");
               remoteAudioRef.current.play();
             }
           });
-    
+
           call.on("close", () => endCall());
         })
         .catch((error) => {
@@ -312,11 +312,11 @@ const [transcription, setTranscription] = useState<string>("");
           alert("Não foi possível acessar o microfone ou a câmera. Verifique as permissões do navegador.");
         });
     });
-    
-   
-   
+
+
+
     return () => peer.destroy(); // Limpa o peer ao desmontar
-  }, [iddinamico]);
+  }, []);
 
 
 
@@ -367,66 +367,138 @@ const [transcription, setTranscription] = useState<string>("");
     }
   }, [hasShownAlert]);
 
+  useEffect(() => {
+    const handleUnload = () => {
+      if (currentCall.current) {
+        currentCall.current.close();
+      }
+      if (peerRef.current) {
+        peerRef.current.destroy();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+    window.addEventListener("unload", handleUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+      window.removeEventListener("unload", handleUnload);
+    };
+  }, []);
+
+
 
 
   return (
-    <div className="relative w-screen h-screen bg-gradient-to-r from-blue-400 to-green-300">
-      {/* Vídeo do Paciente - Ocupa 100% da tela */}
-      {/*  <video ref={videoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" /> */}
-      <video ref={remoteVideoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute top-2 left-2 text-blue-800 p-2 font-semibold text-sm">
-        Psicologo
-      </div>
 
+    //codigo antigo da tela de call do paciente ainda podemos utilziar alguma coisa daqui
 
-      {/* Vídeo do Psicólogo - Menor no canto inferior esquerdo */}
-      <div className="absolute bottom-4 left-4 w-1/4 h-auto">
-        {/* <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-auto bg-black object-cover border-2 border-indigo-500" /> */}
-        <video
-         ref={videoRef}
-          autoPlay
-           playsInline
-           className="w-full h-auto bg-black object-cover border-2 border-indigo-500" 
-           muted={true}
+    /*    
+       <div className="">
+         <video ref={remoteVideoRef} autoPlay playsInline className="" />
+         <div className="">
+           Psicologo
+         </div>
+         <div className="">
+           <video
+            ref={videoRef}
+             autoPlay
+              playsInline
+              className="" 
+              muted={true}
+              />
+           <div className="">
+             você
+           </div>
+         </div>
+         <div className="">
+           <LiveTranscription
+             usuario={'Paciente'}
+             mensagem={transcription}
+             sala={iddinamico as string}
            />
-        <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 font-semibold text-sm">
-          você
+         </div>
+         <div className="">
+         
+           <button
+             className=""
+             onClick={() => {
+               setMic(!mic)
+               if (mic) {
+                 //LIGAR MICROFONE
+               } else {
+                 //DESLIGAR MICROFONE
+               }
+             }}
+           >
+             {mic ? <Mic size={12} /> : <MicOff size={12} />}
+           </button>
+           <button
+             className=""
+             onClick={() => {
+               setVideo(!video)
+               if (video) {
+                 //LIGAR VIDEO
+                 
+               } else {
+                 //DESLIGAR VIDEO
+               }
+             }}
+           >
+             {video ? <Video size={12} /> : <VideoOff size={12} />}
+           </button>
+   
+           <button
+             className=""
+             onClick={endCall}
+           >
+             <LogOut size={12} />
+           </button>
+         </div>
+       </div>
+   
+     */
+    <div className="min-h-screen bg-gray-900 text-white p-4 relative">
+      {/* Video Container */}
+      <div className="relative w-full h-[calc(100vh-200px)] rounded-lg overflow-hidden">
+        {/* Remote Video (Psychologist) */}
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          className="w-full h-full object-cover"
+        />
+
+        {/* Local Video (Patient) */}
+        <div className="absolute bottom-4 right-4 w-48 h-36 rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            className="w-full h-full object-cover"
+            muted={true}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-1 text-xs text-center">
+            Você
+          </div>
         </div>
       </div>
 
-
-      {/* Botão de Sair - Ajustado para ficar acima do vídeo */}
-     {/*  {callActive && (
-        <div className="absolute top-4 right-4">
-          <button
-            onClick={endCall}
-            className="py-3 px-6 text-white bg-gradient-to-r from-red-600 to-red-400 shadow-lg hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
-          >
-            Sair
-          </button>
-        </div>
-      )} */}
-
-      {/* nessa versão vamos buscar a transcrição do paciente e enviar para o psicólogo, 
-      mas estamos trabalhando para conseguir buscar a trasncriçao diretor do auto falante do psicologo */}
-
-      <div className=" absolute  bottom-[30%] right-4 w-auto max-w-[30%]">
+      {/* Transcription Area */}
+      <div className="mt-4 bg-gray-800 rounded-lg p-4 h-[150px] overflow-y-auto">
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription}
           sala={iddinamico as string}
-
         />
       </div>
 
-
-      <div className="absolute bottom-6 left-[50%] transform -translate-x-1/2 flex space-x-6 p-4 rounded-xl">
-
-        {/* botão para desativar o microfone */}
+      {/* Control Buttons */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 bg-gray-800/80 p-3 rounded-full backdrop-blur-sm">
         <button
-          className="p-3 bg-gray-700 text-white rounded-full shadow-md hover:bg-gray-800 transition"
+          className="p-3 rounded-full hover:bg-gray-700 transition-colors"
           onClick={() => {
-            setMic(!mic)
+            setMic(!mic);
             if (mic) {
               //LIGAR MICROFONE
             } else {
@@ -434,38 +506,37 @@ const [transcription, setTranscription] = useState<string>("");
             }
           }}
         >
-          {mic ? <Mic size={12} /> : <MicOff size={12} />}
+          {mic ? <Mic size={20} className="text-white" /> : <MicOff size={20} className="text-red-500" />}
         </button>
 
-
         <button
-          className="p-3 bg-gray-700 text-white rounded-full shadow-md hover:bg-gray-800 transition"
+          className="p-3 rounded-full hover:bg-gray-700 transition-colors"
           onClick={() => {
-            setVideo(!video)
+            setVideo(!video);
             if (video) {
               //LIGAR VIDEO
-              
             } else {
               //DESLIGAR VIDEO
             }
           }}
         >
-          {video ? <Video size={12} /> : <VideoOff size={12} />}
+          {video ? <Video size={20} className="text-white" /> : <VideoOff size={20} className="text-red-500" />}
         </button>
 
         <button
-          className="p-3 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 transition"
+          className="p-3 rounded-full hover:bg-red-600 transition-colors bg-red-500"
           onClick={endCall}
         >
-          <LogOut size={12} />
+          <LogOut size={20} className="text-white" />
         </button>
       </div>
-
     </div>
-
-
-
   );
+
+
+
+
 }
 
 
+//testando

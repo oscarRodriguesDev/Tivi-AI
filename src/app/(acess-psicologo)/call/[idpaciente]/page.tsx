@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { redirect, useParams, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
 import LiveTranscription from "@/app/protected-components/transcriptionPSC";
@@ -237,7 +237,7 @@ export default function Home() {
  *
  * @dependency [iddinamico] - O efeito será executado sempre que `iddinamico` for definido ou alterado.
  */
-
+/* 
   useEffect(() => {
     if (!iddinamico){
       console.log('iddinamico',iddinamico)
@@ -277,7 +277,64 @@ export default function Home() {
 
     return () => peer.destroy(); // Limpa a instância do Peer ao desmontar
   }, [iddinamico]);
+ */
 
+
+  useEffect(() => {
+    if (!iddinamico) {
+      console.log('iddinamico', iddinamico);
+      return;
+    }
+  
+    console.log('iddinamico', iddinamico);
+    const peer = new Peer(uuidv4());
+    peerRef.current = peer;
+  
+    peer.on("open", (id) => setPeerId(id));
+  
+    peer.on("call", (call) => {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+        monitorMicrophone(stream);
+  
+        if (videoRef.current) videoRef.current.srcObject = stream;
+  
+        call.answer(stream);
+        setCallActive(true);
+        currentCall.current = call;
+  
+        call.on("stream", (remoteStream) => {
+          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+  
+          if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = remoteStream;
+            remoteAudioRef.current.play();
+          }
+        });
+  
+        // 🔴 Adiciona o listener para quando a chamada for encerrada
+        call.on("close", () => {
+          console.warn("Conexão encerrada pelo outro participante.");
+          alert("A chamada foi encerrada pelo paciente ou a conexão foi perdida.");
+          endCall(); // Finaliza e limpa
+        });
+  
+        // ⚠️ Adiciona o listener para erros na chamada
+        call.on("error", (err) => {
+          console.error("Erro na chamada:", err);
+          alert("Ocorreu um erro na conexão com o paciente.");
+          endCall();
+        });
+      }).catch((err) => {
+        console.error("Erro ao acessar câmera/microfone:", err);
+        alert("Não foi possível acessar a câmera ou microfone.");
+      });
+    });
+  
+    return () => {
+      peer.destroy(); // Limpa instância ao desmontar
+    };
+  }, [iddinamico]);
+  
 
 /**
  * Inicia uma chamada de vídeo com o peer remoto utilizando PeerJS.
@@ -288,6 +345,7 @@ export default function Home() {
  * - Configura o stream local no `videoRef`.
  * - Realiza a chamada ao peer remoto utilizando o `remoteId` e envia o stream.
  * - Ao receber o stream remoto, define no `remoteVideoRef`.
+ * testar
  *
  * ⚠️ Se `remoteId` ou `peerRef` não estiverem definidos, a função retorna sem executar.
  */
@@ -342,6 +400,7 @@ export default function Home() {
       remoteVideoRef.current.srcObject = null;
     }
     setCallActive(false);
+    redirect('/common-page')
   };
 
 
