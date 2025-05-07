@@ -345,6 +345,7 @@ export default function Home() {
  * - Configura o stream local no `videoRef`.
  * - Realiza a chamada ao peer remoto utilizando o `remoteId` e envia o stream.
  * - Ao receber o stream remoto, define no `remoteVideoRef`.
+ * testar
  *
  * ⚠️ Se `remoteId` ou `peerRef` não estiverem definidos, a função retorna sem executar.
  */
