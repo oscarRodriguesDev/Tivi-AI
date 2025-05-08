@@ -55,6 +55,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     // Verifica se todos os campos obrigatórios estão preenchidos
     if (novoAgendamento.data && novoAgendamento.hora && novoAgendamento.name && novoAgendamento.fantasy_name) {
       const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
+      alert(novo)
 
       try {
         // Fazendo a requisição para a API (ajuste a URL da sua API)
@@ -230,12 +231,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                 <FaUserClock size={20} className="text-gray-600" />
                 <select
                   name="duracao"
-                  value={novoAgendamento.duracao}
+                  value={novoAgendamento.duracao||30}
                   onChange={handleChange}
                   className="border text-black border-gray-300 rounded-md px-4 py-2 w-full"
                 >
                   <option value="30">30 minutos</option>
-                  <option value="60">1 hora</option>
+                  <option value="60">60 minutos</option>
                 </select>
               </div>
             </div>

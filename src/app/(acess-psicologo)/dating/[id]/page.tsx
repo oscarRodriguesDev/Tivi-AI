@@ -172,7 +172,7 @@ export default function AgendamentoPage() {
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
   //status da reunião
 
-  const [expirada,setExpirada] =  useState<string>("");
+  const [expirada, setExpirada] = useState<string>("");
 
 
 
@@ -276,7 +276,7 @@ export default function AgendamentoPage() {
 
         }
       });
-    }, 3000);
+    }, 1000);
 
     // Limpeza do intervalo ao desmontar o componente
     return () => clearInterval(intervalId);
@@ -354,33 +354,43 @@ export default function AgendamentoPage() {
     }
   }
 
-  useEffect(() => {
-    function verifica(ag: Agendamento[]) {
-      const agora = new Date().getTime();
-      let expirada = false; // Variável local para saber se há alguma reunião expirada
-    
-      ag.forEach((item) => {
-        const dataAgendamento = new Date(item.data).getTime();
-        if (dataAgendamento < agora && item.id !== 'fake-id') {
-          console.log(`Agendamento expirado: ${item.id}`);
-          expirada = true; // Marca como expirada
-        }
-      });
-    
-      // Aqui você pode tomar a ação desejada
-      if (expirada) {
-        console.log('Reunião expirada');
-        // Ação para agendamento expirado
-      } else {
-        console.log('Não há reuniões expiradas');
-      }
-    }
-    
-    
-    
 
-    verifica(agendamentos);
-  }, [agendamentos]);
+
+  const verifica = (ag: Agendamento) => {
+    const agora = new Date().getTime();
+  
+    // Cria a data completa com hora no formato ISO, considerando o fuso -03:00 (Brasil)
+    const dataHoraStr = `${ag.data}T${ag.hora}:00-03:00`;
+    const agendamentoTimestamp = new Date(dataHoraStr).getTime();
+  
+    if (isNaN(agendamentoTimestamp)) {
+      console.warn(`Data/hora inválida no agendamento ${ag.id}: ${ag.data} ${ag.hora}`);
+      return false;
+    }
+  
+    // Converte a duração (em minutos) para milissegundos e soma ao timestamp do início da reunião
+    const duracaoMs = (Number(ag.duracao) || 1) * 60 * 1000; // default: 60 min se não houver valor
+    console.log(duracaoMs)
+    const fimAgendamento = agendamentoTimestamp + duracaoMs;
+  
+    // Verifica se o momento atual já ultrapassou o fim da reunião
+    if (fimAgendamento <= agora && ag.id !== 'fake-id') {
+      console.log(`Agendamento expirado: ${ag.id}`);
+      return true;
+    } else {
+      return false;
+    }
+  };
+  
+
+
+
+
+
+
+
+
+
 
 
   /**
@@ -445,17 +455,17 @@ export default function AgendamentoPage() {
 
                     <li key={meet.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
                       <div className="text-xl w-full font-semibold text-white text-center bg-slate-600">
-                        Consulta Online com {meet.name}
-                        <h5 className='text-red-500 text-lg'>{expirada}</h5>
+                        Consulta Online com: {meet.name}
+
                       </div>
                       <div className="text-lg font-medium text-blue-800">
-                        Nick name {meet.fantasy_name}
+                        Nick name: {meet.fantasy_name}
                       </div>
                       <div className="text-base text-blue-800">
-                        Data da reunião: <span className="font-medium">{meet.data}</span>
+                        Data da reunião: <span className="font-medium">{meet.data} | duração: {meet.duracao} minutos</span>
                       </div>
                       <div className="text-sm text-blue-700">
-                        Horário: {meet.hora}
+                        Horário: {meet.hora} 
                       </div>
                       <div className="text-sm text-blue-600">
                         {meet.observacao}
@@ -470,13 +480,26 @@ export default function AgendamentoPage() {
                           </button>
                         ) : (
                           <div>
-                            Link:
-                            <div
-                              className="text-black cursor-pointer w-full"
-                              onClick={() => { handleCopy(meet.id) }}
-                            >
-                              /publiccall/{meet.id}
-                            </div>
+                            {verifica(meet) ? (
+                              <div className='text-red-600 text-sm'>Reunião vencida</div>
+                            ) : (
+
+                              <div className='text-red-600 text-sm'>
+
+                                Link:
+                                <div
+                                  className="text-black cursor-pointer w-full"
+                                  onClick={() => { handleCopy(meet.id) }}
+                                >
+                                  /publiccall/{meet.id}
+                                </div>
+                              </div>
+
+                            )
+
+                            }
+
+
                             {copiedLinks[meet.id] && <span className="text-green-500 text-sm">Link copiado!</span>}
                           </div>
                         )}
@@ -498,9 +521,17 @@ export default function AgendamentoPage() {
                           className="text-green-600 hover:text-green-400"
                           onClick={() => { copiarLinkParaWhatsApp(meet.id, meet.data, meet.hora) }}
                         >
-                          <FaWhatsapp size={20} />
+                          {verifica(meet) ? (
+                            <></>
+                          ) : (
+                            <FaWhatsapp size={20} />
+                          )
+                          }
+
                         </button>
                       </div>
+
+
                     </li>
 
                   ))}
