@@ -21,6 +21,7 @@ import HeadPage from "@/app/protected-components/headPage";
 import { FaVideo } from "react-icons/fa";
 import { FcVideoCall, FcEndCall } from "react-icons/fc";
 import { useAccessControl } from "@/app/context/AcessControl";
+import { showErrorMessage } from "@/app/util/messages";
 
 
 /**
@@ -292,7 +293,7 @@ export default function Home() {
   
     peer.on("open", (id) => setPeerId(id));
   
-    peer.on("call", (call) => {
+   /*  peer.on("call", (call) => {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
         monitorMicrophone(stream);
   
@@ -328,8 +329,49 @@ export default function Home() {
         console.error("Erro ao acessar câmera/microfone:", err);
         alert("Não foi possível acessar a câmera ou microfone.");
       });
-    });
+    }); */
   
+    peer.on("call", (call) => {
+      // Primeiro tenta com vídeo e áudio
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .catch((error) => {
+          showErrorMessage("Vídeo bloqueado, tentando somente áudio:", error);
+          return navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        })
+        .then((stream) => {
+          if (!stream) {
+            throw new Error("Sem acesso ao microfone e câmera");
+          }
+    
+          if (videoRef.current && stream.getVideoTracks().length > 0) {
+            videoRef.current.srcObject = stream;
+          }
+    
+          call.answer(stream);
+          setCallActive(true);
+          currentCall.current = call;
+          monitorMicrophone(stream);
+          setMsg('Transcrevendo Chamada...');
+    
+          call.on("stream", (remoteStream) => {
+            if (remoteVideoRef.current && remoteStream.getVideoTracks().length > 0) {
+              remoteVideoRef.current.srcObject = remoteStream;
+            }
+            if (remoteAudioRef.current) {
+              remoteAudioRef.current.srcObject = remoteStream;
+              remoteAudioRef.current.play();
+            }
+          });
+    
+          call.on("close", () => endCall());
+        })
+        .catch((finalError) => {
+          console.error("Erro total ao acessar mídia:", finalError);
+          showErrorMessage("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
+        });
+    });
+    
+
     return () => {
       peer.destroy(); // Limpa instância ao desmontar
     };

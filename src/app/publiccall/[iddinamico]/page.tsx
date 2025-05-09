@@ -287,9 +287,7 @@ export default function PublicCallPage() {
       });
    */
 
-
-      //segunda opção
-   /*  peer.on("call", (call) => {
+  /*   peer.on("call", (call) => {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((stream) => {
           if (videoRef.current) videoRef.current.srcObject = stream;
@@ -313,7 +311,10 @@ export default function PublicCallPage() {
           console.error("Erro ao acessar microfone/câmera:", error);
           alert("Não foi possível acessar o microfone ou a câmera. Verifique as permissões do navegador.");
         });
-    }); */
+    });
+
+ */
+
 
     peer.on("call", (call) => {
       // Primeiro tenta com vídeo e áudio
@@ -355,7 +356,6 @@ export default function PublicCallPage() {
         });
     });
     
-
     return () => peer.destroy(); // Limpa o peer ao desmontar
   }, []);
 
