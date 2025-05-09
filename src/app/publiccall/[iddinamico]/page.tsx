@@ -287,7 +287,9 @@ export default function PublicCallPage() {
       });
    */
 
-    peer.on("call", (call) => {
+
+      //segunda opção
+   /*  peer.on("call", (call) => {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((stream) => {
           if (videoRef.current) videoRef.current.srcObject = stream;
@@ -311,9 +313,48 @@ export default function PublicCallPage() {
           console.error("Erro ao acessar microfone/câmera:", error);
           alert("Não foi possível acessar o microfone ou a câmera. Verifique as permissões do navegador.");
         });
+    }); */
+
+    peer.on("call", (call) => {
+      // Primeiro tenta com vídeo e áudio
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .catch((error) => {
+          console.warn("Vídeo bloqueado, tentando somente áudio:", error);
+          return navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        })
+        .then((stream) => {
+          if (!stream) {
+            throw new Error("Sem acesso ao microfone e câmera");
+          }
+    
+          if (videoRef.current && stream.getVideoTracks().length > 0) {
+            videoRef.current.srcObject = stream;
+          }
+    
+          call.answer(stream);
+          setCallActive(true);
+          currentCall.current = call;
+          monitorMicrophone(stream);
+          setMsg('Transcrevendo Chamada...');
+    
+          call.on("stream", (remoteStream) => {
+            if (remoteVideoRef.current && remoteStream.getVideoTracks().length > 0) {
+              remoteVideoRef.current.srcObject = remoteStream;
+            }
+            if (remoteAudioRef.current) {
+              remoteAudioRef.current.srcObject = remoteStream;
+              remoteAudioRef.current.play();
+            }
+          });
+    
+          call.on("close", () => endCall());
+        })
+        .catch((finalError) => {
+          console.error("Erro total ao acessar mídia:", finalError);
+          alert("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
+        });
     });
-
-
+    
 
     return () => peer.destroy(); // Limpa o peer ao desmontar
   }, []);
