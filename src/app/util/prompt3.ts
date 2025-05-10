@@ -284,7 +284,4 @@ Sempre que um documento for solicitado, o ChatGPT deve:
    - Impacto funcional do resultado`;
 
 
-
-
-
 }
