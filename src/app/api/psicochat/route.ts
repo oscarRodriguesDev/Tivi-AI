@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida
         const completion = await openai.chat.completions.create({
             //usar o 3.5 turbo  
-            model: "gpt-4o-mini", //tive que alterar o modelo
+            model: "gpt-3.5-turbo", //tive que alterar o modelo
             messages: [{ role: "user", content: promptMessage }],
         });
 
