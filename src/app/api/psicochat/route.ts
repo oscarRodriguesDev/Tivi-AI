@@ -70,9 +70,6 @@ export async function POST(req: Request) {
  */
 
 
-import { NextResponse } from "next/server";
-import { openai } from "@/lib/openai"; // ou ajuste conforme seu setup
-
 export async function POST(req: Request) {
   const { message } = await req.json();
 
