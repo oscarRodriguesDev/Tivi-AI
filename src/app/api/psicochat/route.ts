@@ -27,9 +27,8 @@ export async function GET(req: Request) {
         }, { status: 500 });
     }
 }
-
+/* 
 export async function POST(req: Request) {
-   /*  const prompt = process.env.PERSONA_PSICO_PROMPT; */
    const { message } = await req.json();
    const prompt = generateTrasnctipionPrompt(
     'Andre',
@@ -65,4 +64,48 @@ export async function POST(req: Request) {
         console.error("Erro ao chamar OpenAI:", error);
         return NextResponse.json({ error: "Erro interno no servidor." }, { status: 500 });
     }
+}
+
+
+ */
+
+
+import { NextResponse } from "next/server";
+import { openai } from "@/lib/openai"; // ou ajuste conforme seu setup
+
+export async function POST(req: Request) {
+  const { message } = await req.json();
+
+  if (!message) {
+    return NextResponse.json({ error: "Mensagem não fornecida." }, { status: 400 });
+  }
+
+  const prompt = generateTrasnctipionPrompt(
+    "Andre",
+    "15",
+    "2024-01-01",
+    "Adolescente",
+    "irmão",
+    "Tatiane de Souza Pontes Correa",
+    "16/10466",
+    message
+  );
+
+  const promptMessage = `${prompt} ${message}`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4-turbo", // ou "o4-mini" se for esse mesmo
+      messages: [{ role: "user", content: promptMessage }],
+      max_tokens: 600,
+      temperature: 0.3,
+    });
+
+    const content = completion.choices[0]?.message?.content || "Sem resposta.";
+    return NextResponse.json({ response: content });
+
+  } catch (error: any) {
+    console.error("Erro ao chamar OpenAI:", error.response?.data || error.message || error);
+    return NextResponse.json({ error: "Erro ao gerar resposta do modelo." }, { status: 500 });
+  }
 }
