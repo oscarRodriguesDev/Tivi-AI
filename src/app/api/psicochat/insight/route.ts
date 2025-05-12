@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 //import prompt from "@/app/util/prompt";
 import { generateTrasnctipionPrompt } from "@/app/util/prompt3";
 
+export const runtime = 'edge';
+
 
 
 const openai = new OpenAI({
@@ -92,10 +94,10 @@ export async function POST(req: Request) {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo", // ou "o4-mini" se for esse mesmo
+      model: "gpt-4-turbo", 
       messages: [{ role: "user", content: promptMessage }],
       max_tokens: 600,
-      temperature: 0.3,
+      temperature: 0.7,
     });
 
     const content = completion.choices[0]?.message?.content || "Sem resposta.";
