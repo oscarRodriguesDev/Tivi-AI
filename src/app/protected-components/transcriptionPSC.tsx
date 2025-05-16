@@ -16,6 +16,7 @@ import { HiDocumentMagnifyingGlass } from "react-icons/hi2";
 
 import { RiPlayList2Fill } from "react-icons/ri";
 import TranscriptionModal from "./modalTranscription";
+import { showErrorMessage, showInfoMessage } from "../util/messages";
 
 
 
@@ -375,16 +376,19 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        showErrorMessage('Erro ao gerar relatorio!')
         throw new Error(`Erro na requisição: ${response.statusText}`);
       }
       const data = await response.json();
       console.log("Resposta completa da API:", data); // <-- Adicionando para depuração
+      showInfoMessage('Relatorio gerado com sucesso!')
       const respostaGPT = data.response || "Nenhuma resposta gerada.";
       setAnalise(respostaGPT);
+    
       return respostaGPT;
 
     } catch (error) {
-      console.error("Erro ao buscar insights:", error);
+     showErrorMessage("Erro ao buscar insights: "+ error);
       return "Erro ao obter resposta.";
     }
   };

@@ -442,7 +442,7 @@ export default function Home() {
       remoteVideoRef.current.srcObject = null;
     }
     setCallActive(false);
-    redirect('/common-page')
+   
   };
 
 
