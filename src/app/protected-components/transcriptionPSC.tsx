@@ -365,7 +365,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 120000); //120 segundos
     try {
-      const response = await fetch('/api/insight/psicochat', {
+      const response = await fetch('/api/internal/insight/psicochat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

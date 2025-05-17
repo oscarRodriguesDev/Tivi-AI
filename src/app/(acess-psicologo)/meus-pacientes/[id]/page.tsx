@@ -91,7 +91,7 @@ const MeusAtendimentos = () => {
 
   const handleDeletePaciente = async (pacienteId: string) => {
     try {
-      const response = await fetch('/api/register_pacientes', {
+      const response = await fetch('/api/internal/register_pacientes', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const MeusAtendimentos = () => {
   useEffect(() => {
     const fetchPacientes = async () => {
       try {
-        const response = await fetch(`/api/register_pacientes?psicoloId=${id}`)
+        const response = await fetch(`/api/internal/register_pacientes?psicoloId=${id}`)
         if (!response.ok) {
           throw new Error('Erro ao buscar pacientes')
         }

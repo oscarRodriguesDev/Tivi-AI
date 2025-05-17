@@ -13,6 +13,7 @@ import nodemailer from 'nodemailer';
 import cryptoRandomString from 'crypto-random-string';
 import bcrypt from 'bcrypt';
 
+
 /**
  * Instância do Prisma Client para interações com o banco de dados.
  * Deve ser reutilizada sempre que possível para evitar múltiplas conexões simultâneas.
@@ -20,9 +21,6 @@ import bcrypt from 'bcrypt';
  * @const {PrismaClient} prisma - Cliente do Prisma para acesso ao banco.
  */
 const prisma = new PrismaClient();
-
-
-
 
 
 /**

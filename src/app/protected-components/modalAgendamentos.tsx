@@ -59,7 +59,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
       try {
         // Fazendo a requisição para a API (ajuste a URL da sua API)
-        const response = await fetch("/api/gen-meet", {
+        const response = await fetch("/api/internal/gen-meet", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

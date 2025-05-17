@@ -200,7 +200,7 @@ export default function AgendamentoPage() {
   const buscarAgendamentos = async () => {
 
     try {
-      const response = await fetch(`/api/gen-meet/?id=${psicologo}`);
+      const response = await fetch(`/api/internal/gen-meet/?id=${psicologo}`);
       if (response.ok) {
         const data = await response.json();
         console.log("Dados recebidos:", data); // Verifique os dados aqui
@@ -341,7 +341,7 @@ export default function AgendamentoPage() {
     if (id === "fake-id") {
       alert('Impossivel deletar a demonstração')
     } else {
-      const response = await fetch(`/api/gen-meet`, {
+      const response = await fetch(`/api/internal/gen-meet`, {
         method: 'DELETE',
         body: JSON.stringify({ id }),
       });

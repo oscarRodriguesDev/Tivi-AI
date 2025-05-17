@@ -6,6 +6,7 @@ import HeadPage from "@/app/protected-components/headPage";
 import { VscGitPullRequestGoToChanges } from "react-icons/vsc"; //connect
 import { VscDebugDisconnect } from "react-icons/vsc"; //disonect
 import { PiPlugsConnectedFill } from "react-icons/pi"; //connect
+import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
 
 
 
@@ -26,7 +27,7 @@ const ListaPsicologos = () => {
     const fetchPsicologos = async () => {
       try {
 
-        const response = await fetch("/api/analize_psco"); // Rota GET para buscar psicólogos
+        const response = await fetch("/api/internal/analize_psco"); // Rota GET para buscar psicólogos
 
         if (!response.ok) {
           throw new Error("Erro ao buscar psicólogos.");
@@ -38,7 +39,7 @@ const ListaPsicologos = () => {
         // Verificando se os dados retornados são um array e atualizando o estado
         if (Array.isArray(data.data)) {
           setPsicologos(data.data);
-          //setHabilitado(data.data.first_acess); // Armazenando os psicólogos no estado
+          //setHabilitado(data.data.first_acess); // enteder essa linha posteriormente
 
         } else {
           setError("Erro: Dados recebidos não são válidos.");
@@ -57,10 +58,8 @@ const ListaPsicologos = () => {
   //habilitando o psicologo
   const habilitarPsicologo = async (cpf: string) => {
     try {
-      console.log(`Habilitar psicólogo com CPF: ${cpf}`);
-
       // Envia uma requisição PUT para a API, passando o CPF no corpo da requisição
-      const response = await fetch('/api/analize_psco', {
+      const response = await fetch('/api/internal/analize_psco', {
         method: 'PUT', // Método de requisição PUT
         headers: {
           'Content-Type': 'application/json', // Definir o tipo de conteúdo como JSON
@@ -74,15 +73,15 @@ const ListaPsicologos = () => {
         const data = await response.json(); // A resposta será convertida para JSON
         console.log('Psicólogo habilitado com sucesso', data);
 
-        alert(data.message || 'Psicólogo habilitado com sucesso');
+        showSuccessMessage(data.message || 'Psicólogo habilitado com sucesso');
       } else {
         const errorData = await response.json();
         console.error('Erro ao habilitar psicólogo:', errorData);
-        alert(errorData.error || 'Erro ao habilitar psicólogo');
+        showErrorMessage(errorData.error || 'Erro ao habilitar psicólogo');
       }
     } catch (error) {
       console.error('Erro na requisição:', error);
-      alert('Erro ao conectar com o servidor');
+      showErrorMessage('Erro ao conectar com o servidor');
     }
   };
 
@@ -90,6 +89,7 @@ const ListaPsicologos = () => {
   // Função para "Rejeitar Cadastro" (exemplo de implementação)
   const rejeitarCadastro = (id: string) => {
     alert(`Rejeitar cadastro do psicólogo com ID: ${id}`);
+    //enviar email informando o motivo da rejeição
   };
 
   return (
