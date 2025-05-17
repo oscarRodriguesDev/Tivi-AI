@@ -16,7 +16,7 @@ import { HiDocumentMagnifyingGlass } from "react-icons/hi2";
 
 import { RiPlayList2Fill } from "react-icons/ri";
 import TranscriptionModal from "./modalTranscription";
-import { showErrorMessage, showInfoMessage } from "../util/messages";
+import { showErrorMessage, showInfoMessage, showLoadingMessage, showPersistentLoadingMessage,updateToastMessage, } from "../util/messages";
 
 
 
@@ -362,6 +362,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
  * @returns {Promise<string>} - Resposta do ChatGPT.
  */
   const handleGetInsights = async (mensagem: string) => {
+    const toastId = showPersistentLoadingMessage('Gerando documentação da consulta...');
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 120000); //120 segundos
     try {
@@ -373,15 +374,17 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
         body: JSON.stringify({ message: mensagem }),
         signal: controller.signal,
       });
+
+      
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        showErrorMessage('Erro ao gerar relatorio!')
+        updateToastMessage(toastId, 'Erro ao gerar relatório.', 'error');
         throw new Error(`Erro na requisição: ${response.statusText}`);
       }
       const data = await response.json();
       console.log("Resposta completa da API:", data); // <-- Adicionando para depuração
-      showInfoMessage('Relatorio gerado com sucesso!')
+      updateToastMessage(toastId, 'Relatório gerado com sucesso!', 'success');
       const respostaGPT = data.response || "Nenhuma resposta gerada.";
       setAnalise(respostaGPT);
     

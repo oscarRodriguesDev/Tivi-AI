@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo", 
       messages: [{ role: "user", content: promptMessage }],
-      temperature: 0.7,
+      temperature: 0.2,
     });
 
     const content = completion.choices[0]?.message?.content || "Sem resposta.";

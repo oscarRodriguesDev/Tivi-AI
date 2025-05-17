@@ -1,5 +1,7 @@
 // utils/message.ts
-import { toast, ToastOptions } from 'react-toastify';
+import { toast, ToastOptions,Id } from 'react-toastify';
+
+
 
 const defaultOptions: ToastOptions = {
   autoClose: 10000, // <-- aqui define o tempo padrão (10 segundos)
@@ -24,6 +26,45 @@ export const showLoadingMessage = (message: string, options?: ToastOptions) => {
 export const showInfoMessage = (message: string, options?: ToastOptions) => {
   toast.info(message, { ...defaultOptions, ...options });
 };
+
+
+// Função exibe mensagem por tempo determinada nela mesmo
+export const showInfoMessageControlTime = (
+  message: string,
+  time:10000, // padrão 10s
+  options?: ToastOptions
+) => {
+  toast.info(message, { ...defaultOptions, ...options, autoClose: time });
+};
+
+
+// Exibe um toast de carregamento persistente e retorna o ID
+export const showPersistentLoadingMessage = (
+  message: string,
+  options?: ToastOptions
+): Id => {
+  return toast.loading(message, { ...defaultOptions, ...options, autoClose: false });
+};
+
+// Atualiza o toast existente
+export const updateToastMessage = (
+  toastId: Id,
+  message: string,
+  type: 'success' | 'error' | 'info' | 'warning' = 'info',
+  options?: ToastOptions
+) => {
+  toast.update(toastId, {
+    render: message,
+    type,
+    isLoading: false,
+    autoClose: options?.autoClose ?? 5000,
+    ...options,
+  });
+};
+
+
+
+
 
 // Função genérica que pode exibir qualquer tipo de mensagem
 export const showCustomMessage = (
