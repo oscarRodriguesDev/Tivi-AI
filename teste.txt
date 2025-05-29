@@ -1,6 +1,0 @@
-<<<<<<< HEAD
-teste 004 aprovado mas deu erro na hora de verificar os dados
-mesclando novos testes
-=======
-ENVIANDO PARA PRODUÇÃO
->>>>>>> 8a1f21c86ed9af54e807147fe34388d849ed3e57
