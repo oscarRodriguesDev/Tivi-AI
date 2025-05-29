@@ -4,9 +4,6 @@ import { NextResponse } from "next/server";
 import { generateTrasnctipionPrompt } from "@/app/util/prompt3";
 
 export const runtime = 'edge';
-
-
-
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });

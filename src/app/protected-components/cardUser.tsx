@@ -52,8 +52,10 @@ const CardUser = () => {
   return (
     <>
      <div
-className="absolute top-9 left-[680%] w-[220px]  text-black z-50 rounded-sm cursor-pointer 
-           bg-white hover:bg-gray-100 transition-colors duration-200 shadow-md"
+className="absolute top-[4.5%] left-[100%] sm:left-[200%] md:left-[300%] lg:left-[440%] 
+w-[90%] text-black z-50 rounded-sm cursor-pointer bg-white hover:bg-gray-100 transition-colors
+ duration-200 shadow-md"
+
   onClick={() => setCardOpen(!cardOpen)}
 >
   {/* conteúdo aqui */}
