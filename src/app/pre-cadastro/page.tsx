@@ -229,7 +229,7 @@ const Cadastro = () => {
             };
 
             try {
-                const response = await fetch("/api/analize_psco", {
+                const response = await fetch("/api/solicitar-acesso", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
