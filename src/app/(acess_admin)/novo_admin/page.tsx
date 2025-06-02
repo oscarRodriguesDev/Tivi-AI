@@ -31,7 +31,7 @@ export default function CadastroAdmin() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/inernal/register_admins", {
+      const response = await fetch("/api/internal/register_admins", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

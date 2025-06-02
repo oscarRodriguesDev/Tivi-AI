@@ -34,7 +34,7 @@ import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
 import { Agendamento } from '../../../../../types/agendamentos';
 import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
 import { useParams } from 'next/navigation';
-import { showInfoMessage } from '@/app/util/messages';
+
 
 
 
