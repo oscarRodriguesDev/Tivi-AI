@@ -22,7 +22,7 @@
  * @requires FaWhatsapp - Ícone do WhatsApp, normalmente usado para ações de compartilhamento ou comunicação via app.
  */
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import { format } from 'date-fns';
 import { redirect } from 'next/navigation';
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
@@ -31,6 +31,7 @@ import Modal from '@/app/protected-components/modalAgendamentos';
 import HeadPage from '@/app/protected-components/headPage';
 import ViewMes from '@/app/protected-components/viewMes';
 import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
+import { RiUserSearchFill } from "react-icons/ri";
 import { Agendamento } from '../../../../../types/agendamentos';
 import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
 import { useParams } from 'next/navigation';
@@ -172,7 +173,13 @@ export default function AgendamentoPage() {
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
   //status da reunião
 
-  const [expirada, setExpirada] = useState<string>("");
+  //pedir pra confirmar se o paciente logou
+  const [online, setOnine] = useState<boolean>(false);
+
+  //controle de busca de agendamentos
+  const [buscando, setBuscando] = useState<boolean>(true);
+
+  const emProcesso = useRef<Set<string>>(new Set());
 
 
 
@@ -203,7 +210,8 @@ export default function AgendamentoPage() {
       const response = await fetch(`/api/internal/gen-meet/?id=${psicologo}`);
       if (response.ok) {
         const data = await response.json();
-        console.log("Dados recebidos:", data); // Verifique os dados aqui
+        //console.log("Dados recebidos:", data); // Verifique os dados aqui
+        setBuscando(false)
         setAgendamentos(data);
         setLoading(false)
 
@@ -222,15 +230,47 @@ export default function AgendamentoPage() {
  * Equivalente ao `componentDidMount`. Garante que os agendamentos sejam carregados ao iniciar.
  */
   useEffect(() => {
-    //definir tempo de atualização dos agendamentos
-    const intervalId = setInterval(() => {
-      setLoading(true)
-      buscarAgendamentos();
-    }, 3000);
+    if (buscando === true) {
+      alert("buscando agendamentos")
+      //definir tempo de atualização dos agendamentos
+      const intervalId = setInterval(() => {
+        buscarAgendamentos();
+      }, 3000);
+      //limpar o intervalo ao desmontar o componente
+      return () => clearInterval(intervalId);
+    } else {
+      return
+    }
+  }, [buscando]);
 
-    //limpar o intervalo ao desmontar o componente
-    return () => clearInterval(intervalId);
-  }, []);
+  //função para buscar o peerId
+
+
+const fetchPeerId = async (id: string) => {
+  if (emProcesso.current.has(id)) return;
+  emProcesso.current.add(id);
+
+  try {
+    const response = await fetch(`/api/save_peer?iddinamico=${id}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.peerId) {
+        setPeerIds((prev) => ({ ...prev, [id]: data.peerId }));
+        setIdUser(data.peerId);
+        setError(null);
+      }
+    } else {
+      throw new Error("ID não encontrado");
+    }
+  } catch (err) {
+    setError("Erro ao buscar o ID");
+  } finally {
+    setLoading(false);
+    emProcesso.current.delete(id);
+  }
+};
+
+
 
 
   /**
@@ -242,50 +282,29 @@ export default function AgendamentoPage() {
    * Dependências: `agendamentos`, `peerIds`.
    */
   useEffect(() => {
-    const fetchPeerId = async (id: string) => {
+    if (online === true) {
+    
 
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/save_peer?iddinamico=${id}`);
-        console.log("", response);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.peerId) {
-            setPeerIds((prev) => ({ ...prev, [id]: data.peerId }));  // Atualiza o peerId para o agendamento específico
-            setError(null);  // Limpa qualquer erro
-            setIdUser(data.peerId);
+
+      const intervalId = setInterval(() => {
+        agendamentos.forEach((ag) => {
+          if (!peerIds[ag.id]) {
+            fetchPeerId(ag.id);
+
+          } else {
 
           }
-        } else {
-          throw new Error('ID não encontrado');
-        }
-      } catch (err) {
-        setError('Erro ao buscar o ID');
-      } finally {
-        setLoading(false);
-      }
-    };
+        });
+      }, 1000);
 
+      // Limpeza do intervalo ao desmontar o componente
+      return () => clearInterval(intervalId);
 
-    const intervalId = setInterval(() => {
-      agendamentos.forEach((ag) => {
-        if (!peerIds[ag.id]) {
-          fetchPeerId(ag.id);
+    } else {
+      return
+    }
 
-        } else {
-
-        }
-      });
-    }, 1000);
-
-    // Limpeza do intervalo ao desmontar o componente
-    return () => clearInterval(intervalId);
-
-
-
-
-
-  }, [agendamentos, peerIds]);
+  }, [agendamentos, peerIds, online]);
 
 
   //função ainda será definida
@@ -358,21 +377,21 @@ export default function AgendamentoPage() {
 
   const verifica = (ag: Agendamento) => {
     const agora = new Date().getTime();
-  
+
     // Cria a data completa com hora no formato ISO, considerando o fuso -03:00 (Brasil)
     const dataHoraStr = `${ag.data}T${ag.hora}:00-03:00`;
     const agendamentoTimestamp = new Date(dataHoraStr).getTime();
-  
+
     if (isNaN(agendamentoTimestamp)) {
       console.warn(`Data/hora inválida no agendamento ${ag.id}: ${ag.data} ${ag.hora}`);
       return false;
     }
-  
+
     // Converte a duração (em minutos) para milissegundos e soma ao timestamp do início da reunião
     const duracaoMs = (Number(ag.duracao) || 1) * 60 * 1000; // default: 60 min se não houver valor
     console.log(duracaoMs)
     const fimAgendamento = agendamentoTimestamp + duracaoMs;
-  
+
     // Verifica se o momento atual já ultrapassou o fim da reunião
     if (fimAgendamento <= agora && ag.id !== 'fake-id') {
       console.log(`Agendamento expirado: ${ag.id}`);
@@ -381,7 +400,7 @@ export default function AgendamentoPage() {
       return false;
     }
   };
-  
+
 
 
 
@@ -465,7 +484,7 @@ export default function AgendamentoPage() {
                         Data da reunião: <span className="font-medium">{meet.data} | duração: {meet.duracao} minutos</span>
                       </div>
                       <div className="text-sm text-blue-700">
-                        Horário: {meet.hora} 
+                        Horário: {meet.hora}
                       </div>
                       <div className="text-sm text-blue-600">
                         {meet.observacao}
@@ -584,13 +603,24 @@ export default function AgendamentoPage() {
             )}
 
 
-            <div className="w-full h-auto mt-5 flex justify-end items-end">
+            <div className="w-full h-auto mt-5 flex justify-around items-end">
+              <button
+                onClick={() => setOnine(!online)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium shadow transition duration-300 
+    ${online ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
+              >
+                <RiUserSearchFill size={20} />
+                {online ? 'Verificando Paciente' : 'Não verificar paciente'}
+              </button>
+
+
               <button
                 onClick={handleOpenModal}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
               >
                 Agendar
               </button>
+
             </div>
 
 
