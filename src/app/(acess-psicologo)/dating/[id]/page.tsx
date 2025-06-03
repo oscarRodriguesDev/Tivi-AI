@@ -250,16 +250,14 @@ export default function AgendamentoPage() {
   }, [buscando]);
 
   //função para buscar o peerId
-
-
-  const fetchPeerId = async (id: string) => {
+  const fetchPeerId = async (id: string, meet: Agendamento) => {
     if (emProcesso.current.has(id)) return;
     emProcesso.current.add(id);
     try {
-      const toastId = showPersistentLoadingMessage('verificando se o paciente está online...');
+      const toastId = showPersistentLoadingMessage(`Verificando se ${meet.name} está na sala...`);
       const response = await fetch(`/api/save_peer?iddinamico=${id}`);
       if (response.ok) {
-        updateToastMessage(toastId, 'Paciente encontrado!', 'success');
+        updateToastMessage(toastId, `${meet.name} já está na sala de reunião, você ja pode iniciar a sessão!`, 'success');
         setOnline(false)
         const data = await response.json();
         if (data.peerId) {
@@ -268,18 +266,18 @@ export default function AgendamentoPage() {
           setError(null);
         }
       } else {
-        updateToastMessage(toastId, 'Paciente ainda não está online!', 'error');
+        updateToastMessage(toastId, `${meet.name} ainda não está na sala!`, 'error');
         setOnline(false)
         throw new Error("ID não encontrado");
       }
-    } catch (err:any) {
+    } catch (err: any) {
       setError("Erro ao buscar o ID");
-      updateToastMessage('001', 'Paciente ainda não está online! ',err);
+      updateToastMessage(err, 'Algo não funcionou como esperado!', 'error');
 
     } finally {
       setLoading(false);
       emProcesso.current.delete(id);
-      updateToastMessage('002', 'Nenhum paciente online! ');
+      updateToastMessage('', 'Obrigado por utilizar nossos serviços');
     }
   };
 
@@ -294,28 +292,28 @@ export default function AgendamentoPage() {
    * 
    * Dependências: `agendamentos`, `peerIds`.
    */
-  useEffect(() => {
-    if (online === true) {
-      const intervalId = setInterval(() => {
-        agendamentos.forEach((ag) => {
-          if (!peerIds[ag.id]) {
-            fetchPeerId(ag.id);
-
-          } else {
-
-          }
-        });
-      }, 1000);
-
-      // Limpeza do intervalo ao desmontar o componente
-      return () => clearInterval(intervalId);
-
-    } else {
-      return
-    }
-
-
-  }, [agendamentos, peerIds, online]);
+  /*   useEffect(() => {
+      if (online === true) {
+        const intervalId = setInterval(() => {
+          agendamentos.forEach((ag) => {
+            if (!peerIds[ag.id]) {
+              fetchPeerId(ag.id);
+  
+            } else {
+  
+            }
+          });
+        }, 1000);
+  
+        // Limpeza do intervalo ao desmontar o componente
+        return () => clearInterval(intervalId);
+  
+      } else {
+        return
+      }
+  
+  
+    }, [agendamentos, peerIds, online]); */
 
 
   //função ainda será definida
@@ -453,7 +451,8 @@ export default function AgendamentoPage() {
       {/* Essa regra de acesso é para essa pagina na verdade deve ser role===psicologo*/}
       {role === 'PSYCHOLOGIST' ? (
         <div className="flex-col h-[80vh]  p-8 text-white">
-          <Modal isOpen={isModalOpen} onClose={()=>{handleCloseModal()
+          <Modal isOpen={isModalOpen} onClose={() => {
+            handleCloseModal()
             window.location.reload()
           }} />
 
@@ -562,6 +561,14 @@ export default function AgendamentoPage() {
                           }
 
                         </button>
+
+                        <button
+                          className="px-4 py-2 rounded-2xl bg-green-100 text-green-700 font-medium hover:bg-green-200 hover:text-green-800 transition-colors duration-200 shadow-sm border border-green-300"
+                          onClick={() => fetchPeerId(meet.id, meet)}
+                        >
+                          Status do paciente
+                        </button>
+
                       </div>
 
 
@@ -618,21 +625,23 @@ export default function AgendamentoPage() {
 
 
             <div className="w-full h-auto mt-5 flex justify-around items-end">
-              <button
+
+
+              {/*  <button
                 onClick={() => setOnline(!online)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium shadow transition duration-300 
                 ${online ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
               >
                 <RiUserSearchFill size={20} />
                 {online ? 'Verificando Paciente' : 'Não verificar paciente'}
-              </button>
+              </button> */}
 
 
               <button
                 onClick={() => {
                   handleOpenModal()
-                  
-              
+
+
                 }}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
               >

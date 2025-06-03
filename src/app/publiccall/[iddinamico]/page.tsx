@@ -15,7 +15,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
 import LiveTranscription from '../../components/transcriptPAC'
-import { Mic, MicOff, Video, VideoOff, LogOut } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, LogOut, Router } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 
 /**
@@ -159,6 +160,12 @@ export default function PublicCallPage() {
    */
   const [transcription, setTranscription] = useState<string>("");
 
+  //controle do texto do botão
+
+  const [textButton, setTextButton] = useState<string>("Ingessar na Consulta");
+
+  const router = useRouter();
+
 
 
 
@@ -232,7 +239,79 @@ export default function PublicCallPage() {
    * @dependency `iddinamico` - ID dinâmico extraído da URL, necessário para associar o `peerId` na API.
    */
 
-  useEffect(() => {
+  /*   useEffect(() => {
+      if (!iddinamico) return; // Se não tem ID na URL, não faz nada
+  
+      const peer = new Peer(); // Cria um novo peer
+      peerRef.current = peer;
+  
+      peer.on("open", async (id) => {
+        setPeerId(id); // Define o ID do Peer
+  
+        try {
+          // Envia o ID gerado para a API
+          await fetch(`/api/save_peer?iddinamico=${iddinamico}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ iddinamico, peerId: id }),
+          });
+        } catch (error) {
+          console.error("Erro ao enviar peerId para a API:", error);
+        }
+      });
+  
+  
+     
+  
+      peer.on("call", (call) => {
+        // Primeiro tenta com vídeo e áudio
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+          .catch((error) => {
+            console.warn("Vídeo bloqueado, tentando somente áudio:", error);
+            return navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+          })
+          .then((stream) => {
+            if (!stream) {
+              throw new Error("Sem acesso ao microfone e câmera");
+            }
+      
+            if (videoRef.current && stream.getVideoTracks().length > 0) {
+              videoRef.current.srcObject = stream;
+            }
+      
+            call.answer(stream);
+            setCallActive(true);
+            currentCall.current = call;
+            monitorMicrophone(stream);
+            setMsg('Transcrevendo Chamada...');
+      
+            call.on("stream", (remoteStream) => {
+              if (remoteVideoRef.current && remoteStream.getVideoTracks().length > 0) {
+                remoteVideoRef.current.srcObject = remoteStream;
+              }
+              if (remoteAudioRef.current) {
+                remoteAudioRef.current.srcObject = remoteStream;
+                remoteAudioRef.current.play();
+              }
+            });
+      
+            call.on("close", () => endCall());
+          })
+          .catch((finalError) => {
+            console.error("Erro total ao acessar mídia:", finalError);
+            alert("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
+          });
+      });
+      
+      return () => peer.destroy(); // Limpa o peer ao desmontar
+    }, []); */
+
+
+
+
+  //envia o peer id para o usuario informando que esta online e pronto para a chamada
+
+  const entrar = () => {
     if (!iddinamico) return; // Se não tem ID na URL, não faz nada
 
     const peer = new Peer(); // Cria um novo peer
@@ -248,74 +327,11 @@ export default function PublicCallPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ iddinamico, peerId: id }),
         });
+        setTextButton('Aguardando psicólogo...')
       } catch (error) {
         console.error("Erro ao enviar peerId para a API:", error);
       }
     });
-
-
-    //codigo antigo do peeron call
-    // Responder chamadas do psicólogo
-    /*   peer.on("call", (call) => {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-          if (videoRef.current) videoRef.current.srcObject = stream;
-          call.answer(stream);
-          setCallActive(true);
-          currentCall.current = call;
-          monitorMicrophone(stream);
-          setMsg('Transcrevendo Chamada...');
-  
-  
-          call.on("stream", (remoteStream) => {
-            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-  
-            if (remoteVideoRef.current) {
-              remoteVideoRef.current.srcObject = remoteStream;
-            }
-          
-            // Se quiser, também pode criar um elemento <audio> separado
-            if (remoteAudioRef.current) {
-              remoteAudioRef.current.srcObject = remoteStream;
-              remoteAudioRef.current.play();
-            }
-  
-            
-          });
-  
-          call.on("close", () => endCall());
-        });
-      });
-   */
-
-  /*   peer.on("call", (call) => {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          if (videoRef.current) videoRef.current.srcObject = stream;
-          call.answer(stream);
-          setCallActive(true);
-          currentCall.current = call;
-          monitorMicrophone(stream);
-          setMsg('Transcrevendo Chamada...');
-
-          call.on("stream", (remoteStream) => {
-            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-            if (remoteAudioRef.current) {
-              remoteAudioRef.current.srcObject = remoteStream;
-              remoteAudioRef.current.play();
-            }
-          });
-
-          call.on("close", () => endCall());
-        })
-        .catch((error) => {
-          console.error("Erro ao acessar microfone/câmera:", error);
-          alert("Não foi possível acessar o microfone ou a câmera. Verifique as permissões do navegador.");
-        });
-    });
-
- */
-
-
     peer.on("call", (call) => {
       // Primeiro tenta com vídeo e áudio
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -327,17 +343,17 @@ export default function PublicCallPage() {
           if (!stream) {
             throw new Error("Sem acesso ao microfone e câmera");
           }
-    
+
           if (videoRef.current && stream.getVideoTracks().length > 0) {
             videoRef.current.srcObject = stream;
           }
-    
+
           call.answer(stream);
           setCallActive(true);
           currentCall.current = call;
           monitorMicrophone(stream);
           setMsg('Transcrevendo Chamada...');
-    
+
           call.on("stream", (remoteStream) => {
             if (remoteVideoRef.current && remoteStream.getVideoTracks().length > 0) {
               remoteVideoRef.current.srcObject = remoteStream;
@@ -347,7 +363,7 @@ export default function PublicCallPage() {
               remoteAudioRef.current.play();
             }
           });
-    
+
           call.on("close", () => endCall());
         })
         .catch((finalError) => {
@@ -355,9 +371,11 @@ export default function PublicCallPage() {
           alert("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
         });
     });
-    
+
     return () => peer.destroy(); // Limpa o peer ao desmontar
-  }, []);
+  }
+
+
 
 
 
@@ -383,6 +401,10 @@ export default function PublicCallPage() {
       remoteVideoRef.current.srcObject = null;
     }
     setCallActive(false);
+
+    //chamar tela de avaliação
+    router.push("/avaliacao");
+
   };
 
 
@@ -432,74 +454,20 @@ export default function PublicCallPage() {
 
   return (
 
-    //codigo antigo da tela de call do paciente ainda podemos utilziar alguma coisa daqui
-
-    /*    
-       <div className="">
-         <video ref={remoteVideoRef} autoPlay playsInline className="" />
-         <div className="">
-           Psicologo
-         </div>
-         <div className="">
-           <video
-            ref={videoRef}
-             autoPlay
-              playsInline
-              className="" 
-              muted={true}
-              />
-           <div className="">
-             você
-           </div>
-         </div>
-         <div className="">
-           <LiveTranscription
-             usuario={'Paciente'}
-             mensagem={transcription}
-             sala={iddinamico as string}
-           />
-         </div>
-         <div className="">
-         
-           <button
-             className=""
-             onClick={() => {
-               setMic(!mic)
-               if (mic) {
-                 //LIGAR MICROFONE
-               } else {
-                 //DESLIGAR MICROFONE
-               }
-             }}
-           >
-             {mic ? <Mic size={12} /> : <MicOff size={12} />}
-           </button>
-           <button
-             className=""
-             onClick={() => {
-               setVideo(!video)
-               if (video) {
-                 //LIGAR VIDEO
-                 
-               } else {
-                 //DESLIGAR VIDEO
-               }
-             }}
-           >
-             {video ? <Video size={12} /> : <VideoOff size={12} />}
-           </button>
-   
-           <button
-             className=""
-             onClick={endCall}
-           >
-             <LogOut size={12} />
-           </button>
-         </div>
-       </div>
-   
-     */
     <div className="min-h-screen bg-gray-900 text-white p-4 relative">
+
+      <div className="w-full flex justify-end p-4">
+        <button
+          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 border ${textButton === "Aguardando psicólogo..."
+              ? "bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200"
+              : "bg-green-100 text-green-800 border-green-300 hover:bg-green-200"
+            }`}
+          onClick={entrar}
+        >
+          {textButton}
+        </button>
+      </div>
+
       {/* Video Container */}
       <div className="relative w-full h-[calc(100vh-200px)] rounded-lg overflow-hidden">
         {/* Remote Video (Psychologist) */}

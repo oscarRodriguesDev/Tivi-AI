@@ -1,6 +1,6 @@
 "use client"
 
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, } from "react-icons/fa"
 
 export default function Footer() {
   const scrollToSection = (sectionId: string) => {
@@ -22,16 +22,16 @@ export default function Footer() {
             <p className="text-gray-600 mb-4">A plataforma inteligente que transforma suas consultas em resultados.</p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
-                <Facebook className="h-5 w-5" />
+                <FaFacebook className="h-5 w-5" />
               </a>
               <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
-                <Twitter className="h-5 w-5" />
+                <FaTwitter className="h-5 w-5" />
               </a>
               <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
-                <Instagram className="h-5 w-5" />
+                <FaInstagram className="h-5 w-5" />
               </a>
               <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
-                <Linkedin className="h-5 w-5" />
+                <FaLinkedin className="h-5 w-5" />
               </a>
             </div>
           </div>
