@@ -35,6 +35,7 @@ import { RiUserSearchFill } from "react-icons/ri";
 import { Agendamento } from '../../../../../types/agendamentos';
 import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
 import { useParams } from 'next/navigation';
+import { showPersistentLoadingMessage, updateToastMessage } from '@/app/util/messages';
 
 
 
@@ -174,7 +175,7 @@ export default function AgendamentoPage() {
   //status da reunião
 
   //pedir pra confirmar se o paciente logou
-  const [online, setOnine] = useState<boolean>(false);
+  const [online, setOnline] = useState<boolean>(false);
 
   //controle de busca de agendamentos
   const [buscando, setBuscando] = useState<boolean>(true);
@@ -188,11 +189,13 @@ export default function AgendamentoPage() {
     if (agendamento.id === 'fake-id') {
       alert("impossivel editar demonstração");
     } else {
-
-
       setAgendamentoSelecionado(agendamento);
       setModalAberto(true);
     }
+    if (!modalAberto) {
+      setBuscando(true)
+    }
+
   };
 
 
@@ -213,13 +216,16 @@ export default function AgendamentoPage() {
         //console.log("Dados recebidos:", data); // Verifique os dados aqui
         setBuscando(false)
         setAgendamentos(data);
+
         setLoading(false)
 
       } else {
         console.error("Erro ao buscar agendamentos");
+
       }
     } catch (error) {
       console.error("Erro de conexão", error);
+
     }
   };
 
@@ -231,7 +237,7 @@ export default function AgendamentoPage() {
  */
   useEffect(() => {
     if (buscando === true) {
-      alert("buscando agendamentos")
+
       //definir tempo de atualização dos agendamentos
       const intervalId = setInterval(() => {
         buscarAgendamentos();
@@ -246,29 +252,34 @@ export default function AgendamentoPage() {
   //função para buscar o peerId
 
 
-const fetchPeerId = async (id: string) => {
-  if (emProcesso.current.has(id)) return;
-  emProcesso.current.add(id);
-
-  try {
-    const response = await fetch(`/api/save_peer?iddinamico=${id}`);
-    if (response.ok) {
-      const data = await response.json();
-      if (data.peerId) {
-        setPeerIds((prev) => ({ ...prev, [id]: data.peerId }));
-        setIdUser(data.peerId);
-        setError(null);
+  const fetchPeerId = async (id: string) => {
+    if (emProcesso.current.has(id)) return;
+    emProcesso.current.add(id);
+    try {
+      const toastId = showPersistentLoadingMessage('verificando se o paciente está online...');
+      const response = await fetch(`/api/save_peer?iddinamico=${id}`);
+      if (response.ok) {
+        updateToastMessage(toastId, 'Paciente encontrado!', 'success');
+        setOnline(false)
+        const data = await response.json();
+        if (data.peerId) {
+          setPeerIds((prev) => ({ ...prev, [id]: data.peerId }));
+          setIdUser(data.peerId);
+          setError(null);
+        }
+      } else {
+        updateToastMessage(toastId, 'Paciente ainda não está online!', 'error');
+        setOnline(false)
+        throw new Error("ID não encontrado");
       }
-    } else {
-      throw new Error("ID não encontrado");
+    } catch (err) {
+      setError("Erro ao buscar o ID");
+
+    } finally {
+      setLoading(false);
+      emProcesso.current.delete(id);
     }
-  } catch (err) {
-    setError("Erro ao buscar o ID");
-  } finally {
-    setLoading(false);
-    emProcesso.current.delete(id);
-  }
-};
+  };
 
 
 
@@ -283,9 +294,6 @@ const fetchPeerId = async (id: string) => {
    */
   useEffect(() => {
     if (online === true) {
-    
-
-
       const intervalId = setInterval(() => {
         agendamentos.forEach((ag) => {
           if (!peerIds[ag.id]) {
@@ -303,6 +311,7 @@ const fetchPeerId = async (id: string) => {
     } else {
       return
     }
+
 
   }, [agendamentos, peerIds, online]);
 
@@ -357,6 +366,7 @@ const fetchPeerId = async (id: string) => {
 
   //criar doc do delete
   const handleDeletar = async (id: string) => {
+
     if (id === "fake-id") {
       alert('Impossivel deletar a demonstração')
     } else {
@@ -441,7 +451,9 @@ const fetchPeerId = async (id: string) => {
       {/* Essa regra de acesso é para essa pagina na verdade deve ser role===psicologo*/}
       {role === 'PSYCHOLOGIST' ? (
         <div className="flex-col h-[80vh]  p-8 text-white">
-          <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
+          <Modal isOpen={isModalOpen} onClose={()=>{handleCloseModal()
+            window.location.reload()
+          }} />
 
           {/* Filtro */}
           <div className="flex space-x-4 mb-0">
@@ -605,9 +617,9 @@ const fetchPeerId = async (id: string) => {
 
             <div className="w-full h-auto mt-5 flex justify-around items-end">
               <button
-                onClick={() => setOnine(!online)}
+                onClick={() => setOnline(!online)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium shadow transition duration-300 
-    ${online ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
+                ${online ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
               >
                 <RiUserSearchFill size={20} />
                 {online ? 'Verificando Paciente' : 'Não verificar paciente'}
@@ -615,7 +627,11 @@ const fetchPeerId = async (id: string) => {
 
 
               <button
-                onClick={handleOpenModal}
+                onClick={() => {
+                  handleOpenModal()
+                  
+              
+                }}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md transform transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
               >
                 Agendar
