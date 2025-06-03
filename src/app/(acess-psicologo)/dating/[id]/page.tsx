@@ -272,12 +272,14 @@ export default function AgendamentoPage() {
         setOnline(false)
         throw new Error("ID não encontrado");
       }
-    } catch (err) {
+    } catch (err:any) {
       setError("Erro ao buscar o ID");
+      updateToastMessage('001', 'Paciente ainda não está online! ',err);
 
     } finally {
       setLoading(false);
       emProcesso.current.delete(id);
+      updateToastMessage('002', 'Nenhum paciente online! ');
     }
   };
 
