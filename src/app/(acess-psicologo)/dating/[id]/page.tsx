@@ -35,7 +35,7 @@ import { RiUserSearchFill } from "react-icons/ri";
 import { Agendamento } from '../../../../../types/agendamentos';
 import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
 import { useParams } from 'next/navigation';
-import { showPersistentLoadingMessage, updateToastMessage } from '@/app/util/messages';
+import { showErrorMessage, showInfoMessage, showPersistentLoadingMessage, showSuccessMessage, updateToastMessage } from '@/app/util/messages';
 
 
 
@@ -187,7 +187,7 @@ export default function AgendamentoPage() {
   //função para editar o agendamento
   const handleEditar = (agendamento: any) => {
     if (agendamento.id === 'fake-id') {
-      alert("impossivel editar demonstração");
+      showErrorMessage("impossivel editar demonstração");
     } else {
       setAgendamentoSelecionado(agendamento);
       setModalAberto(true);
@@ -251,10 +251,18 @@ export default function AgendamentoPage() {
 
   //função para buscar o peerId
   const fetchPeerId = async (id: string, meet: Agendamento) => {
+       
+
+
     if (emProcesso.current.has(id)) return;
     emProcesso.current.add(id);
     try {
+     
       const toastId = showPersistentLoadingMessage(`Verificando se ${meet.name} está na sala...`);
+      if(id==='fake-id'){
+        updateToastMessage(toastId, `Usuario demonstrativo, não avaliado para consultas`, 'error');
+        return
+      }
       const response = await fetch(`/api/save_peer?iddinamico=${id}`);
       if (response.ok) {
         updateToastMessage(toastId, `${meet.name} já está na sala de reunião, você ja pode iniciar a sessão!`, 'success');
@@ -265,6 +273,7 @@ export default function AgendamentoPage() {
           setIdUser(data.peerId);
           setError(null);
         }
+       
       } else {
         updateToastMessage(toastId, `${meet.name} ainda não está na sala!`, 'error');
         setOnline(false)
@@ -319,7 +328,7 @@ export default function AgendamentoPage() {
   //função ainda será definida
   const handleDayClick = (dia: number) => {
     // Exemplo: você pode usar o console ou redirecionar para uma página com os detalhes desse dia.
-    alert(`Abrindo consultas para o dia ${dia}`);
+    showInfoMessage(`Abrindo consultas para o dia ${dia}`);
   };
 
   /**
@@ -331,7 +340,7 @@ export default function AgendamentoPage() {
  */
   const handleCopy = (id: string) => {
     if (id === "fake-id") {
-      alert("O link de demonstração não pode ser copiado!");
+      showErrorMessage("O link de demonstração não pode ser copiado!");
     } else {
       const link = `${window.location.origin}/publiccall/${id}`;
       navigator.clipboard.writeText(link).then(() => {
@@ -346,7 +355,7 @@ export default function AgendamentoPage() {
 
   const copiarLinkParaWhatsApp = (idReuniao: string, data: string, hora: string) => {
     if (idReuniao === "fake-id") {
-      alert("O link de demonstração não pode ser copiado!");
+      showErrorMessage("O link de demonstração não pode ser copiado!");
     } else {
       const linkReuniao = `/publiccall/${idReuniao}`;
       const mensagem = `Olá! Aqui está o link para acessar sua reunião agendada:
@@ -354,7 +363,7 @@ export default function AgendamentoPage() {
       Hora: ${hora}
       Clique no link para acessar a reunião: ${window.location.origin}${linkReuniao}`;
       navigator.clipboard.writeText(mensagem).then(() => {
-        alert('Mensagem copiada! Agora, abra o WhatsApp e cole a mensagem.');
+        showInfoMessage('Mensagem copiada! Agora, abra o WhatsApp e cole a mensagem.');
         const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
         window.open(url, '_blank');
       }).catch(err => {
@@ -368,14 +377,14 @@ export default function AgendamentoPage() {
   const handleDeletar = async (id: string) => {
 
     if (id === "fake-id") {
-      alert('Impossivel deletar a demonstração')
+      showErrorMessage('Impossivel deletar a demonstração')
     } else {
       const response = await fetch(`/api/internal/gen-meet`, {
         method: 'DELETE',
         body: JSON.stringify({ id }),
       });
       if (response.ok) {
-        alert("Agendamento deletado com sucesso");
+        showSuccessMessage("Agendamento deletado com sucesso");
         buscarAgendamentos();
       } else {
 
@@ -564,7 +573,10 @@ export default function AgendamentoPage() {
 
                         <button
                           className="px-4 py-2 rounded-2xl bg-green-100 text-green-700 font-medium hover:bg-green-200 hover:text-green-800 transition-colors duration-200 shadow-sm border border-green-300"
-                          onClick={() => fetchPeerId(meet.id, meet)}
+                          onClick={() => {
+                            fetchPeerId(meet.id, meet)
+                            
+                          }}
                         >
                           Status do paciente
                         </button>
@@ -625,17 +637,6 @@ export default function AgendamentoPage() {
 
 
             <div className="w-full h-auto mt-5 flex justify-around items-end">
-
-
-              {/*  <button
-                onClick={() => setOnline(!online)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium shadow transition duration-300 
-                ${online ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
-              >
-                <RiUserSearchFill size={20} />
-                {online ? 'Verificando Paciente' : 'Não verificar paciente'}
-              </button> */}
-
 
               <button
                 onClick={() => {
