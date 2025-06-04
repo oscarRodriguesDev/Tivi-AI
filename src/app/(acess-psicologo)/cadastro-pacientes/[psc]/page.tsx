@@ -72,7 +72,7 @@ const Pacientes = () => {
 
 
         try {
-            const response = await fetch("/api/register_pacientes", {
+            const response = await fetch("/api/internal/register_pacientes", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -91,12 +91,12 @@ const Pacientes = () => {
                     rua: rua,
                     numero: numero,
                     pais: pais,
-                    complemento: complemento,
+                    complemento: complemento||'sem complemento',
                     estado: estado,
                     email: email,
                     rg: rg,
                     cpf: cpf,
-                    psicoloId: userId
+                    psicologoId: userId
 
                 }),
             });

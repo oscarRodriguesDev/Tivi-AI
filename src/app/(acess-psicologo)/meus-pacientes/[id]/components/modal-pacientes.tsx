@@ -66,7 +66,7 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await fetch('/api/register_pacientes', {
+      const response = await fetch('/api/internal/register_pacientes', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -91,7 +91,7 @@ model Paciente {
    estado         String?
    email          String?
    rg             String?
-   psicoloId      String //id do psicologo responsavel
+   psicologoId    String? //id do psicologo responsavel
 }
 //as consultas vão ter um modelo para serem criadas
 model Consulta{

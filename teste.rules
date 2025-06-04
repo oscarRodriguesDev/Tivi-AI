@@ -1,17 +1,11 @@
-<<<<<<< HEAD
-testando as regras de controle de versões e proteção de branchs
+Mapeamento de telas que preciso criar no meet 2
+feed dos psicologos
+uma tela para historico de atendimentos (meus atendimentos) - apenas para registro dos atendimentos 
+tela de perfil de paciente - que vai apresentar todo o perfil do paciente cadastrado (documentos gerados guardados n a pagina do paciente)
+rota para abertura do prontuario do paciente
+api de pagamentos - precisa decidir se vai ser com interface propria ou interface legada
+perfil do usuario
+pagina de politica de dados
+pagina de termos de uso e privacidade de dados
+politica de uso de cookies
 
-vamos continuar testando
-
-resolvendo problema da versçao do prisma
-
-
-deletei a branch oscar que estava com problema
-modificação de teste
-=======
-subindo versão com a landing para a homologação
->>>>>>> 558c4577505a0965102027b6bbbb80dd942f3eb8
-
-
-subindo uma nova versão pra testes pt 
-subindo parte dois dos testess 

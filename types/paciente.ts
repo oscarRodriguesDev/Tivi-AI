@@ -103,5 +103,5 @@ export interface Paciente {
    * Identificador do psicólogo responsável pelo paciente.
    * Esse campo faz referência ao psicólogo que cuida do paciente.
    */
-  psicoloId: string; // Ajuste do campo para refletir o nome correto
+  psicologoId: string; // Ajuste do campo para refletir o nome correto
 }

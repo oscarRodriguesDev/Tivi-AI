@@ -3,6 +3,7 @@ import { toast, ToastOptions,Id } from 'react-toastify';
 
 
 
+
 const defaultOptions: ToastOptions = {
   autoClose: 10000, // <-- aqui define o tempo padrão (10 segundos)
 };

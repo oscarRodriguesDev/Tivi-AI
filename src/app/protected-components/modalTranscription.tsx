@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { marked } from 'marked';
 import jsPDF from 'jspdf';
+import { showInfoMessage } from '../util/messages';
 
 type ModalProps = {
   isOpen: boolean;
@@ -432,7 +433,7 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
             Baixar PDF
           </button>
           <button
-            onClick={() => alert("Função de arquivamento futura.")}
+            onClick={() => showInfoMessage("Função de arquivamento futura.")}
             className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
           >
             Arquivar

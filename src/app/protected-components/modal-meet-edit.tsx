@@ -2,6 +2,7 @@ import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { FaCalendar, FaCalendarAlt, FaClock, FaPhoneAlt, FaPen, FaUserFriends, FaTimes, FaCalendarTimes, FaUserClock } from "react-icons/fa";
 import { MdNotes } from "react-icons/md";
 import { v4 as uuidv4 } from 'uuid';
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "../util/messages";
 
 interface Agendamento {
   id: string;
@@ -67,7 +68,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, meet }) => {
         });
 
         if (response.ok) {
-          alert("Agendamento editado com sucesso!");
+          showSuccessMessage("Agendamento editado com sucesso!");
           setNovoAgendamento({
             id: '',
             psicologoId: '',
@@ -82,13 +83,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, meet }) => {
           });
           onClose(); // Fecha o modal após salvar
         } else {
-          alert("Erro ao editar o agendamento. Tente novamente.");
+          showErrorMessage("Erro ao editar o agendamento. Tente novamente.");
         }
       } catch (error) {
-        alert("Erro de conexão. Tente novamente.");
+        showErrorMessage("Erro de conexão. Tente novamente.");
       }
     } else {
-      alert("Por favor, preencha todos os campos obrigatórios.");
+      showInfoMessage("Por favor, preencha todos os campos obrigatórios.");
     }
   };
 

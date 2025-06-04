@@ -16,6 +16,7 @@ const Creditos = () => {
 
   const handleAdicionarCreditos = () => {
     alert("Fluxo de recarga de créditos será implementado futuramente.")
+    console.log('chamar api de pagamentos para fazer as recargas, isso deve gerar uma resposta que vai ser utilizada para recarregar no banco de dados')
   }
 
   return (
@@ -56,6 +57,7 @@ const Creditos = () => {
             <button
               onClick={handleAdicionarCreditos}
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-xl shadow-lg transition"
+              
             >
               Adicionar Créditos
             </button>

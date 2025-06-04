@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react"; // Importe o hook useSession e signOut
 import Image from "next/image";
 import userDefault from "../../../public/profile_pictures_ps/userdefault.png";
+import { showErrorMessage } from "../util/messages";
 
 
 const CardUser = () => {
@@ -25,7 +26,7 @@ const CardUser = () => {
         setFotoPerfil(data.url);
         // Passa apenas a parte relativa para o estado
       } catch (error) {
-        console.error("Erro ao buscar foto de perfil:", error);
+        showErrorMessage(`Erro ao buscar dados do usuario ${error}`);
       }
     };
     fetchFotoPerfil();

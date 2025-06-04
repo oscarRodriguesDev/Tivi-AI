@@ -3,12 +3,14 @@ import { useAccessControl } from "@/app/context/AcessControl"
 import { FaList, FaFileAlt, FaThumbsUp, FaThumbsDown, FaTrash, FaEdit } from "react-icons/fa"//icones de like e dislike
 import HeadPage from "@/app/protected-components/headPage"
 import { useEffect, useState } from "react"
-import { redirect, useParams } from "next/navigation"
+import { redirect, useParams, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { FaCirclePlus } from "react-icons/fa6";
-import { showErrorMessage, showSuccessMessage } from "@/app/util/messages"
+import { GrDocumentUser } from "react-icons/gr";
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages"
 import { ModalPacientes } from "./components/modal-pacientes"
 import { Paciente } from "../../../../../types/paciente"
+import Notiflix from 'notiflix';
 
 const mockAtendimentos = [
   {
@@ -63,6 +65,7 @@ const MeusAtendimentos = () => {
   const [pacientes, setPacientes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const { id } = useParams()
+  const router = useRouter()
 
 
 
@@ -89,34 +92,65 @@ const MeusAtendimentos = () => {
 
 
 
-  const handleDeletePaciente = async (pacienteId: string) => {
-    try {
-      const response = await fetch('/api/internal/register_pacientes', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: pacienteId }),
-      });
 
-      if (response.ok) {
-        // Atualiza a lista de pacientes após a deleção
-        setPacientes(pacientes.filter(paciente => paciente.id !== pacienteId));
-        showSuccessMessage('Paciente deletado com sucesso!');
-      } else {
-        const data: Paciente = await response.json();
-        showErrorMessage(`Erro ao deletar paciente: ${data}`);
+
+
+
+
+  /**
+   * function deletePaciente
+   * @param string id
+   */
+  const deletePaciente = async (id: string) => {
+
+    async function deletarUser(pacienteId: string) {
+      try {
+        const response = await fetch('/api/internal/register_pacientes', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: pacienteId }),
+        });
+
+        if (response.ok) {
+          // Atualiza a lista de pacientes após a deleção
+          setPacientes(pacientes.filter(paciente => paciente.id !== pacienteId));
+          showSuccessMessage('Paciente deletado com sucesso!');
+        } else {
+          const data: Paciente = await response.json();
+          showErrorMessage(`Erro ao deletar paciente: ${data}`);
+        }
+      } catch (error) {
+        showErrorMessage('Erro ao deletar paciente. Tente novamente mais tarde.');
       }
-    } catch (error) {
-      showErrorMessage('Erro ao deletar paciente. Tente novamente mais tarde.');
-    }
-  };
+    };
+
+    Notiflix.Confirm.show(
+      'Título',
+      'Mensagem de confirmação',
+      'Sim',
+      'Não',
+      () => {
+        deletarUser(id)
+      },
+      () => { showInfoMessage("Nenhuma alteração realizada!"); },
+    );
+  }
+
+
+
+  //abre a pagina do paciente selecionado
+  const getPaciente = (id: string) => {
+    showInfoMessage('abrindo perfil de paciente')
+    router.push(`/pacient-profile/${id}`)
+  }
 
 
   useEffect(() => {
     const fetchPacientes = async () => {
       try {
-        const response = await fetch(`/api/internal/register_pacientes?psicoloId=${id}`)
+        const response = await fetch(`/api/internal/register_pacientes?psicologoId=${id}`)
         if (!response.ok) {
           throw new Error('Erro ao buscar pacientes')
         }
@@ -185,9 +219,16 @@ const MeusAtendimentos = () => {
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex gap-2">
+                      <button className="flex items-center gap-1 bg-blue-700 text-white hover:bg-blue-400 hover:text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                        onClick={() => { getPaciente(item.id) }}
+                      >
+
+                        Abrir
+                        <GrDocumentUser />
+                      </button>
                       <button
                         className="flex items-center gap-1 bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-800 px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                        onClick={() => handleDeletePaciente(item.id)}
+                        onClick={() => deletePaciente(item.id)}
                         title="Deletar paciente"
                       >
                         <FaTrash />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import bcrypt from 'bcryptjs';
 import { Psicologo } from '../../../types/psicologos';
+import { showErrorMessage } from '../util/messages';
 
 const AlteracaoSenha: React.FC<Psicologo> = ({ id, email, nome, password, first_acess }) => {
   const [senhaAntiga, setSenhaAntiga] = useState('');
@@ -8,9 +9,7 @@ const AlteracaoSenha: React.FC<Psicologo> = ({ id, email, nome, password, first_
   const [repetirSenha, setRepetirSenha] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
-  const [lastname, setLastname] = useState(''); 
   
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -57,7 +56,7 @@ const AlteracaoSenha: React.FC<Psicologo> = ({ id, email, nome, password, first_
         setErro('Erro ao alterar a senha. Tente novamente.');
       }
     } catch (error) {
-      console.error('Erro ao alterar a senha:', error);
+      showErrorMessage(`Erro ao alterar senha ${error}`);
       setErro('Erro ao alterar a senha. Tente novamente.');
     }
   };

@@ -3,6 +3,7 @@ import { FaCalendar, FaCalendarAlt, FaClock, FaPhoneAlt, FaPen, FaUserFriends, F
 import { MdNotes } from "react-icons/md";
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from "next-auth/react";
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "../util/messages";
 
 interface Agendamento {
   id: string;
@@ -55,8 +56,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     // Verifica se todos os campos obrigatórios estão preenchidos
     if (novoAgendamento.data && novoAgendamento.hora && novoAgendamento.name && novoAgendamento.fantasy_name) {
       const novo: Agendamento = { ...novoAgendamento, id: uuidv4() };
-      alert(novo)
-
       try {
         // Fazendo a requisição para a API (ajuste a URL da sua API)
         const response = await fetch("/api/internal/gen-meet", {
@@ -68,7 +67,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         });
 
         if (response.ok) {
-          alert("Agendamento salvo com sucesso!");
+          showSuccessMessage("Agendamento salvo com sucesso!");
           setNovoAgendamento({
             id: '',
             psicologoId: '',
@@ -83,13 +82,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           });
           onClose(); // Fecha o modal após salvar
         } else {
-          alert("Erro ao salvar o agendamento. Tente novamente.");
+          showErrorMessage("Erro ao salvar o agendamento. Tente novamente.");
         }
       } catch (error) {
-        alert("Erro de conexão. Tente novamente.");
+        showErrorMessage("Erro de conexão. Tente novamente.");
       }
     } else {
-      alert("Por favor, preencha todos os campos obrigatórios.");
+      showInfoMessage("Por favor, preencha todos os campos obrigatórios.");
     }
   };
 

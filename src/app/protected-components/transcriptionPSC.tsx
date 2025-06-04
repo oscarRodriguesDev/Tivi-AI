@@ -251,7 +251,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   *
   * - Verifica se a instância de `recognition` está disponível.
   * - Se estiver, ativa o estado de escuta (`listening`) e começa a capturar a voz do usuário.
-  * - Caso contrário, exibe um erro no console.
+  * - Caso contrário, exibe um erro.
   *
   * @function handleStartListening
   * @returns {void}
@@ -259,7 +259,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
 
   const handleStartListening = () => {
     if (!recognition) {
-      console.error("Reconhecimento de voz não foi inicializado corretamente.");
+      showErrorMessage("Reconhecimento de voz não foi inicializado corretamente.");
       return;
     }
     setListening(true);
@@ -383,7 +383,6 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
         throw new Error(`Erro na requisição: ${response.statusText}`);
       }
       const data = await response.json();
-      console.log("Resposta completa da API:", data); // <-- Adicionando para depuração
       updateToastMessage(toastId, 'Relatório gerado com sucesso!', 'success');
       const respostaGPT = data.response || "Nenhuma resposta gerada.";
       setAnalise(respostaGPT);

@@ -8,9 +8,9 @@ const prisma = new PrismaClient();
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const psicoloId = searchParams.get('psicoloId');
+    const psicologoId = searchParams.get('psicologoId');
 
-    if (!psicoloId) {
+    if (!psicologoId) {
       return NextResponse.json(
         { error: "ID do psicólogo é obrigatório" },
         { status: 400 }
@@ -19,7 +19,7 @@ export async function GET(req: Request) {
 
     const pacientes = await prisma.paciente.findMany({
       where: {
-        psicoloId: psicoloId
+        psicologoId: psicologoId
       },
       select: {
         id: true,
@@ -59,18 +59,17 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body: Paciente = await req.json();
-    const {id, nome,fantasy_name, idade,sintomas, telefone,convenio, cpf, sexo,cep,cidade,bairro,rua,numero,pais,complemento,estado,email,rg,psicoloId} = body;
+    console.log("Body recebido:", body);
+    const { nome,fantasy_name, idade,sintomas, telefone,convenio, cpf, sexo,cep,cidade,bairro,rua,numero,pais,complemento,estado,email,rg,psicologoId} = body;
    
 
     // Validação dos campos obrigatórios
-    if ( !nome || !fantasy_name  || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg ||!psicoloId) {
+    if ( !nome || !fantasy_name  || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg ||!psicologoId) {
       return NextResponse.json(
         { error: "Todos os campos obrigatórios devem ser preenchidos" },
         { status: 400 }
       );
     }
-
-
 
     // Criando paciente no banco de dados
     const novoPaciente = await prisma.paciente.create({
@@ -79,10 +78,9 @@ export async function POST(req: Request) {
         cpf,                // CPF do paciente
         idade, // Idade como string (mantendo a coerência com o modelo)
         sintomas,           // Sintomas do paciente
-        telefone,           // Telefone do paciente
-        id,          // ID do psicólogo
+        telefone,           // Telefone do paciente         // ID do psicólogo
         fantasy_name,
-        psicoloId,       // Nome fantasia
+        psicologoId,       
         convenio,           // Convênio
         sexo,               // Sexo do paciente
         cep,                // CEP do paciente
@@ -102,8 +100,7 @@ export async function POST(req: Request) {
       { message: "Paciente cadastrado com sucesso", data: novoPaciente },
       { status: 201 }
     );
-  } catch (error: any) {
-   
+  } catch (error: any) {console.error("Erro interno ao cadastrar paciente:", error); // <-- aqui
     return NextResponse.json(
       { error: "Erro ao processar a requisição", details: error.message },
       { status: 500 }
