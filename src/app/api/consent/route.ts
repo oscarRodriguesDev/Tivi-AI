@@ -29,7 +29,6 @@
 
      return NextResponse.json(consent, { status: 201 });
    } catch (error) {
-     console.error('Erro ao salvar consentimento:', error);
      return NextResponse.json(
        { error: 'Erro ao salvar consentimento' },
        { status: 500 }

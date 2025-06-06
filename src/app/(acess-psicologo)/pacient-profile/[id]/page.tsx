@@ -1,5 +1,10 @@
 'use client'
+import { useAccessControl } from "@/app/context/AcessControl";
+import { showInfoMessage } from "@/app/util/messages";
 import { useState, ChangeEvent } from "react";
+import { CgProfile } from "react-icons/cg";
+import HeadPage from "@/app/protected-components/headPage";
+
 
 interface Paciente {
   id: string;
@@ -78,6 +83,9 @@ export default function PerfilPaciente({ paciente }: Props) {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState<Paciente>(paciente ?? pacienteMock);
 
+  const { role } = useAccessControl()
+
+
   const dadosPessoaisFields: (keyof Paciente)[] = [
     "nome",
     "cpf",
@@ -109,7 +117,7 @@ export default function PerfilPaciente({ paciente }: Props) {
   };
 
   const handleSave = () => {
-    console.log("Dados salvos:", formData);
+   showInfoMessage("Dados salvos!");
     setEditMode(false);
   };
 
@@ -118,7 +126,12 @@ export default function PerfilPaciente({ paciente }: Props) {
     setEditMode(false);
   };
 
+
+
   return (
+
+  <>
+  <HeadPage title= 'Joao Paciente' icon={<CgProfile size={20} />} />
     <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="bg-white shadow-lg rounded-2xl p-8">
         <h2 className="text-3xl font-bold mb-8 text-center">Perfil do Paciente</h2>
@@ -240,5 +253,7 @@ export default function PerfilPaciente({ paciente }: Props) {
         </div>
       </div>
     </div>
+  
+  </>
   );
 }

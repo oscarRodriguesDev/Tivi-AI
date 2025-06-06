@@ -3,6 +3,7 @@ import { useAccessControl } from "@/app/context/AcessControl"
 import { useRouter } from "next/navigation"
 import { FaRegCreditCard, FaCoins, FaArrowUp, FaArrowDown } from "react-icons/fa"
 import HeadPage from "@/app/protected-components/headPage"
+import { showInfoMessage } from "@/app/util/messages"
 
 const Creditos = () => {
   const { role } = useAccessControl()
@@ -15,8 +16,8 @@ const Creditos = () => {
   }
 
   const handleAdicionarCreditos = () => {
-    alert("Fluxo de recarga de créditos será implementado futuramente.")
-    console.log('chamar api de pagamentos para fazer as recargas, isso deve gerar uma resposta que vai ser utilizada para recarregar no banco de dados')
+    showInfoMessage("Fluxo de recarga de créditos será implementado futuramente")
+    //chamar a api de pagamentos para gerenciar creditos
   }
 
   return (

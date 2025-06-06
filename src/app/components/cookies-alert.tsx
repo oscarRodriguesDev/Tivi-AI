@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FaCookieBite } from 'react-icons/fa';
+import { showErrorMessage } from '../util/messages';
 
 const CookiesAlert = () => {
 
@@ -102,7 +103,7 @@ const CookiesAlert = () => {
       }
   
     } catch (err) {
-      console.error('Erro ao sincronizar consentimento:', err);
+      showErrorMessage('Erro ao sincronizar consentimento: ' + err);
     }
   };
   
@@ -157,7 +158,7 @@ const CookiesAlert = () => {
     try {
       await postConsentToServer();
     } catch (error) {
-      console.error('Erro ao registrar consentimento:', error);
+      showErrorMessage('Erro ao registrar consentimento: ' + error);
     }
   };
   

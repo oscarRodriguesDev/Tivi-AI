@@ -32,11 +32,13 @@ const Pacientes = () => {
     const [estado, setEstado] = useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [rg, setRg] = useState<string>(String(''))
+    const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
 
 
-
-    const limparCampos = () => {
-        //setUserId('');
+    /**
+     * limpa os campos do form para um novo envio
+     */
+    const resetForm = () => {
         setNome('');
         setCpf('');
         setNick('');
@@ -56,20 +58,39 @@ const Pacientes = () => {
         setEstado('');
         setEmail('');
         setRg('');
-      
+
     };
 
 
+    /**
+     * envia os dados do paciente para o backend
+     * @param event 
+     * 
+     */
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
 
-
-    const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
-    const router = useRouter();
-
-
-    // Enviar os dados para o backend
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+        const payload = {
+            nome,
+            fantasy_name: nick,
+            idade,
+            sintomas,
+            telefone,
+            convenio,
+            sexo,
+            cep,
+            cidade: city,
+            bairro,
+            rua,
+            numero,
+            pais,
+            complemento: complemento || "sem complemento",
+            estado,
+            email,
+            rg,
+            cpf,
+            psicologoId: userId,
+        };
 
         try {
             const response = await fetch("/api/internal/register_pacientes", {
@@ -77,45 +98,25 @@ const Pacientes = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    nome: nome,
-                    fantasy_name: nick,
-                    idade: idade,
-                    sintomas: sintomas,
-                    telefone: telefone,
-                    convenio: convenio,
-                    sexo: sexo,
-                    cep: cep,
-                    cidade: city,
-                    bairro: bairro,
-                    rua: rua,
-                    numero: numero,
-                    pais: pais,
-                    complemento: complemento||'sem complemento',
-                    estado: estado,
-                    email: email,
-                    rg: rg,
-                    cpf: cpf,
-                    psicologoId: userId
-
-                }),
+                body: JSON.stringify(payload),
             });
 
             const data = await response.json();
 
             if (response.ok) {
                 showSuccessMessage("Paciente cadastrado com sucesso!");
-                limparCampos()
-                window.location.href = `/meus-pacientes/${userId}`;
-               
+                resetForm();
 
+                // Se estiver usando Next.js:
+                // import { useRouter } from "next/router";
+                // const router = useRouter();
+                // router.push(`/meus-pacientes/${userId}`);
+                window.location.href = `/meus-pacientes/${userId}`;
             } else {
-                showErrorMessage(`Erro: ${data.error}`);
+                showErrorMessage(data.error || "Erro ao cadastrar paciente.");
             }
         } catch (error) {
-            showErrorMessage("Erro ao cadastrar paciente. " + error);
-        } finally {
-
+            showErrorMessage("Erro ao cadastrar paciente. " + (error instanceof Error ? error.message : ""));
         }
     };
 
@@ -126,36 +127,23 @@ const Pacientes = () => {
    * @param cpf - O CPF a ser validado (pode ser formatado ou não).
    * @returns Retorna `true` se o CPF for válido, caso contrário `false`.
    */
-    function validarCPF(cpf: string) {
-        // Remove caracteres não numéricos
-        cpf = cpf.replace(/\D/g, '');
-
-        // Verifica se o CPF tem 11 dígitos ou se é uma sequência inválida
-        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-            showInfoMessage('O campo de cpf deve ter 11 digitos')
-            setCpf('')
-
+    function validarCPF(cpf: string): boolean {
+        const cleanedCPF = cpf.replace(/\D/g, '');
+        if (cleanedCPF.length !== 11 || /^(\d)\1{10}$/.test(cleanedCPF)) {
+            return false;
         }
-
-        // Função auxiliar para calcular os dígitos verificadores
-        const calcularDigito = (limit: number) => {
+        const calcularDigito = (limit: number): number => {
             let total = 0;
             for (let i = 0; i < limit; i++) {
-                total += parseInt(cpf[i]) * (limit + 1 - i);
+                total += parseInt(cleanedCPF[i]) * (limit + 1 - i);
             }
             const resto = total % 11;
             return resto < 2 ? 0 : 11 - resto;
         };
-
-        // Valida os dois dígitos verificadores
         const digito1 = calcularDigito(9);
         const digito2 = calcularDigito(10);
-
-        let valido = digito1 === parseInt(cpf[9]) && digito2 === parseInt(cpf[10]);
-        if (!valido) {
-            showErrorMessage('o cpf digitado não é valido!')
-            setCpf('')
-        }
+        const isValid = digito1 === parseInt(cleanedCPF[9]) && digito2 === parseInt(cleanedCPF[10]);
+        return isValid;
     }
 
 
@@ -194,33 +182,27 @@ const Pacientes = () => {
 
 
     /**
- * Função que faz o fetch para pegar o endereço quando o usuário digita o CEP.
- * @param cep O CEP que será utilizado para buscar o endereço.
- */
-    const buscaAdress = async (cep: string) => {
+     * Função que faz o fetch para pegar o endereço quando o usuário digita o CEP.
+     * @param cep O CEP que será utilizado para buscar o endereço.
+     */
+    const buscaEndereco = async (cep: string) => {
         try {
-
-            // Fazendo a requisição para a API de endereços
             const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-
-            // Verificando se a resposta foi bem-sucedida
             if (!res.ok) {
+                showErrorMessage('Endereço não encontrado! Verifique o CEP e tente novamente.')
                 throw new Error('Erro ao buscar o endereço');
-            }
 
+            }
             const data: Endereco = await res.json();
             setBairro(data.bairro)
             setCity(data.localidade)
             setRua(data.logradouro)
             setEstado(data.estado)
             setCep(data.cep)
-
-
-            return data; // Retorna os dados caso queira usá-los em outro lugar
-
+            return data;
         } catch (error) {
-            // Lidando com erros de rede ou de formatação de CEP
-            showErrorMessage(`Erro ${error}`);
+            showErrorMessage(`Erro ao buscar o endereço`)
+          
         }
     };
 
@@ -228,7 +210,7 @@ const Pacientes = () => {
 
     return (
         <>
-              <HeadPage title='Pacientes' icon={<FaBookMedical size={20}/>}/>
+            <HeadPage title='Pacientes' icon={<FaBookMedical size={20} />} />
 
             {/* Verificação do Role aqui vai mudar para role=== 'PSYCHOLOGIST'*/}
             {role === 'PSYCHOLOGIST' ? (
@@ -393,7 +375,7 @@ const Pacientes = () => {
                                         className="w-full h-[40px] bg-[#F9FAFC] border border-[#D9D9D9] rounded p-2"
                                         value={cep}
                                         onChange={(e) => setCep(e.target.value)}
-                                        onBlur={(e) => { buscaAdress(cep) }}
+                                        onBlur={(e) => { buscaEndereco(cep) }}
                                         required
                                     />
                                 </div>
@@ -496,16 +478,16 @@ const Pacientes = () => {
                                 <input type='submit'
                                     className="bg-green-500 text-white px-6 py-3 rounded-md"
                                     value='Salvar'
-                                    onClick={() => alert('quando implementado vai sair da pagina')}
+                                    //onClick={() => showInfoMessage('quando implementado vai sair da pagina')}
                                 />
                             </div>
                         </div>
                     </div>
                 </form>
             ) : (<>
-                      <div>
-                        <h2>Sem autorização para ver essa pagina</h2>
-                      </div>
+                <div>
+                    <h2>Sem autorização para ver essa pagina</h2>
+                </div>
             </>)}
         </>
     )

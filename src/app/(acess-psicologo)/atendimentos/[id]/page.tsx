@@ -3,10 +3,17 @@ import { useAccessControl } from "@/app/context/AcessControl"
 import { FaList, FaFileAlt } from "react-icons/fa"
 import HeadPage from "@/app/protected-components/headPage"
 
+
+
+const MeusAtendimentos = () => {
+
+/**
+ * Dados mocados caso não haja valor no banco
+ */
 const mockAtendimentos = [
   {
     id: '000001',
-    nome: "Oscar Rodrigues Neto",
+    nome: "Example one",
     idade: 40,
     telefone: "(27) 99999-9999",
     cidade: "Serra",
@@ -16,7 +23,7 @@ const mockAtendimentos = [
   },
   {
     id: '000002',
-    nome: "Tatiane Pontes",
+    nome: "Example two",
     idade: 33,
     telefone: "(27) 98888-8888",
     cidade: "Serra",
@@ -26,7 +33,7 @@ const mockAtendimentos = [
   },
   {
     id: '000003',
-    nome: "Cássio Jordan Almeida Alves",
+    nome: "Example three",
     idade: 32,
     telefone: "(27) 99777-7777",
     cidade: "Serra",
@@ -36,22 +43,30 @@ const mockAtendimentos = [
   }
 ]
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "ATIVO":
-      return "bg-blue-100 text-blue-700"
-    case "PARADO":
-      return "bg-red-100 text-red-700"
-    case "PENDENTE":
-      return "bg-yellow-100 text-yellow-700"
-    default:
-      return "bg-gray-100 text-gray-700"
-  }
-}
 
-const MeusAtendimentos = () => {
+
+  /**
+ * objeto para mostrar status do paciente atraves de cores
+ */
+const statusColorMap: Record<string, string> = {
+  ATIVO: "bg-blue-100 text-blue-700",
+  PARADO: "bg-red-100 text-red-700",
+  PENDENTE: "bg-yellow-100 text-yellow-700",
+};
+
+/**
+ * define a cor do status do paciente
+ * @param status ATIVO/ PARADO
+ * @return statusColorMap
+ * */ 
+const getStatusColor = (status: string): string => {
+  return statusColorMap[status] || "bg-gray-100 text-gray-700";
+};
+
+
+
+//renderização condicional baseada no tipo do usuario acessando
   const { role } = useAccessControl()
-
  if (role === 'ADMIN') {
     return (
       <div className="flex justify-center items-center h-screen text-center text-lg text-red-500">

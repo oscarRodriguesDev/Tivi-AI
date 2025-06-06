@@ -1,11 +1,7 @@
-Mapeamento de telas que preciso criar no meet 2
-feed dos psicologos
-uma tela para historico de atendimentos (meus atendimentos) - apenas para registro dos atendimentos 
-tela de perfil de paciente - que vai apresentar todo o perfil do paciente cadastrado (documentos gerados guardados n a pagina do paciente)
-rota para abertura do prontuario do paciente
-api de pagamentos - precisa decidir se vai ser com interface propria ou interface legada
-perfil do usuario
-pagina de politica de dados
-pagina de termos de uso e privacidade de dados
-politica de uso de cookies
+
+tela de precadastro não ficou legal com tema escuro, o fundo ta branco
+nova consulta em dashboards não abre o modal de nova consulta
+tela agendamento não ficou legal com tema escuro fndo ta branco 
+na pagina de novos administradores quando clicar no botoão novo adminnistrador tem que abrir o modal de novo administrador
+
 

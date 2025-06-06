@@ -16,7 +16,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { validarCPF } from "../util/validarCPF";
 import ModalConsent from "../components/modal-consent";
-import { showErrorMessage, showSuccessMessage } from "../util/messages";
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "../util/messages";
 
 
 
@@ -143,7 +143,6 @@ const Cadastro = () => {
  *
  * @example
  * const idade = defIdade("1990-05-10");
- * console.log(idade); // Saída: 34 (dependendo do ano atual)
  */
     const defIdade = (data: string) => Math.floor((new Date().getTime() - new Date(data).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 
@@ -248,9 +247,9 @@ const Cadastro = () => {
 
                 }
             } catch (error) {
-                console.error("Erro no envio de dados:", error);
+                showErrorMessage("Erro no envio de dados: "+ error);
             } finally {
-                console.log("Verifique os logs do sistema!");
+               showInfoMessage("Processo finalizado!");
             }
         }
     };

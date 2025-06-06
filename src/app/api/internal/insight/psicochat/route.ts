@@ -47,7 +47,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ response: content });
 
   } catch (error: any) {
-    console.error("Erro ao chamar OpenAI:", error.response?.data || error.message || error);
     return NextResponse.json({ error: "Erro ao gerar resposta do modelo." }, { status: 500 });
   }
 }

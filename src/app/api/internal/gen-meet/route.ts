@@ -93,7 +93,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(novaConsulta, { status: 201 });
   } catch (error) {
-    console.error("Erro ao criar reunião:", error);
     return NextResponse.json({ error: "Erro ao criar reunião" }, { status: 500 });
   }
 }
@@ -153,7 +152,6 @@ export async function GET(req: Request) {
     return NextResponse.json(consultas, { status: 200 });
 
   } catch (error) {
-    console.error("Erro no GET /gen-meet", error);
     return NextResponse.json(
       { error: "Erro ao buscar reuniões" },
       { status: 500 }

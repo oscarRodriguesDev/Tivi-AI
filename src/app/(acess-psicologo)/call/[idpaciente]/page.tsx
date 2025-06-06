@@ -202,135 +202,15 @@ export default function Home() {
   };
 
 
-
-/**
- * Efeito responsável por inicializar a instância PeerJS do paciente e escutar chamadas recebidas.
- * 
- * - Cria um novo peer com um UUID gerado aleatoriamente.
- * - Salva a instância do peer em `peerRef`.
- * - Quando o peer estiver pronto (`open`), salva o ID com `setPeerId`.
- * - Escuta por chamadas (`call`) recebidas:
- *    - Solicita permissão para acessar câmera e microfone.
- *    - Monitora o microfone com `monitorMicrophone(stream)`.
- *    - Define o stream local no `videoRef`.
- *    - Responde à chamada com o stream local.
- *    - Ao receber o stream remoto, define no `remoteVideoRef`.
- *    - Escuta evento `close` para encerrar a chamada com `endCall()`.
- * 
- * ⚠️ Importante: este efeito roda apenas uma vez, ao montar o componente, e quando `iddinamico` estiver definido.
- * 
- * 🚮 Ao desmontar o componente, destrói a instância do Peer com `peer.destroy()` para liberar recursos.
- */
-
-
-
-/**
- * Efeito responsável por inicializar e configurar uma instância PeerJS ao montar o componente,
- * quando o identificador dinâmico (`iddinamico`) estiver disponível.
- *
- * - Cria um novo peer com um UUID único e armazena em `peerRef`.
- * - Ao abrir a conexão, define o `peerId` local.
- * - Escuta chamadas recebidas (`on("call")`), solicita acesso à câmera e microfone,
- *   configura o vídeo local e remoto, e inicia a monitoria do microfone.
- * - Ao término da chamada (`on("close")`), executa a função `endCall`.
- *
- * 🧼 Limpeza: Ao desmontar o componente, destrói a instância do peer para liberar recursos.
- *
- * @dependency [iddinamico] - O efeito será executado sempre que `iddinamico` for definido ou alterado.
- */
-/* 
-  useEffect(() => {
-    if (!iddinamico){
-      console.log('iddinamico',iddinamico)
-      return; 
-    }  
-      
-    console.log('iddinamico',iddinamico)
-    const peer = new Peer(uuidv4());
-    peerRef.current = peer;
-    peer.on("open", (id) => setPeerId(id));
-
-    peer.on("call", (call) => {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-        monitorMicrophone(stream);
-        if (videoRef.current) videoRef.current.srcObject = stream;
-        call.answer(stream);
-        setCallActive(true);
-        currentCall.current = call; // Armazena a chamada ativa
-
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = remoteStream;
-          }
-        
-          // Se quiser, também pode criar um elemento <audio> separado
-          if (remoteAudioRef.current) {
-            remoteAudioRef.current.srcObject = remoteStream;
-            remoteAudioRef.current.play();
-          }
-          
-        });
-
-        call.on("close", () => endCall()); // Listener para quando a chamada for encerrada
-      });
-    });
-
-    return () => peer.destroy(); // Limpa a instância do Peer ao desmontar
-  }, [iddinamico]);
- */
-
-
   useEffect(() => {
     if (!iddinamico) {
-      console.log('iddinamico', iddinamico);
       return;
     }
-  
-    console.log('iddinamico', iddinamico);
+
     const peer = new Peer(uuidv4());
     peerRef.current = peer;
   
     peer.on("open", (id) => setPeerId(id));
-  
-   /*  peer.on("call", (call) => {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-        monitorMicrophone(stream);
-  
-        if (videoRef.current) videoRef.current.srcObject = stream;
-  
-        call.answer(stream);
-        setCallActive(true);
-        currentCall.current = call;
-  
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-  
-          if (remoteAudioRef.current) {
-            remoteAudioRef.current.srcObject = remoteStream;
-            remoteAudioRef.current.play();
-          }
-        });
-  
-        // 🔴 Adiciona o listener para quando a chamada for encerrada
-        call.on("close", () => {
-          console.warn("Conexão encerrada pelo outro participante.");
-          alert("A chamada foi encerrada pelo paciente ou a conexão foi perdida.");
-          endCall(); // Finaliza e limpa
-        });
-  
-        // ⚠️ Adiciona o listener para erros na chamada
-        call.on("error", (err) => {
-          console.error("Erro na chamada:", err);
-          alert("Ocorreu um erro na conexão com o paciente.");
-          endCall();
-        });
-      }).catch((err) => {
-        console.error("Erro ao acessar câmera/microfone:", err);
-        alert("Não foi possível acessar a câmera ou microfone.");
-      });
-    }); */
-  
     peer.on("call", (call) => {
       // Primeiro tenta com vídeo e áudio
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -366,7 +246,6 @@ export default function Home() {
           call.on("close", () => endCall());
         })
         .catch((finalError) => {
-          console.error("Erro total ao acessar mídia:", finalError);
           showErrorMessage("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
         });
     });

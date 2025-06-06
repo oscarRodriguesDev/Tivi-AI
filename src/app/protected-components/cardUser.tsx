@@ -53,7 +53,7 @@ const CardUser = () => {
   return (
     <>
      <div
-className="absolute top-[4.5%] left-[100%] sm:left-[200%] md:left-[300%] lg:left-[440%] 
+className="absolute top-[4.5%] left-[100%] sm:left-[200%] md:left-[300%] lg:left-[680%] 
 w-[90%] text-black z-50 rounded-sm cursor-pointer bg-white hover:bg-gray-100 transition-colors
  duration-200 shadow-md"
 
@@ -62,7 +62,7 @@ w-[90%] text-black z-50 rounded-sm cursor-pointer bg-white hover:bg-gray-100 tra
   {/* conteúdo aqui */}
 
         {status === "authenticated" ? (
-          <div className="flex items-center space-x-3 "
+          <div className="flex items-center space-x-3"
 
           >
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">

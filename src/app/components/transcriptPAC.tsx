@@ -15,6 +15,7 @@ import jsPDF from "jspdf";
 import { FaBrain, FaEraser, FaFilePdf, FaStop } from "react-icons/fa";
 import { RiPlayList2Fill } from "react-icons/ri";
 import { useParams } from "next/navigation";
+import { showErrorMessage, showInfoMessage } from "../util/messages";
 
 
 /**
@@ -30,9 +31,9 @@ import { useParams } from "next/navigation";
  * @property {string} sala - Identificador da sala de reunião.
  */
 interface LiveTranscriptionProps {
-  mensagem: string; 
+  mensagem: string;
   usuario: string;
-  sala:string
+  sala: string
 }
 
 
@@ -124,34 +125,34 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
    * Útil para controlar o modo de escuta automática.
    */
   const [ligado, setLigado] = useState<boolean>(false);
-//usar essa variavel pra controlar quando vai transcrever
-  
+  //usar essa variavel pra controlar quando vai transcrever
 
 
 
 
-  
 
-/**
- * Busca as mensagens transcritas do servidor com base na sala atual.
- * 
- * - Realiza uma requisição GET para a rota `/api/message`, passando o identificador da sala.
- * - Se a resposta contiver uma transcrição (`transcript`), atualiza o estado `transcription` apenas se o conteúdo for diferente do atual.
- * - Em caso de erro na requisição, atualiza o estado de erro com uma mensagem descritiva.
- */
+
+
+  /**
+   * Busca as mensagens transcritas do servidor com base na sala atual.
+   * 
+   * - Realiza uma requisição GET para a rota `/api/message`, passando o identificador da sala.
+   * - Se a resposta contiver uma transcrição (`transcript`), atualiza o estado `transcription` apenas se o conteúdo for diferente do atual.
+   * - Em caso de erro na requisição, atualiza o estado de erro com uma mensagem descritiva.
+   */
   const fetchMessages = async () => {
     try {
       const response = await fetch(`/api/message/?sala=${sala}`, { method: 'GET' });
-  
+
       if (!response.ok) {
         throw new Error("Erro ao recuperar mensagens.");
       }
-  
+
       const data = await response.json();
-      
+
       if (data.transcript) {
         const cleanedTranscript = data.transcript;
-  
+
         // Só atualiza se o texto limpo for realmente novo
         if (cleanedTranscript !== transcription) {
           setTranscription(cleanedTranscript);
@@ -161,53 +162,53 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
       setError(`Erro ao carregar mensagens: ${error}`);
     }
   };
-  
-  
 
 
-/**
- * Salva uma transcrição no servidor associada a uma sala específica.
- * 
- * - Envia uma requisição POST para a rota `/api/message` com o conteúdo da transcrição e o identificador da sala.
- * - Em caso de sucesso, limpa a transcrição atual e busca novamente todas as mensagens.
- * - Em caso de erro, atualiza o estado de erro com a mensagem correspondente.
- * 
- * @param {string} transcript - Texto transcrito a ser salvo no servidor.
- */
-const saveMessage = async (transcript: string) => {
-  try {
-    const response = await fetch('/api/message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ sala, transcript }),
-    });
 
-    if (!response.ok) {
-      throw new Error("Erro ao salvar a mensagem.");
+
+  /**
+   * Salva uma transcrição no servidor associada a uma sala específica.
+   * 
+   * - Envia uma requisição POST para a rota `/api/message` com o conteúdo da transcrição e o identificador da sala.
+   * - Em caso de sucesso, limpa a transcrição atual e busca novamente todas as mensagens.
+   * - Em caso de erro, atualiza o estado de erro com a mensagem correspondente.
+   * 
+   * @param {string} transcript - Texto transcrito a ser salvo no servidor.
+   */
+  const saveMessage = async (transcript: string) => {
+    try {
+      const response = await fetch('/api/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sala, transcript }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao salvar a mensagem.");
+      }
+
+      // Após salvar a mensagem, busca as mensagens novamente
+      handleClearTranscription()
+      await fetchMessages();
+    } catch (error) {
+      setError(`Erro ao salvar a mensagem: ${error}`);
     }
-
-    // Após salvar a mensagem, busca as mensagens novamente
-    handleClearTranscription()
-    await fetchMessages();
-  } catch (error) {
-    setError(`Erro ao salvar a mensagem: ${error}`);
-  }
-};
+  };
 
 
 
-/**
- * Inicia o reconhecimento de voz.
- * 
- * - Verifica se a instância de reconhecimento está disponível.
- * - Se disponível, inicia a escuta e atualiza o estado `listening` para `true`.
- * - Caso contrário, exibe um erro no console.
- */
+  /**
+   * Inicia o reconhecimento de voz.
+   * 
+   * - Verifica se a instância de reconhecimento está disponível.
+   * - Se disponível, inicia a escuta e atualiza o estado `listening` para `true`.
+   * - Caso contrário, exibe um erro no
+   */
   const handleStartListening = () => {
     if (!recognition) {
-      console.error("Reconhecimento de voz não foi inicializado corretamente.");
+      showErrorMessage("Reconhecimento de voz não foi inicializado corretamente.");
       return;
     }
     setListening(true);
@@ -216,13 +217,13 @@ const saveMessage = async (transcript: string) => {
 
 
 
-/**
- * Interrompe o reconhecimento de voz.
- * 
- * - Verifica se a instância de reconhecimento existe.
- * - Atualiza o estado `listening` para `false`.
- * - Chama o método `stop()` para encerrar a escuta de voz.
- */
+  /**
+   * Interrompe o reconhecimento de voz.
+   * 
+   * - Verifica se a instância de reconhecimento existe.
+   * - Atualiza o estado `listening` para `false`.
+   * - Chama o método `stop()` para encerrar a escuta de voz.
+   */
   const handleStopListening = () => {
     if (!recognition) return;
     setListening(false);
@@ -230,18 +231,18 @@ const saveMessage = async (transcript: string) => {
   };
 
 
-/**
- * Limpa o conteúdo da transcrição atual.
- * 
- * - Reseta o estado `transcription` para uma string vazia.
- */
+  /**
+   * Limpa o conteúdo da transcrição atual.
+   * 
+   * - Reseta o estado `transcription` para uma string vazia.
+   */
   const handleClearTranscription = () => {
     setTranscription("");
   };
 
 
- 
- 
+
+
   /**
    * Salva a transcrição atual em um arquivo PDF.
    * 
@@ -316,26 +317,25 @@ const saveMessage = async (transcript: string) => {
         },
         body: JSON.stringify({ message: mensagem }),
       });
-  
+
       if (!response.ok) {
         throw new Error(`Erro na requisição: ${response.statusText}`);
       }
-  
+
       const data = await response.json();
-      console.log("Resposta completa da API:", data); // <-- Adicionando para depuração
-        const respostaGPT = data.response || "Nenhuma resposta gerada.";
-        setAnalise(respostaGPT);
-        return respostaGPT;
-    
-  
+      const respostaGPT = data.response || "Nenhuma resposta gerada.";
+      setAnalise(respostaGPT);
+      return respostaGPT;
+
+
     } catch (error) {
-      console.error("Erro ao buscar insights:", error);
+      showErrorMessage("Erro ao buscar insights:" + error);
       return "Erro ao obter resposta.";
     }
   };
-  
 
-  
+
+
 
   /**
    * Inicializa o reconhecimento de voz automaticamnte.
@@ -349,21 +349,21 @@ const saveMessage = async (transcript: string) => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-  
+
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-  
+
     if (!SpeechRecognition) {
       setError("Seu navegador não suporta reconhecimento de voz.");
       return;
     }
-  
+
     // Função para pedir permissão e iniciar a transcrição
     const requestMicrophonePermission = async () => {
       try {
         // Tentamos acessar o microfone. O prompt de permissão é exibido automaticamente.
         await navigator.mediaDevices.getUserMedia({ audio: true });
-       
+
         const confirmTranscription = window.confirm("Deseja iniciar a transcrição automática da sessão?");
         if (!confirmTranscription) {
           setError("Transcrição não iniciada - usuário não autorizou");
@@ -374,50 +374,52 @@ const saveMessage = async (transcript: string) => {
         recognitionInstance.continuous = true;
         recognitionInstance.interimResults = false;
         recognitionInstance.lang = "PT-BR";
-  
+
         recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
           let transcript = "";
-  
+
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const result = event.results[i];
             if (result.isFinal) {
               transcript = result[0].transcript + "\n";
             }
           }
-  
+
           if (transcript.trim()) {
             setTranscription((prev) => `${usuario}: ${transcript}`);
             saveMessage(`${usuario}: ${transcript}`); // Salvar transcrição na API
           }
         };
-  
+
         recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.log('A transcrição foi desativada')
-          //setError(`Erro no reconhecimento: ${event.error}`);
-         
+
+          //deixar pra verificar essa questão da trascriçao,tem que pensar direito a respeito
+          showInfoMessage('A transcrição foi desativada')
+
+
         };
-  
+
         setRecognition(recognitionInstance);
-  
+
         recognitionInstance.start();
       } catch (err) {
         setError("Permissão para usar o microfone não concedida.");
       }
     };
-  
+
     // Dispara a solicitação de permissão
     requestMicrophonePermission();
 
-    
-  
+
+
     // Cleanup
     return () => {
       if (recognition) {
-        recognition.stop(); 
+        recognition.stop();
       }
     };
-  }, []); 
-  
+  }, []);
+
 
 
   /**
@@ -463,24 +465,24 @@ const saveMessage = async (transcript: string) => {
 
       <div className="absolute top-5  mt-auto mb-auto w-24">
 
-      
+
         <div className="pb-1">
 
 
-        <button
-          onClick={handleClearTranscription}
-          className="bg-blue-500 text-white px-4 py-2 ml-1 rounded-md hover:bg-blue-600 transition"
-          title="Limpar Transcrição"
-        >
-          <FaEraser size={10} />
-        </button>
-        <button
-          onClick={handleSavePDF}
-          className="bg-yellow-500 text-white px-4 py-2 ml-1 rounded-md hover:bg-yellow-600 transition"
-          title="Salvar PDF"
-        >
-          <FaFilePdf size={10} />
-        </button>
+          <button
+            onClick={handleClearTranscription}
+            className="bg-blue-500 text-white px-4 py-2 ml-1 rounded-md hover:bg-blue-600 transition"
+            title="Limpar Transcrição"
+          >
+            <FaEraser size={10} />
+          </button>
+          <button
+            onClick={handleSavePDF}
+            className="bg-yellow-500 text-white px-4 py-2 ml-1 rounded-md hover:bg-yellow-600 transition"
+            title="Salvar PDF"
+          >
+            <FaFilePdf size={10} />
+          </button>
         </div>
         <button
           onClick={() => handleGetInsights(transcription)}
@@ -509,12 +511,12 @@ const saveMessage = async (transcript: string) => {
 
           </button>
         )}
-       
-      </div>
- *
 
- 
-      
+      </div>
+      *
+
+
+
     </div>
   );
 }

@@ -39,7 +39,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ data: prePsicologos }, { status: 200 });
   } catch (error) {
-    console.error("Erro ao buscar pré-psicólogos:", error);
     return NextResponse.json({ error: "Erro interno do servidor!" }, { status: 500 });
   }
 }
@@ -63,9 +62,9 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone,lastname } = body;
+    const { cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone, lastname } = body;
 
-    if (!cpf || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone||!lastname) {
+    if (!cpf || !crp || !nome || !rg || !email || !data_nasc || !celular || !telefone || !lastname) {
       return NextResponse.json({ error: "Todos os campos são obrigatórios!" }, { status: 400 });
     }
     const newPrePsicologo = await prisma.prePsicologo.create({
@@ -81,20 +80,17 @@ export async function POST(req: Request) {
         celular,
         telefone,
         //habilitado define que o psicologo ainda não foi habilitado no sistema
-       habilitado:false
+        habilitado: false
       },
     });
     //retorno caso sucesso
     return NextResponse.json({ message: "Pré-cadastro realizado com sucesso!", data: newPrePsicologo }, { status: 201 });
 
   } catch (error: any) {
-    console.error("Erro ao cadastrar:", error);
-
     // Tratamento para erro de duplicação de CPF ou CFP
     if (error.code === "P2002") {
       return NextResponse.json({ error: "CPF ou CFP já cadastrado!" }, { status: 409 });
     }
-
     return NextResponse.json({ error: "Erro interno do servidor!" }, { status: 500 });
   }
 }
@@ -136,7 +132,6 @@ async function notificar(email: string, nome: string, email_system: string, senh
   try {
     const info = await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Erro ao enviar e-mail:', error);
   }
 }
 
@@ -170,7 +165,7 @@ function gerarSenhaAleatoria(tamanho: number = 8): string {
  */
 async function efetivarPsicologo(nome: string, lastname: string, email_confirm: string, cpf: string, cfp: string, crp: string, telefone: string, celular: string, data_nasc: string) {
   let cname = `${nome.replace(/\s+/g, "")}.${lastname.replace(/\s+/g, "")}`
-  cname= cname.toLowerCase()
+  cname = cname.toLowerCase()
   const senha = gerarSenhaAleatoria().toLowerCase()
   const hashedPassword = await bcrypt.hash(senha, 10);
 
@@ -182,9 +177,6 @@ async function efetivarPsicologo(nome: string, lastname: string, email_confirm: 
  * @param {string} data - Data de nascimento no formato "mm/dd/aaaa" ou "aaaa-mm-dd".
  * @returns {number} - Retorna a idade em anos completos.
  * 
- * @example
- * const idade = calcularIdade("03/22/2000");
- * console.log(idade); // Saída: 25 (se o ano atual for 2025)
  */
   const defIdade = (data: string) => Math.floor((new Date().getTime() - new Date(data).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 
@@ -203,7 +195,7 @@ async function efetivarPsicologo(nome: string, lastname: string, email_confirm: 
       celular: celular,
       idade: String(defIdade(data_nasc)), //passamos a idade para o objeto a ser salvo
       first_acess: true, //primeiro acesso definido
-    
+
 
     }
   });
@@ -231,7 +223,7 @@ async function efetivarPsicologo(nome: string, lastname: string, email_confirm: 
     await notificar(email_confirm, nome, psicologo.email, senha)
     return data;
   } catch (error) {
-    console.error('Erro ao tentar confirmar cadastro do psicólogo:', error);
+
     throw error;
   }
 }
@@ -288,7 +280,7 @@ export async function PUT(req: Request) {
       updatedPsicologo.telefone,
       updatedPsicologo.celular,
       updatedPsicologo.data_nasc,
-    
+
     );
 
     // Retorna todos os dados disponíveis do psicólogo após habilitação
@@ -298,7 +290,7 @@ export async function PUT(req: Request) {
     }, { status: 200 });
 
   } catch (error: any) {
-    console.error("Erro ao habilitar psicólogo:", error);
+
     return NextResponse.json({ error: "Erro interno do servidor!" }, { status: 500 });
   }
 }

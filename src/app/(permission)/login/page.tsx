@@ -99,11 +99,14 @@ export default function LoginPage() {
     
 
       if (result?.error) {
-        
+
+        //experimental
+        showErrorMessage(result?.error);
+        setPassword('')
+        setEmail("");
+        console.log('erro na pagina de login')
         throw new Error(result.error);
       
-      }else{
-        alert("erro");
       }
 
       // Se não houver erro, o usuário será redirecionado automaticamente pelo NextAuth

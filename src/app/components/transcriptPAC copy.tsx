@@ -15,6 +15,7 @@ import jsPDF from "jspdf";
 import { FaBrain, FaEraser, FaFilePdf, FaStop } from "react-icons/fa";
 import { RiPlayList2Fill } from "react-icons/ri";
 import { useParams } from "next/navigation";
+import { showErrorMessage } from "../util/messages";
 
 
 /**
@@ -264,11 +265,11 @@ const saveMessage = async (transcript: string) => {
  * 
  * - Verifica se a instância de reconhecimento está disponível.
  * - Se disponível, inicia a escuta e atualiza o estado `listening` para `true`.
- * - Caso contrário, exibe um erro no console.
+ * - Caso contrário, exibe um erro
  */
   const handleStartListening = () => {
     if (!recognition) {
-      console.error("Reconhecimento de voz não foi inicializado corretamente.");
+      showErrorMessage("Reconhecimento de voz não foi inicializado corretamente.");
       return;
     }
     setListening(true);
@@ -383,14 +384,13 @@ const saveMessage = async (transcript: string) => {
       }
   
       const data = await response.json();
-      console.log("Resposta completa da API:", data); // <-- Adicionando para depuração
         const respostaGPT = data.response || "Nenhuma resposta gerada.";
         setAnalise(respostaGPT);
         return respostaGPT;
     
   
     } catch (error) {
-      console.error("Erro ao buscar insights:", error);
+      showErrorMessage("Erro ao buscar insights: " + error);
       return "Erro ao obter resposta.";
     }
   };

@@ -205,7 +205,7 @@ export default function AgendamentoPage() {
   * 
   * Faz uma requisição GET para a rota "/api/gen-meet".
   * Em caso de sucesso, atualiza o estado `agendamentos` com os dados retornados.
-  * Em caso de erro, exibe mensagens no console.
+  * Em caso de erro, exibe erro
   */
   const buscarAgendamentos = async () => {
 
@@ -213,18 +213,17 @@ export default function AgendamentoPage() {
       const response = await fetch(`/api/internal/gen-meet/?id=${psicologo}`);
       if (response.ok) {
         const data = await response.json();
-        //console.log("Dados recebidos:", data); // Verifique os dados aqui
         setBuscando(false)
         setAgendamentos(data);
 
         setLoading(false)
 
       } else {
-        console.error("Erro ao buscar agendamentos");
+       showErrorMessage("Erro ao buscar agendamentos");
 
       }
     } catch (error) {
-      console.error("Erro de conexão", error);
+      showErrorMessage("Erro de conexão" + error);
 
     }
   };
@@ -327,7 +326,6 @@ export default function AgendamentoPage() {
 
   //função ainda será definida
   const handleDayClick = (dia: number) => {
-    // Exemplo: você pode usar o console ou redirecionar para uma página com os detalhes desse dia.
     showInfoMessage(`Abrindo consultas para o dia ${dia}`);
   };
 
@@ -367,7 +365,7 @@ export default function AgendamentoPage() {
         const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
         window.open(url, '_blank');
       }).catch(err => {
-        console.error('Erro ao copiar a mensagem: ', err);
+        showErrorMessage('Erro ao copiar a mensagem: ', err);
       });
     }
   };
@@ -402,18 +400,16 @@ export default function AgendamentoPage() {
     const agendamentoTimestamp = new Date(dataHoraStr).getTime();
 
     if (isNaN(agendamentoTimestamp)) {
-      console.warn(`Data/hora inválida no agendamento ${ag.id}: ${ag.data} ${ag.hora}`);
+      showErrorMessage(`Data/hora inválida no agendamento ${ag.id}: ${ag.data} ${ag.hora}`);
       return false;
     }
 
     // Converte a duração (em minutos) para milissegundos e soma ao timestamp do início da reunião
     const duracaoMs = (Number(ag.duracao) || 1) * 60 * 1000; // default: 60 min se não houver valor
-    console.log(duracaoMs)
     const fimAgendamento = agendamentoTimestamp + duracaoMs;
 
     // Verifica se o momento atual já ultrapassou o fim da reunião
     if (fimAgendamento <= agora && ag.id !== 'fake-id') {
-      console.log(`Agendamento expirado: ${ag.id}`);
       return true;
     } else {
       return false;

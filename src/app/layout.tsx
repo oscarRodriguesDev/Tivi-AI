@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   keywords:
     `inteligência artificial, reuniões, transcrição automática,
      agendamento inteligente, produtividade, assistente virtual,psicologia,psicologos,
-     nr1,saudeocupacional, saúde emocional,chat gpt, agente de ia, `,
+     nr1,saudeocupacional, saúde emocional,chat gpt, agente de ia `,
   robots: "index, follow",
   openGraph: {
     title: "Tivi AI - Revolucione Suas Reuniões",

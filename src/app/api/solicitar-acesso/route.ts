@@ -68,7 +68,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "Pré-cadastro realizado com sucesso!", data: newPrePsicologo }, { status: 201 });
 
   } catch (error: any) {
-    console.error("Erro ao cadastrar:", error);
 
     // Tratamento para erro de duplicação de CPF ou CFP
     if (error.code === "P2002") {

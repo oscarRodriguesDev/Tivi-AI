@@ -38,7 +38,7 @@ const ModalConsent: React.FC<ModalConsentProps> = ({ show, onConsent, userData }
           cpf: userData.cpf
         });
       })
-      .catch(error => console.error('Erro ao obter IP:', error));
+      .catch(error =>  showErrorMessage('Erro ao obter IP: ' + error));
   }, [userData]);
 
   const handleClose = () => {
@@ -62,7 +62,6 @@ const ModalConsent: React.FC<ModalConsentProps> = ({ show, onConsent, userData }
         showErrorMessage('Erro ao salvar consentimento' );
       }
     } catch (error) {
-      console.error('Erro:', error);
       /* nesse caso tenho que verificar no sistema se o cpf está la para dar tratativa */
       showErrorMessage("Erro ao salvar consentimento, talvez você ja tenha usado esse cpf");
     }

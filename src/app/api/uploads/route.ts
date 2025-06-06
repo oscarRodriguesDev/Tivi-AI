@@ -40,11 +40,9 @@ async function uploadFile(file: File, path: string) {
     });
 
   if (error) {
-    console.error('Erro no upload:', error);
     return null;
   }
 
-  console.log('Arquivo enviado com sucesso:', data);
 
   const { data: publicUrl } = supabase
     .storage
@@ -82,7 +80,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: 'Upload realizado com sucesso!', url: fileUrl });
   } catch (err) {
-    console.error('Erro inesperado:' ,err);
     return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
   }
 }
@@ -121,7 +118,6 @@ export async function GET(req: Request) {
       .getPublicUrl(path);
 
     if ( !publicUrlData?.publicUrl) {
-      console.error("Erro ao gerar URL pública:");
       return NextResponse.json({ error: "Erro ao obter URL da imagem" }, { status: 500 });
     }
 

@@ -77,7 +77,6 @@ const MeusAtendimentos = () => {
   const abrirModal = (paciente: any) => {
 
     setPacienteSelecionado(paciente)
-    console.log(paciente)
     setIsModalOpen(true)
 
   }
@@ -157,7 +156,7 @@ const MeusAtendimentos = () => {
         const data = await response.json()
         setPacientes(data)
       } catch (error) {
-        console.error('Erro:', error)
+        showErrorMessage(`Erro ao buscar paciente`)
       } finally {
         setLoading(false)
       }

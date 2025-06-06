@@ -35,13 +35,13 @@ export async function GET(req: Request) {
         cep: true,
         bairro: true,
         numero: true,
-        pais: true, 
+        pais: true,
         complemento: true,
         email: true,
-        rg: true, 
+        rg: true,
         sintomas: true,
-        rua: true,  
-        
+        rua: true,
+
 
       }
     });
@@ -59,12 +59,13 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body: Paciente = await req.json();
-    console.log("Body recebido:", body);
-    const { nome,fantasy_name, idade,sintomas, telefone,convenio, cpf, sexo,cep,cidade,bairro,rua,numero,pais,complemento,estado,email,rg,psicologoId} = body;
-   
+    const { nome, fantasy_name, idade, sintomas, telefone, convenio, cpf, 
+      sexo, cep, cidade, bairro, rua, numero, pais, complemento, estado, email, rg, psicologoId } = body;
+
 
     // Validação dos campos obrigatórios
-    if ( !nome || !fantasy_name  || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg ||!psicologoId) {
+    if (!nome || !fantasy_name || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep
+       || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg || !psicologoId) {
       return NextResponse.json(
         { error: "Todos os campos obrigatórios devem ser preenchidos" },
         { status: 400 }
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
         sintomas,           // Sintomas do paciente
         telefone,           // Telefone do paciente         // ID do psicólogo
         fantasy_name,
-        psicologoId,       
+        psicologoId,
         convenio,           // Convênio
         sexo,               // Sexo do paciente
         cep,                // CEP do paciente
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
         complemento,        // Complemento do endereço
         estado,             // Estado do paciente
         email,              // E-mail do paciente
-        rg       
+        rg
       },
     });
 
@@ -100,7 +101,7 @@ export async function POST(req: Request) {
       { message: "Paciente cadastrado com sucesso", data: novoPaciente },
       { status: 201 }
     );
-  } catch (error: any) {console.error("Erro interno ao cadastrar paciente:", error); // <-- aqui
+  } catch (error: any) {
     return NextResponse.json(
       { error: "Erro ao processar a requisição", details: error.message },
       { status: 500 }

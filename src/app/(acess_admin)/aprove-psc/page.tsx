@@ -6,7 +6,7 @@ import HeadPage from "@/app/protected-components/headPage";
 import { VscGitPullRequestGoToChanges } from "react-icons/vsc"; //connect
 import { VscDebugDisconnect } from "react-icons/vsc"; //disonect
 import { PiPlugsConnectedFill } from "react-icons/pi"; //connect
-import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
 
 
 
@@ -15,81 +15,88 @@ import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
 const ListaPsicologos = () => {
 
 
-  const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
-
-  const [psicologos, setPsicologos] = useState<Psicologo[]>([]);  // Estado para armazenar psicólogos
-  const [loading, setLoading] = useState<boolean>(true);  // Estado de carregamento
-  const [error, setError] = useState<string | null>(null);  // Estado para armazenar erros
-  const [habilitado, setHabilitado] = useState<boolean>(false);
-
-  // Função que vai buscar os psicólogos na API
-  useEffect(() => {
-    const fetchPsicologos = async () => {
-      try {
-
-        const response = await fetch("/api/internal/analize_psco"); // Rota GET para buscar psicólogos
-
-        if (!response.ok) {
-          throw new Error("Erro ao buscar psicólogos.");
-        }
-
-        const data = await response.json();
+  const { role, hasRole } = useAccessControl(); 
+  const [psicologos, setPsicologos] = useState<Psicologo[]>([]); 
+  const [loading, setLoading] = useState<boolean>(true); 
+  const [error, setError] = useState<string | null>(null);
+  const [isAtivo, setAtivo] = useState<boolean>(false);
 
 
-        // Verificando se os dados retornados são um array e atualizando o estado
-        if (Array.isArray(data.data)) {
-          setPsicologos(data.data);
-          //setHabilitado(data.data.first_acess); // enteder essa linha posteriormente
-
-        } else {
-          setError("Erro: Dados recebidos não são válidos.");
-        }
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Erro desconhecido.");
-      } finally {
-        setLoading(false);  // Após a requisição, setar o carregamento como false
-      }
-    };
-
-    fetchPsicologos();
-  }, []);  // A dependência vazia garante que a requisição seja feita uma vez na montagem do componente
 
 
-  //habilitando o psicologo
-  const habilitarPsicologo = async (cpf: string) => {
+
+
+  /**
+ * Busca a lista de psicólogos disponíveis no endpoint interno.
+ * Define os estados de loading, error e psicólogos.
+ * 
+ * @returns {Promise<void>} - Função assíncrona sem retorno direto.
+ */
+  const fetchPsychologists = async () => {
     try {
-      // Envia uma requisição PUT para a API, passando o CPF no corpo da requisição
-      const response = await fetch('/api/internal/analize_psco', {
-        method: 'PUT', // Método de requisição PUT
-        headers: {
-          'Content-Type': 'application/json', // Definir o tipo de conteúdo como JSON
-        },
-        body: JSON.stringify({ cpf }), // Envia o CPF como parte do corpo da requisição
-      });
+      const response = await fetch("/api/internal/analize_psco");
 
-      // Verifica se a resposta da requisição foi bem-sucedida
-
-      if (response.ok) {
-        const data = await response.json(); // A resposta será convertida para JSON
-        console.log('Psicólogo habilitado com sucesso', data);
-
-        showSuccessMessage(data.message || 'Psicólogo habilitado com sucesso');
-      } else {
-        const errorData = await response.json();
-        console.error('Erro ao habilitar psicólogo:', errorData);
-        showErrorMessage(errorData.error || 'Erro ao habilitar psicólogo');
+      if (!response.ok) {
+        throw new Error("Erro ao buscar psicólogos.");
       }
-    } catch (error) {
-      console.error('Erro na requisição:', error);
-      showErrorMessage('Erro ao conectar com o servidor');
+
+      const { data } = await response.json();
+
+      if (Array.isArray(data)) {
+        setPsicologos(data);
+      } else {
+        setError("Erro: dados recebidos estão em formato inválido.");
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro desconhecido.";
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
 
-  // Função para "Rejeitar Cadastro" (exemplo de implementação)
-  const rejeitarCadastro = (id: string) => {
-    alert(`Rejeitar cadastro do psicólogo com ID: ${id}`);
-    //enviar email informando o motivo da rejeição
+  /**
+   * useEffect busca os cadastros no banco de dados
+   */
+  useEffect(() => {
+    fetchPsychologists();
+  }, []);
+  
+
+
+ /**
+  * Ativa o psicologo no sistema
+  * @param cpf
+  */
+  const ativarPsicologo = async (cpf: string) => {
+    try {
+      const response = await fetch('/api/internal/analize_psco', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cpf }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        showSuccessMessage(data.message || 'Psicólogo habilitado com sucesso');
+      } else {
+        const errorData = await response.json();
+        showErrorMessage(errorData.error || 'Erro ao habilitar psicólogo');
+      }
+    } catch (error) {
+      showErrorMessage('Erro ao conectar com o servidor');
+    }
+  };
+  
+
+
+   
+  const rejeitarPisicologo = (id: string) => {
+    showInfoMessage(`um email informando a rejeição e informando o que deve ser feito: ${id}`);
+   
   };
 
   return (
@@ -132,8 +139,8 @@ const ListaPsicologos = () => {
                     <td className="border p-2 flex ">
                       <td className=" p-0 flex  w-full justify-between">
 
-                        <button onClick={() => setHabilitado(!habilitado)}>
-                          {habilitado ? (
+                        <button onClick={() => setAtivo(!isAtivo)}>
+                          {isAtivo ? (
                             <PiPlugsConnectedFill color="green" size={25} />
 
                           ) : (
@@ -141,9 +148,9 @@ const ListaPsicologos = () => {
                           )}
                         </button>
                         <button
-                          onClick={() => habilitarPsicologo(psicologo.cpf || '')}
-                          disabled={!habilitado}
-                          className={`px-3 py-0 text-[12px]  rounded text-white font-semibold transition-all duration-200 ${habilitado
+                          onClick={() => ativarPsicologo(psicologo.cpf || '')}
+                          disabled={!isAtivo}
+                          className={`px-3 py-0 text-[12px]  rounded text-white font-semibold transition-all duration-200 ${isAtivo
                               ? 'bg-green-500 hover:bg-green-600 cursor-pointer'
                               : 'bg-gray-300 cursor-not-allowed opacity-60'
                             }`}
@@ -151,9 +158,9 @@ const ListaPsicologos = () => {
                           Save
                         </button>
                         <button
-                          onClick={() => habilitarPsicologo(psicologo.cpf || '')}
-                          disabled={!habilitado}
-                          className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${habilitado
+                          onClick={() => ativarPsicologo(psicologo.cpf || '')}
+                          disabled={!isAtivo}
+                          className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${isAtivo
                               ?  'bg-gray-300 cursor-not-allowed opacity-60 '
                               : 'bg-red-500 hover:bg-red-600  cursor-pointer'
                             }`}

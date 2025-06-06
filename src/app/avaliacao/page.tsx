@@ -23,7 +23,6 @@ export default function AvaliacaoReuniao() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setAvaliado(true)
-    console.log("Avaliação enviada:", avaliacao);
     showSuccessMessage("Obrigado Por avaliar, até breve !!!");
   };
 

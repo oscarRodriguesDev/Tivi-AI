@@ -2,6 +2,7 @@
 import { useState } from "react";
 import HeadPage from "@/app/protected-components/headPage";
 import { FaRegCreditCard, FaUserCheck } from "react-icons/fa";
+import { showErrorMessage, showSuccessMessage } from "../util/messages";
 //import { useAccessControl } from "@/app/context/AcessControl";
 
 export default function CadastroAdmin() {
@@ -44,7 +45,7 @@ export default function CadastroAdmin() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Usuário cadastrado com sucesso!");
+        showSuccessMessage("Usuário cadastrado com sucesso!");
         setFormData({
           name: "",
           email: "",
@@ -53,10 +54,10 @@ export default function CadastroAdmin() {
           role: "ADMIN", // Resetando a role para o valor padrão
         });
       } else {
-        alert(`Erro: ${data.message}`);
+        showErrorMessage(`Erro: ${data.message}`);
       }
     } catch (error) {
-      alert("Erro ao cadastrar usuário.");
+      showErrorMessage("Erro ao cadastrar usuário.");
     } finally {
       setLoading(false);
     }

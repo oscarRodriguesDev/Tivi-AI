@@ -1,5 +1,6 @@
 'use client'
 
+import { showErrorMessage, showInfoMessage } from "@/app/util/messages";
 import { ReactEventHandler, useState } from "react";
 
 const RecuperarSenha = () => {
@@ -12,7 +13,7 @@ async function solicitarAcesso(email: string) {
   try {
     // Verificar se o e-mail não está vazio
     if (!email) {
-      alert("Por favor, forneça um e-mail válido.");
+      showErrorMessage("Por favor, forneça um e-mail válido.");
       return;
     }
 
@@ -28,14 +29,14 @@ async function solicitarAcesso(email: string) {
     // Verificar se a resposta foi bem-sucedida
     if (response.ok) {
       // Sucesso: exibir uma mensagem ao usuário
-      alert('Se o e-mail for válido, você receberá uma nova senha em breve.');
+      showInfoMessage('Se o e-mail for válido, você receberá uma nova senha em breve.');
     } else {
       // Se o email não for encontrado, nada será mostrado
       // Então não informamos nada ao usuário (comportamento esperado)
     }
   } catch (error) {
    
-    alert("Ocorreu um erro ao tentar recuperar sua senha. Tente novamente mais tarde.");
+    showErrorMessage("Ocorreu um erro ao tentar recuperar sua senha. Tente novamente mais tarde.");
   }
 }
 

@@ -21,7 +21,6 @@ const authOptions: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         const host = req?.headers?.host || "localhost:3000";
-        console.log("Origem da requisição:", host);
 
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email e senha são obrigatórios.");

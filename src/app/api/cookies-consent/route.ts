@@ -45,7 +45,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(consent);
   } catch (error) {
-    console.error('Erro ao buscar consentimento:', error);
     return NextResponse.json(
       { error: 'Erro ao buscar consentimento' },
       { status: 500 }
@@ -75,7 +74,6 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erro ao deletar consentimento:', error);
     return NextResponse.json(
       { error: 'Erro ao deletar consentimento' },
       { status: 500 }
@@ -110,7 +108,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erro ao salvar consentimento:', error);
     return NextResponse.json(
       { error: 'Erro ao salvar consentimento' },
       { status: 500 }

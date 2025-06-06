@@ -17,6 +17,7 @@ import Peer, { MediaConnection } from "peerjs";
 import LiveTranscription from '../../components/transcriptPAC'
 import { Mic, MicOff, Video, VideoOff, LogOut, Router } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { showCustomMessage, showErrorMessage, showInfoMessage } from "@/app/util/messages";
 
 
 /**
@@ -239,74 +240,7 @@ export default function PublicCallPage() {
    * @dependency `iddinamico` - ID dinâmico extraído da URL, necessário para associar o `peerId` na API.
    */
 
-  /*   useEffect(() => {
-      if (!iddinamico) return; // Se não tem ID na URL, não faz nada
-  
-      const peer = new Peer(); // Cria um novo peer
-      peerRef.current = peer;
-  
-      peer.on("open", async (id) => {
-        setPeerId(id); // Define o ID do Peer
-  
-        try {
-          // Envia o ID gerado para a API
-          await fetch(`/api/save_peer?iddinamico=${iddinamico}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ iddinamico, peerId: id }),
-          });
-        } catch (error) {
-          console.error("Erro ao enviar peerId para a API:", error);
-        }
-      });
-  
-  
-     
-  
-      peer.on("call", (call) => {
-        // Primeiro tenta com vídeo e áudio
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-          .catch((error) => {
-            console.warn("Vídeo bloqueado, tentando somente áudio:", error);
-            return navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-          })
-          .then((stream) => {
-            if (!stream) {
-              throw new Error("Sem acesso ao microfone e câmera");
-            }
-      
-            if (videoRef.current && stream.getVideoTracks().length > 0) {
-              videoRef.current.srcObject = stream;
-            }
-      
-            call.answer(stream);
-            setCallActive(true);
-            currentCall.current = call;
-            monitorMicrophone(stream);
-            setMsg('Transcrevendo Chamada...');
-      
-            call.on("stream", (remoteStream) => {
-              if (remoteVideoRef.current && remoteStream.getVideoTracks().length > 0) {
-                remoteVideoRef.current.srcObject = remoteStream;
-              }
-              if (remoteAudioRef.current) {
-                remoteAudioRef.current.srcObject = remoteStream;
-                remoteAudioRef.current.play();
-              }
-            });
-      
-            call.on("close", () => endCall());
-          })
-          .catch((finalError) => {
-            console.error("Erro total ao acessar mídia:", finalError);
-            alert("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
-          });
-      });
-      
-      return () => peer.destroy(); // Limpa o peer ao desmontar
-    }, []); */
-
-
+ 
 
 
   //envia o peer id para o usuario informando que esta online e pronto para a chamada
@@ -329,14 +263,14 @@ export default function PublicCallPage() {
         });
         setTextButton('Aguardando psicólogo...')
       } catch (error) {
-        console.error("Erro ao enviar peerId para a API:", error);
+        showErrorMessage("Erro ao enviar peerId para a API:" + error);
       }
     });
     peer.on("call", (call) => {
       // Primeiro tenta com vídeo e áudio
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .catch((error) => {
-          console.warn("Vídeo bloqueado, tentando somente áudio:", error);
+          showErrorMessage("Vídeo bloqueado, tentando somente áudio:" +  error);
           return navigator.mediaDevices.getUserMedia({ video: false, audio: true });
         })
         .then((stream) => {
@@ -367,8 +301,8 @@ export default function PublicCallPage() {
           call.on("close", () => endCall());
         })
         .catch((finalError) => {
-          console.error("Erro total ao acessar mídia:", finalError);
-          alert("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
+      
+          showErrorMessage("Não foi possível acessar o microfone. Verifique as permissões do navegador." + finalError);
         });
     });
 
@@ -425,7 +359,7 @@ export default function PublicCallPage() {
 
   useEffect(() => {
     if (!hasShownAlert) {
-      alert('Por favor, aguarde o psicólogo entrar na sala. Não saia desta página ou você poderá perder a conexão.');
+      showInfoMessage('Por favor, aguarde o psicólogo entrar na sala. Não saia desta página ou você poderá perder a conexão.');
       setHasShownAlert(true);
     }
   }, [hasShownAlert]);

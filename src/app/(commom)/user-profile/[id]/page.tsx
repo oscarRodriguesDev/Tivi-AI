@@ -10,6 +10,7 @@ import AlteracaoSenha from "@/app/protected-components/trocar_senha";
 import { Psicologo } from "../../../../../types/psicologos";
 import LoadingNoHidration from "@/app/protected-components/noHidration";
 import { useAccessControl } from "@/app/context/AcessControl";
+import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
 
 
 
@@ -60,11 +61,10 @@ const Perfil = () => {
                 throw new Error("Erro ao buscar dados do usuário");
             }
             const data = await res.json();
-            console.log("Dados recebidos:", data);
             setPsicologo(data);
             setFormData(data);
         } catch (error) {
-            alert(`Erro ao buscar dados do psicólogo:${error}`);
+            showErrorMessage(`Erro ao buscar dados do psicólogo:${error}`);
         }
     }
 
@@ -138,7 +138,7 @@ const Perfil = () => {
      *
      * @async
      * @function handleUpdate
-     * @returns {Promise<void>} Retorna uma promessa que não resolve com valor, apenas executa a atualização e exibe os alertas correspondentes.
+     * @returns {Promise<void>} Retorna uma promessa que não resolve com valor, apenas executa a atualização e exibe  correspondentes.
      */
     const handleUpdate = async () => {
         if (!formData) return;
@@ -160,16 +160,16 @@ const Perfil = () => {
 
             const updatedUser = await res.json();
             setPsicologo(updatedUser);
-            alert("Perfil atualizado com sucesso!");
+            showSuccessMessage("Perfil atualizado com sucesso!");
         } catch (error) {
-            alert("Falha ao atualizar perfil. Tente novamente.");
+            showErrorMessage("Falha ao atualizar perfil. Tente novamente.");
         }
     };
 
     /**
      * Função responsável por lidar com a alteração do arquivo de imagem (foto de perfil).
      * Realiza o upload do arquivo para o servidor e atualiza a URL da foto de perfil no estado do formulário.
-     * Exibe um alerta caso ocorra algum erro durante o upload.
+     * Exibe um aviso caso ocorra algum erro durante o upload.
      *
      * @async
      * @function handleProfilePictures
@@ -195,14 +195,14 @@ const Perfil = () => {
             }
 
             const data = await res.json();
-            alert("Foto de perfil atualizada!");
+            showSuccessMessage("Foto de perfil atualizada!");
 
             // Atualiza com a URL correta
             setFormData((prevFormData) =>
                 prevFormData ? { ...prevFormData, photoprofile: data.url } : null
             );
         } catch (error) {
-            alert("Erro ao enviar a foto. Tente novamente.");
+            showErrorMessage("Erro ao enviar a foto. Tente novamente.");
         }
     };
 
@@ -229,14 +229,14 @@ const Perfil = () => {
             }
 
             const data = await res.json();
-            alert("Banner atualizado!");
+            showSuccessMessage("Banner atualizado!");
 
             // Atualiza com a URL correta
             setFormData((prevFormData) =>
                 prevFormData ? { ...prevFormData, banner: data.url } : null
             );
         } catch (error) {
-            alert("Erro ao enviar o banner. Tente novamente.");
+            showErrorMessage("Erro ao enviar o banner. Tente novamente.");
         }
     };
 
@@ -492,9 +492,7 @@ const Perfil = () => {
                                         value="Trocar senha"
                                         className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
                                         onClick={() => {
-                                            setAlterar(!alterar);
-                                            alert(alterar);
-
+                                            setAlterar(!alterar)
                                         }}
                                     />
                                 </>
