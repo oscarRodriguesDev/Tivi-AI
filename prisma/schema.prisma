@@ -74,7 +74,7 @@ model PrePsicologo {
 model Paciente {
    id             String @id @default(uuid())//psc
    nome           String? 
-   cpf            String @unique
+   cpf            String 
    fantasy_name   String?
    idade          String?
    sintomas       String?
@@ -113,16 +113,16 @@ model Consulta{
 // registro do consentimento do usuário
 model Consents_Agreements{
    id             String @id @default(uuid()) //id do termos de dados        
-   ipNumber       String @unique
+   ipNumber       String 
    data_consent   String
    hora_consent   String 
    nome_consent   String
-   cpf_consent    String  @unique
+   cpf_consent    String  
 }
 
 model cookies_consent{
   id              String @id @default(uuid()) //id do consentimento de cookies   
-  ipNumber        String @unique
+  ipNumber        String 
   data            String
   Hora            String
   permissão       Boolean

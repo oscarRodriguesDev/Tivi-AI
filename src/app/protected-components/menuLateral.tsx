@@ -46,7 +46,7 @@ const Menu: React.FC = () => {
         <MenuItem icon={<BsCalendarCheckFill size={25} />} label="Meus atendimentos" onClick={() => router.push(`/atendimentos/${id}`)} />
         <MenuItem icon={<FaSadTear size={25} />} label="Meus Pacientes" onClick={() => router.push(`/meus-pacientes/${id}`)} />
         <MenuItem icon={<LuLibraryBig size={25} />} label="Base Científica" onClick={() => router.push(`/cientific/${id}`)} />
-        <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push(`/finance/${id}`)} />
+       {/*  <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push(`/finance/${id}`)} /> */}
         <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push(`/credit/${id}`)} />
         <MenuItem icon={<PiUserCheckFill size={25} />} label="Novos psicologos" onClick={() => router.push('/aprove-psc')} />
         <MenuItem icon={<GrUserAdmin size={25} />} label="Novo Administrador" onClick={() => router.push('/novo_admin')} />

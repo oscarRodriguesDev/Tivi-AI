@@ -11,7 +11,6 @@ import { showErrorMessage } from "../util/messages";
 const CardUser = () => {
 
   const [id, setId] = useState<string | null>('')
-
   const { data: session, status } = useSession(); // Obtém os dados da sessão
   const [cardOpen, setCardOpen] = useState(false);
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);

@@ -109,22 +109,22 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-600 hover:text-tivi-primary transition-colors">
+                <a href="/terms-policies" className="text-gray-600 hover:text-tivi-primary transition-colors">
                   Termos de Uso
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-tivi-primary transition-colors">
+                <a href="/terms-policies" className="text-gray-600 hover:text-tivi-primary transition-colors">
                   Política de Privacidade
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-tivi-primary transition-colors">
+                <a href="/terms-policies" className="text-gray-600 hover:text-tivi-primary transition-colors">
                   Conformidade LGPD
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-tivi-primary transition-colors">
+                <a href="cookies-policies" className="text-gray-600 hover:text-tivi-primary transition-colors">
                   Cookies
                 </a>
               </li>
@@ -132,8 +132,7 @@ export default function Footer() {
           </div>
 
           <div>
-            {/* Endereço: Av. Eldes Scherrer Souza, 975 - Parque Res. Laranjeiras, Serra - ES, 29167-080
- */}
+   
             <h3 className="text-lg font-semibold mb-4">Contato</h3>
             <address className="not-italic text-gray-600">
               <p>Av. Eldes Scherrer Souza, 975 - Parque Res. Laranjeiras</p>

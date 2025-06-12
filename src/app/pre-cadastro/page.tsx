@@ -131,7 +131,11 @@ const Cadastro = () => {
 
     const [dados, setDados] = useState({})
 
+    const [invalid, setInvalid] = useState<string>('')
+
     const router = useRouter()
+
+
 
 
     /**
@@ -247,9 +251,9 @@ const Cadastro = () => {
 
                 }
             } catch (error) {
-                showErrorMessage("Erro no envio de dados: "+ error);
+                showErrorMessage("Erro no envio de dados: " + error);
             } finally {
-               showInfoMessage("Processo finalizado!");
+                showInfoMessage("Processo finalizado!");
             }
         }
     };
@@ -313,12 +317,13 @@ const Cadastro = () => {
    */
 
     function validacpf() {
-        const cpf_format = (cpf: string) => cpf.replace(/[0-9.-]/g, '');
+        const cpf_format = (cpf: string) => cpf.replace(/[.-0-9]/g, '');
         // Exemplo de uso:
         setCPF(cpf_format)
         try {
-            const cpfLimpo = validarCPF(cpf);
+            const cpfLimpo = validarCPF(invalid);
             setCPF(cpfLimpo)
+            setInvalid(cpfLimpo)
         } catch (error) {
             if (error) {
                 showErrorMessage('Cpf invalido!')
@@ -404,10 +409,10 @@ const Cadastro = () => {
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  CPF:</label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     className="border border-gray-300 rounded p-1"
-                                    onChange={(e) => setCPF(e.target.value)}
-                                    value={cpf}
+                                    onChange={(e) => setInvalid(e.target.value)}
+                                    value={invalid}
                                     onBlur={(e) => { validacpf() }}
                                     required
                                 />
@@ -418,31 +423,71 @@ const Cadastro = () => {
                                 <input
                                     type="text"
                                     className="border border-gray-300 rounded p-1"
-                                    onChange={(e) => setRG(e.target.value)}
-                                    required
+                                    onChange={(e) => {
+                                        const valorDigitado = e.target.value;
+                                        const rgFormatado = valorDigitado.replace(/[^\d.-]/g, ''); // Aceita apenas números, ponto e traço
+                                        setRG(rgFormatado);
+                                    }}
                                     value={rg}
+                                    required
                                 />
                             </div>
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">  Data de Nascimento:</label>
-                                <input type="date"
+                                <input
+                                    type="date"
                                     className="border border-gray-300 rounded p-1"
                                     onChange={(e) => setNasc(e.target.value)}
+                                    onBlur={(e) => {
+                                        const valor = e.target.value;
+                                        const dataNascimento = new Date(valor);
+                                        const hoje = new Date();
+
+                                        const idade = hoje.getFullYear() - dataNascimento.getFullYear();
+                                        const mes = hoje.getMonth() - dataNascimento.getMonth();
+                                        const dia = hoje.getDate() - dataNascimento.getDate();
+
+                                        const maiorDeIdade =
+                                            idade > 18 || (idade === 18 && (mes > 0 || (mes === 0 && dia >= 0)));
+
+                                        if (!maiorDeIdade) {
+                                            showErrorMessage("Você precisa ser maior de 18 anos.");
+                                            setNasc("");
+                                        }
+                                    }}
                                     value={nasc}
-                                    required />
+                                    required
+                                />
+
                             </div>
                             <div className="flex flex-col">
                                 <label className="text-sm font-medium">Registro CRP:</label>
-                                <input type="text"
-                                    title='Esse numero será verificado no portal do Conselho Regional de Psicologia'
+                                <input
+                                    type="text"
+                                    title="Esse número será verificado no portal do Conselho Regional de Psicologia"
                                     className="border border-gray-300 rounded p-1"
                                     onChange={(e) => {
-                                        setCRP(e.target.value)
-                                        setCFP(e.target.value)
+                                        let valor = e.target.value;
+
+                                        // Remove tudo que não é número
+                                        valor = valor.replace(/[^\d]/g, '');
+
+                                        if (valor.length > 2) {
+                                            // Insere a barra automaticamente antes do terceiro dígito
+                                            valor = valor.slice(0, 2) + '/' + valor.slice(2, 7); // Máximo 5 depois da barra
+                                        }
+
+                                        setCRP(valor);
+                                        setCFP(valor);
                                     }}
                                     value={crp}
                                     required
                                 />
+
+
+
+
+
                             </div>
 
                             <div className="flex flex-col">
@@ -459,11 +504,22 @@ const Cadastro = () => {
                                     <label className="text-sm font-medium">  E-mail:</label>
                                     <input
                                         type="email"
-                                        className="border border-gray-300 rounded p-1"
+                                        className="border border-gray-300 rounded p-1 w-full"
                                         onChange={(e) => setEmail(e.target.value)}
+                                        onBlur={(e) => {
+                                            const valor = e.target.value;
+                                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                                            if (!emailRegex.test(valor)) {
+                                                showErrorMessage("Email inválido! Por favor, insira um email válido.");
+                                                setEmail("");
+                                            }
+                                        }}
                                         value={email}
                                         required
                                     />
+
+
                                 </div>
                             </div>
 
@@ -496,11 +552,38 @@ const Cadastro = () => {
                                         type="text"
                                         className="border w-full border-gray-300 rounded p-1"
                                         onChange={(e) => {
-                                            setTelefone(e.target.value);
+                                            let valor = e.target.value;
+
+                                            // Remove tudo que não for número
+                                            valor = valor.replace(/\D/g, '');
+
+                                            // Formata o telefone
+                                            if (valor.length > 10) {
+                                                // Celular com 9 dígitos (XX) XXXXX-XXXX
+                                                valor = valor.replace(
+                                                    /(\d{2})(\d{5})(\d{4}).*/,
+                                                    '($1) $2-$3'
+                                                );
+                                            } else if (valor.length > 6) {
+                                                // Telefone fixo com 8 dígitos (XX) XXXX-XXXX
+                                                valor = valor.replace(
+                                                    /(\d{2})(\d{4})(\d{0,4}).*/,
+                                                    '($1) $2-$3'
+                                                );
+                                            } else if (valor.length > 2) {
+                                                // Só DDD e começo do número
+                                                valor = valor.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+                                            } else if (valor.length > 0) {
+                                                // Só DDD parcial
+                                                valor = valor.replace(/(\d{0,2})/, '($1');
+                                            }
+
+                                            setTelefone(valor);
                                         }}
                                         value={telefone}
                                         required
                                     />
+
                                 </div>
 
                             </div>
@@ -528,16 +611,40 @@ const Cadastro = () => {
                                         {/* Adicione mais DDI conforme necessário */}
                                     </select>
 
-
                                     <input
                                         type="text"
                                         className="border w-full border-gray-300 rounded p-1"
                                         onChange={(e) => {
-                                            setCelular(e.target.value);
+                                            let valor = e.target.value;
+
+                                            // Remove tudo que não for número
+                                            valor = valor.replace(/\D/g, '');
+
+                                            if (valor.length > 10) {
+                                                // Celular com 9 dígitos (XX) XXXXX-XXXX
+                                                valor = valor.replace(
+                                                    /(\d{2})(\d{5})(\d{4}).*/,
+                                                    '($1) $2-$3'
+                                                );
+                                            } else if (valor.length > 6) {
+                                                // Telefone fixo com 8 dígitos (XX) XXXX-XXXX
+                                                valor = valor.replace(
+                                                    /(\d{2})(\d{4})(\d{0,4}).*/,
+                                                    '($1) $2-$3'
+                                                );
+                                            } else if (valor.length > 2) {
+                                                // Só DDD e começo do número
+                                                valor = valor.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+                                            } else if (valor.length > 0) {
+                                                // Só DDD parcial
+                                                valor = valor.replace(/(\d{0,2})/, '($1');
+                                            }
+
+                                            setCelular(valor);
                                         }}
                                         value={celular}
-                                        required
                                     />
+
                                 </div>
 
                             </div>

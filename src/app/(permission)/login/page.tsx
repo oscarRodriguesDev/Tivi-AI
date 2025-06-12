@@ -40,7 +40,8 @@ import Image from "next/image";
 import Logo from '../../../../public/marca/logo.png'
 import Link from "next/link";
 import { KeyboardEvent } from 'react';
-import { showErrorMessage } from "@/app/util/messages";
+import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
+
 
 
 
@@ -70,6 +71,7 @@ export default function LoginPage() {
   const session = useSession()
   const [showPassword, setShowPassword] = useState(false);
   const [aviso, setAviso] = useState('')
+  
 
  
 
@@ -95,7 +97,7 @@ export default function LoginPage() {
     
 
     try {
-      const result = await signIn("credentials", { email, password, callbackUrl: `/common-page`, redirect: true });
+      const result = await signIn("credentials", { email, password, callbackUrl: `/common-page`, redirect: false });
     
 
       if (result?.error) {
@@ -103,10 +105,15 @@ export default function LoginPage() {
         //experimental
         showErrorMessage(result?.error);
         setPassword('')
-        setEmail("");
-        console.log('erro na pagina de login')
+        if(result.error==='Usuario não existe no sistema'){
+
+          setEmail("");
+        }
         throw new Error(result.error);
       
+      }else{
+        showSuccessMessage('Seja bem vindo de volta')
+        redirect('/common-page')
       }
 
       // Se não houver erro, o usuário será redirecionado automaticamente pelo NextAuth
