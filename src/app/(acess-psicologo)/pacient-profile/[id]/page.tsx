@@ -1,34 +1,12 @@
 'use client'
+
 import { useAccessControl } from "@/app/context/AcessControl";
 import { showInfoMessage } from "@/app/util/messages";
 import { useState, ChangeEvent } from "react";
 import { CgProfile } from "react-icons/cg";
 import HeadPage from "@/app/protected-components/headPage";
 import { useParams } from "next/navigation";
-
-
-interface Paciente {
-  id: string;
-  nome?: string;
-  cpf: string;
-  fantasy_name?: string;
-  idade?: string;
-  sintomas?: string;
-  telefone?: string;
-  convenio?: string;
-  sexo?: string;
-  cep?: string;
-  cidade?: string;
-  bairro?: string;
-  rua?: string;
-  numero?: string;
-  pais?: string;
-  complemento?: string;
-  estado?: string;
-  email?: string;
-  rg?: string;
-  psicoloId: string;
-}
+import { Paciente } from "../../../../../types/paciente";
 
 interface Props {
   paciente?: Paciente;
@@ -54,7 +32,7 @@ const pacienteMock: Paciente = {
   estado: "SP",
   email: "maria.silva@email.com",
   rg: "12.345.678-9",
-  psicoloId: "psic1234",
+  psicologoId: '',
 };
 
 const labels: Record<keyof Paciente, string> = {
@@ -77,17 +55,17 @@ const labels: Record<keyof Paciente, string> = {
   estado: "Estado",
   email: "Email",
   rg: "RG",
-  psicoloId: "ID Psicólogo",
+  psicologoId: "ID Psicólogo",
 };
 
 export default function PerfilPaciente({ paciente }: Props) {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState<Paciente>(paciente ?? pacienteMock);
-  const { id } = useParams(); // supondo que a rota tenha [id]
 
+  const params = useParams();
+  const id = params.id as string | undefined;
 
-  const { role } = useAccessControl()
-
+  const { role } = useAccessControl();
 
   const dadosPessoaisFields: (keyof Paciente)[] = [
     "nome",
@@ -96,7 +74,7 @@ export default function PerfilPaciente({ paciente }: Props) {
     "sexo",
     "idade",
     "fantasy_name",
-    "psicoloId",
+    "psicologoId", // corrigido aqui
     "convenio",
     "sintomas",
   ];
@@ -120,8 +98,9 @@ export default function PerfilPaciente({ paciente }: Props) {
   };
 
   const handleSave = () => {
-   showInfoMessage("Dados salvos!");
+    showInfoMessage("Dados salvos!");
     setEditMode(false);
+    // aqui você pode incluir chamada para API salvar os dados no backend
   };
 
   const handleCancel = () => {
@@ -129,134 +108,130 @@ export default function PerfilPaciente({ paciente }: Props) {
     setEditMode(false);
   };
 
-
-
   return (
+    <>
+      <HeadPage title={formData.nome ?? "Paciente"} icon={<CgProfile size={20} />} />
+      <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
+        <div className="bg-white shadow-lg rounded-2xl p-8">
+          <h2 className="text-3xl font-bold mb-8 text-center">Perfil do Paciente</h2>
 
-  <>
-  <HeadPage title= 'Joao Paciente' icon={<CgProfile size={20} />} />
-    <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
-      <div className="bg-white shadow-lg rounded-2xl p-8">
-        <h2 className="text-3xl font-bold mb-8 text-center">Perfil do Paciente</h2>
+          {/* Dados Pessoais */}
+          <section className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 border-b pb-2">Dados Pessoais</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {dadosPessoaisFields.map((field) => (
+                <div key={field} className="flex flex-col">
+                  <label
+                    htmlFor={field}
+                    className="text-sm font-medium text-gray-700 capitalize"
+                  >
+                    {labels[field]}
+                  </label>
+                  <input
+                    type="text"
+                    id={field}
+                    name={field}
+                    value={formData[field] ?? ""}
+                    onChange={handleChange}
+                    readOnly={!editMode || field === "cpf" || field === "id"}
+                    className={`mt-1 p-2 border rounded-md ${
+                      editMode && field !== "cpf" && field !== "id"
+                        ? "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        : "bg-gray-100 text-gray-600 cursor-not-allowed"
+                    }`}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
 
-        {/* Dados Pessoais */}
-        <section className="mb-8">
-          <h3 className="text-xl font-semibold mb-4 border-b pb-2">Dados Pessoais</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {dadosPessoaisFields.map((field) => (
-              <div key={field} className="flex flex-col">
-                <label
-                  htmlFor={field}
-                  className="text-sm font-medium text-gray-700 capitalize"
+          {/* Contato */}
+          <section className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 border-b pb-2">Contato</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {contatoFields.map((field) => (
+                <div key={field} className="flex flex-col">
+                  <label
+                    htmlFor={field}
+                    className="text-sm font-medium text-gray-700 capitalize"
+                  >
+                    {labels[field]}
+                  </label>
+                  <input
+                    type="text"
+                    id={field}
+                    name={field}
+                    value={formData[field] ?? ""}
+                    onChange={handleChange}
+                    readOnly={!editMode}
+                    className={`mt-1 p-2 border rounded-md ${
+                      editMode
+                        ? "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        : "bg-gray-100 text-gray-600 cursor-not-allowed"
+                    }`}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Endereço */}
+          <section className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 border-b pb-2">Endereço</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {enderecoFields.map((field) => (
+                <div key={field} className="flex flex-col">
+                  <label
+                    htmlFor={field}
+                    className="text-sm font-medium text-gray-700 capitalize"
+                  >
+                    {labels[field]}
+                  </label>
+                  <input
+                    type="text"
+                    id={field}
+                    name={field}
+                    value={formData[field] ?? ""}
+                    onChange={handleChange}
+                    readOnly={!editMode}
+                    className={`mt-1 p-2 border rounded-md ${
+                      editMode
+                        ? "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        : "bg-gray-100 text-gray-600 cursor-not-allowed"
+                    }`}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className="flex justify-center gap-6">
+            {editMode ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
                 >
-                  {labels[field]}
-                </label>
-                <input
-                  type="text"
-                  id={field}
-                  name={field}
-                  value={formData[field] ?? ""}
-                  onChange={handleChange}
-                  readOnly={!editMode || field === "cpf" || field === "id"}
-                  className={`mt-1 p-2 border rounded-md ${
-                    editMode && field !== "cpf" && field !== "id"
-                      ? "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      : "bg-gray-100 text-gray-600 cursor-not-allowed"
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Contato */}
-        <section className="mb-8">
-          <h3 className="text-xl font-semibold mb-4 border-b pb-2">Contato</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {contatoFields.map((field) => (
-              <div key={field} className="flex flex-col">
-                <label
-                  htmlFor={field}
-                  className="text-sm font-medium text-gray-700 capitalize"
+                  Salvar
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="bg-gray-300 px-6 py-2 rounded hover:bg-gray-400"
                 >
-                  {labels[field]}
-                </label>
-                <input
-                  type="text"
-                  id={field}
-                  name={field}
-                  value={formData[field] ?? ""}
-                  onChange={handleChange}
-                  readOnly={!editMode}
-                  className={`mt-1 p-2 border rounded-md ${
-                    editMode
-                      ? "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      : "bg-gray-100 text-gray-600 cursor-not-allowed"
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Endereço */}
-        <section className="mb-8">
-          <h3 className="text-xl font-semibold mb-4 border-b pb-2">Endereço</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {enderecoFields.map((field) => (
-              <div key={field} className="flex flex-col">
-                <label
-                  htmlFor={field}
-                  className="text-sm font-medium text-gray-700 capitalize"
-                >
-                  {labels[field]}
-                </label>
-                <input
-                  type="text"
-                  id={field}
-                  name={field}
-                  value={formData[field] ?? ""}
-                  onChange={handleChange}
-                  readOnly={!editMode}
-                  className={`mt-1 p-2 border rounded-md ${
-                    editMode
-                      ? "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      : "bg-gray-100 text-gray-600 cursor-not-allowed"
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <div className="flex justify-center gap-6">
-          {editMode ? (
-            <>
+                  Cancelar
+                </button>
+              </>
+            ) : (
               <button
-                onClick={handleSave}
-                className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                onClick={() => setEditMode(true)}
+                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
               >
-                Salvar
+                Editar Perfil
               </button>
-              <button
-                onClick={handleCancel}
-                className="bg-gray-300 px-6 py-2 rounded hover:bg-gray-400"
-              >
-                Cancelar
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setEditMode(true)}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-            >
-              Editar Perfil
-            </button>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  
-  </>
+    </>
   );
 }
