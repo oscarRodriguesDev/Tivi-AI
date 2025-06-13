@@ -6,7 +6,7 @@ import HeadPage from "@/app/protected-components/headPage";
 import { VscGitPullRequestGoToChanges } from "react-icons/vsc"; //connect
 import { VscDebugDisconnect } from "react-icons/vsc"; //disonect
 import { PiPlugsConnectedFill } from "react-icons/pi"; //connect
-import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
+import { showErrorMessage, showInfoMessage, showPersistentLoadingMessage, showSuccessMessage, updateToastMessage } from "@/app/util/messages";
 
 
 
@@ -15,9 +15,9 @@ import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/uti
 const ListaPsicologos = () => {
 
 
-  const { role, hasRole } = useAccessControl(); 
-  const [psicologos, setPsicologos] = useState<Psicologo[]>([]); 
-  const [loading, setLoading] = useState<boolean>(true); 
+  const { role, hasRole } = useAccessControl();
+  const [psicologos, setPsicologos] = useState<Psicologo[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isAtivo, setAtivo] = useState<boolean>(false);
 
@@ -37,7 +37,7 @@ const ListaPsicologos = () => {
       const response = await fetch("/api/internal/analize_psco");
 
       if (!response.ok) {
-        throw new Error("Erro ao buscar psicólogos.");
+       return <><p>Nenhum psicologo encontrado!</p></>
       }
 
       const { data } = await response.json();
@@ -60,15 +60,15 @@ const ListaPsicologos = () => {
    * useEffect busca os cadastros no banco de dados
    */
   useEffect(() => {
-    fetchPsychologists();
+    fetchPsychologists(); 
   }, []);
-  
 
 
- /**
-  * Ativa o psicologo no sistema
-  * @param cpf
-  */
+
+  /**
+   * Ativa o psicologo no sistema
+   * @param cpf
+   */
   const ativarPsicologo = async (cpf: string) => {
     try {
       const response = await fetch('/api/internal/analize_psco', {
@@ -78,26 +78,55 @@ const ListaPsicologos = () => {
         },
         body: JSON.stringify({ cpf }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         showSuccessMessage(data.message || 'Psicólogo habilitado com sucesso');
+        //window.location.reload();
+        fetchPsychologists(); 
       } else {
         const errorData = await response.json();
         showErrorMessage(errorData.error || 'Erro ao habilitar psicólogo');
+        //window.location.reload();
+        fetchPsychologists(); 
       }
     } catch (error) {
       showErrorMessage('Erro ao conectar com o servidor');
     }
   };
-  
 
 
+//rejeitar psicologo
+  const rejeitarPisicologo = async (cpf: string) => {
+    const toastId = showPersistentLoadingMessage('Pre-cadastro esta sendo rejeitado, Psicologo irá receber uma mensagem informando!');
+     try {
+       const response = await fetch('/api/internal/analize_psco', {
+         method: 'DELETE',
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({ cpf }),
+       });
    
-  const rejeitarPisicologo = (id: string) => {
-    showInfoMessage(`um email informando a rejeição e informando o que deve ser feito: ${id}`);
+       const result = await response.json();
    
+       if (response.ok) {
+         updateToastMessage(toastId,"Psicólogo rejeitado com sucesso. Um e-mail foi enviado com as instruções.");
+        // window.location.reload();
+        fetchPsychologists(); 
+         // Aqui você pode recarregar a lista ou remover visualmente o psicólogo da tela, se necessário
+       } else {
+        updateToastMessage(toastId, "Ocorreu um erro, nenhuma modificação no pré cadastro do Psicologo");
+        //window.location.reload();
+        fetchPsychologists(); 
+       }
+     } catch (error) {
+       console.error("Erro ao chamar a API de rejeição:", error);
+       showErrorMessage("Erro inesperado. Tente novamente.");
+     } 
+
   };
+
 
   return (
     <>
@@ -137,39 +166,39 @@ const ListaPsicologos = () => {
                     <td className="border p-0 text-center leading-none whitespace-nowrap">{psicologo.crp}</td>
 
                     <td className="border p-2 flex ">
-                      <td className=" p-0 flex  w-full justify-between">
 
+                      <div className="p-0 flex w-full justify-between">
                         <button onClick={() => setAtivo(!isAtivo)}>
                           {isAtivo ? (
                             <PiPlugsConnectedFill color="green" size={25} />
-
                           ) : (
                             <VscDebugDisconnect color="red" size={25} />
                           )}
                         </button>
+
                         <button
                           onClick={() => ativarPsicologo(psicologo.cpf || '')}
                           disabled={!isAtivo}
-                          className={`px-3 py-0 text-[12px]  rounded text-white font-semibold transition-all duration-200 ${isAtivo
+                          className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${isAtivo
                               ? 'bg-green-500 hover:bg-green-600 cursor-pointer'
                               : 'bg-gray-300 cursor-not-allowed opacity-60'
                             }`}
                         >
                           Save
                         </button>
+
                         <button
-                          onClick={() => ativarPsicologo(psicologo.cpf || '')}
-                          disabled={!isAtivo}
-                          className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${isAtivo
-                              ?  'bg-gray-300 cursor-not-allowed opacity-60 '
-                              : 'bg-red-500 hover:bg-red-600  cursor-pointer'
+                          onClick={() => rejeitarPisicologo(psicologo.cpf || '')}
+                          disabled={isAtivo} // inverte a lógica aqui
+                          className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${!isAtivo
+                              ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
+                              : 'bg-gray-300 cursor-not-allowed opacity-60'
                             }`}
                         >
                           No Enable
                         </button>
+                      </div>
 
-
-                      </td>
 
 
                     </td>

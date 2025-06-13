@@ -115,7 +115,7 @@ async function notificar(email: string, nome: string, email_system: string, senh
   });
 
   const mailOptions = {
-    from: 'oskharm12@gmail.com',
+    from: 'noreply.tiviai@gmail.com',
     to: email,
     subject: 'Cadastro Habilitado no Tivi AI',
     text: `Prezado(a) ${nome},\n\n
@@ -129,6 +129,41 @@ async function notificar(email: string, nome: string, email_system: string, senh
   Equipe Tivi AI`
   };
 
+  try {
+    const info = await transporter.sendMail(mailOptions);
+  } catch (error) {
+  }
+}
+/**
+ * Notifica por e-mail que o usuário foi habilitado com sucesso.
+ * 
+ * @param {string} email - E-mail do usuário que será notificado.
+ * @param {string} nome - Nome do usuário habilitado.
+ * @param {string} email_system - E-mail gerado para acessar a plataforma.
+ * @param {string} senha - Senha temporária gerada para o primeiro acesso.
+ */
+async function reproveNotify(email: string, nome: string, email_system: string, senha: string) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_RESPONSE,
+      pass: process.env.KEY_EMAIL_RESPONSE,
+    },
+  });
+
+  const mailOptions = {
+    from: 'noreply.tiviai@gmail.com',
+    to: email,
+    subject: 'Cadastro não aprovado - Tivi AI',
+    text: `Prezado(a) ${nome},\n\n
+  Após análise das informações fornecidas no seu cadastro como psicólogo(a) na plataforma Tivi AI, infelizmente não foi possível aprová-lo neste momento.\n\n
+  O motivo mais comum para a não aprovação está relacionado a dados incompletos ou inconsistentes. Recomendamos que você revise atentamente os dados informados (como nome completo, CPF, CRP, data de nascimento e informações de contato) e tente novamente o envio do cadastro.\n\n
+  Estamos à disposição para esclarecer qualquer dúvida ou auxiliar no processo de regularização do seu cadastro.\n\n
+  Agradecemos seu interesse em fazer parte da Tivi AI.\n\n
+  Atenciosamente,\n
+  Equipe Tivi AI`
+  };
+  
   try {
     const info = await transporter.sendMail(mailOptions);
   } catch (error) {
@@ -230,6 +265,7 @@ async function efetivarPsicologo(nome: string, lastname: string, email_confirm: 
 
 
 
+
 /**
  * Manipulador HTTP PUT que habilita um psicólogo previamente cadastrado no sistema.
  *
@@ -295,3 +331,46 @@ export async function PUT(req: Request) {
   }
 }
 
+
+
+
+export async function DELETE(req: Request) {
+  try {
+    const { cpf } = await req.json();
+
+    if (!cpf) {
+      return NextResponse.json({ error: "CPF é obrigatório" }, { status: 400 });
+    }
+
+    // Verifica se o psicólogo existe
+    const psicologo = await prisma.prePsicologo.findUnique({
+      where: { cpf },
+    });
+
+    if (!psicologo) {
+      return NextResponse.json({ error: "Psicólogo não encontrado" }, { status: 404 });
+    }
+
+    // Notifica o psicólogo antes de deletar
+    await reproveNotify(
+      psicologo.email,
+      psicologo.nome,
+      psicologo.email, // email_system (caso queira mudar, pode adaptar)
+      "Obrigado por entrar em contato" // pode ser "" ou algo simbólico, não será usada nesse caso
+    );
+
+    // Deleta o registro do psicólogo
+    await prisma.prePsicologo.delete({
+      where: { cpf },
+    });
+
+    return NextResponse.json({
+      message: "Psicólogo removido com sucesso",
+      deletedCpf: cpf,
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error("Erro ao deletar psicólogo:", error);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+  }
+}
