@@ -1,10 +1,6 @@
 import { useState } from "react";
+import { Agendamento } from "../../../types/agendamentos";
 
-interface Agendamento {
-  id: string;
-  name: string;
-  data: string; // Formato: YYYY-MM-DD
-}
 
 interface ViewMesProps {
   agendamentos: Agendamento[];
@@ -37,54 +33,55 @@ const ViewMes: React.FC<ViewMesProps> = ({ agendamentos, onDayClick }) => {
   const primeiroDiaSemana = new Date(anoAtual, mesAtual, 1).getDay();
 
   const nomeMeses = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
 
-  const agendamentosDoMes = agendamentos.filter((a) => {
-    const data = new Date(a.data);
-    return data.getMonth() === mesAtual && data.getFullYear() === anoAtual;
-  });
-
   return (
-    <div className="flex-col items-center justify-end ml-[30%] text-black p-4 rounded-xl shadow-2xl max-w-xl">
-      <div className="flex mb-4">
-        <button onClick={voltarMes} className="px-2 py-1 bg-blue-500 text-white rounded">← Anterior</button>
-        <h2>{nomeMeses[mesAtual]} {anoAtual}</h2>
-        <button onClick={avancarMes} className="px-2 py-1 bg-blue-500 text-white rounded">Próximo →</button>
+    <div className="flex flex-col items-center justify-center text-black p-4 rounded-xl shadow-2xl w-full max-w-xl mx-auto">
+      
+      <div className="flex justify-between items-center w-full mb-4">
+        <button onClick={voltarMes} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">← Anterior</button>
+        <h2 className="text-xl font-semibold">{nomeMeses[mesAtual]} {anoAtual}</h2>
+        <button onClick={avancarMes} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Próximo →</button>
       </div>
 
       <table className="w-full border-collapse">
         <thead>
           <tr>
             {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia) => (
-              <th key={dia} className="p-2 border">{dia}</th>
+              <th key={dia} className="p-2 border text-sm font-medium text-gray-700">{dia}</th>
             ))}
           </tr>
         </thead>
-
         <tbody>
-          {[...Array(Math.ceil((diasNoMes + primeiroDiaSemana) / 7))].map((_, semana) => (
-            <tr key={semana}>
-              {[...Array(7)].map((_, dia) => {
-                const numeroDia = semana * 7 + dia - primeiroDiaSemana + 1;
-                const temAgendamento = agendamentosDoMes.some(
-                  (a) => new Date(a.data).getDate() === numeroDia
-                );
+          {[...Array(Math.ceil((diasNoMes + primeiroDiaSemana) / 7))].map((_, semanaIndex) => (
+            <tr key={semanaIndex}>
+              {[...Array(7)].map((_, diaIndex) => {
+                const numeroDia = semanaIndex * 7 + diaIndex - primeiroDiaSemana + 1;
+
+                const temAgendamento = agendamentos.some((a) => {
+                  const [ano, mes, dia] = a.data.split('-').map(Number);
+                  const data = new Date(ano, mes - 1, dia);
+                  return (
+                    data.getDate() === numeroDia &&
+                    data.getMonth() === mesAtual &&
+                    data.getFullYear() === anoAtual
+                  );
+                });
+                
+                const estaNoMes = numeroDia > 0 && numeroDia <= diasNoMes;
 
                 return (
                   <td
-                    key={dia}
-                    className={`p-4 border text-center ${
-                      numeroDia > 0 && numeroDia <= diasNoMes
-                        ? "cursor-pointer hover:bg-blue-300 " +
-                          (temAgendamento ? "bg-blue-500 text-white" : "")
-                        : "bg-gray-100"
-                    }`}
-                    onClick={() =>
-                      numeroDia > 0 && numeroDia <= diasNoMes && onDayClick(numeroDia, mesAtual)
-                    }
+                    key={diaIndex}
+                    onClick={() => estaNoMes && onDayClick(numeroDia, mesAtual)}
+                    className={`h-16 w-12 border text-center align-middle rounded-lg transition-all
+                      ${estaNoMes ? 'cursor-pointer hover:bg-blue-100' : 'bg-gray-100 text-gray-400'}
+                      ${temAgendamento ? 'bg-blue-500 text-white font-bold ring-2 ring-blue-700' : ''}
+                    `}
                   >
-                    {numeroDia > 0 && numeroDia <= diasNoMes ? numeroDia : ""}
+                    {estaNoMes ? numeroDia : ""}
                   </td>
                 );
               })}

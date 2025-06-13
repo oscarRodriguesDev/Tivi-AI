@@ -30,97 +30,27 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import Modal from '@/app/protected-components/modalAgendamentos';
 import HeadPage from '@/app/protected-components/headPage';
 import ViewMes from '@/app/protected-components/viewMes';
+import ViewSemanal from '@/app/protected-components/viewSemana';
 import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
-import { RiUserSearchFill } from "react-icons/ri";
 import { Agendamento } from '../../../../../types/agendamentos';
 import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
 import { useParams } from 'next/navigation';
+import Notiflix from 'notiflix';
 import { showErrorMessage, showInfoMessage, showPersistentLoadingMessage, showSuccessMessage, updateToastMessage } from '@/app/util/messages';
+import ViewDay from '@/app/protected-components/viewmeet';
 
-
-
-
-/**
- * @file AgendamentoPage.tsx
- * @description Página de agendamentos voltada para usuários com papel de psicólogo no sistema.
- * 
- * Esta página permite a visualização, criação e gerenciamento de consultas psicológicas,
- * com suporte a exibição por dia, semana ou mês. Também permite a geração de links de chamada,
- * compartilhamento via WhatsApp, e integração com sistema P2P para chamadas em tempo real.
- *
- * ### Principais Funcionalidades:
- * - Verifica o papel do usuário com `useAccessControl`, permitindo acesso apenas a psicólogos.
- * - Busca agendamentos na API (`/api/gen-meet`) e armazena-os no estado local.
- * - Organiza a exibição dos agendamentos por período: Dia, Semana ou Mês.
- * - Inicia reuniões via integração com PeerJS e gera links de acesso.
- * - Copia links da reunião para a área de transferência ou WhatsApp.
- * - Oferece modal para criação de novos agendamentos.
- * - Monitora continuamente o status dos `peerIds` dos agendamentos a cada 20 segundos.
- *
- * ### Estados Utilizados:
- * - `agendamentos`: lista de agendamentos obtidos da API.
- * - `novoAgendamento`: estrutura usada para criação de novos agendamentos.
- * - `peerIds`: controle de peerId de cada agendamento (chamadas P2P).
- * - `loading`, `error`: estados auxiliares para controle de carregamento e erros.
- * - `periodo`: filtro de visualização (Dia, Semana, Mês).
- * - `copiedLinks`: controle visual de links copiados para feedback do usuário.
- *
- * ### Restrições:
- * - Apenas usuários com o papel `PSYCHOLOGIST` podem visualizar e interagir com a página.
- *
- * @component
- * @returns {JSX.Element} A interface de gerenciamento de agendamentos para psicólogos.
- */
 
 export default function AgendamentoPage() {
 
-  const psicologo = useParams().id;//recupera o id do psicologo, será usado para buscar as reunioes agendadas por ele
-
-
-
-  /**
-  * Controla a visibilidade do modal principal.
-  */
+  const psicologo = useParams().id
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  /**
-   * Abre o modal principal.
-   */
   const handleOpenModal = () => setIsModalOpen(true);
-
-  /**
-   * Fecha o modal principal.
-   */
   const handleCloseModal = () => setIsModalOpen(false);
-
-  /**
-   * Controla a visibilidade do modal de reunião.
-   */
   const [isModalMeet, setIsModalMeet] = useState(false);
-
-  /**
-   * Abre o modal de reunião.
-   */
   const handleOpenModalMeet = () => setIsModalMeet(true);
-
-  /**
-   * Fecha o modal de reunião.
-   */
   const handleCloseModalMeet = () => setIsModalMeet(false);
-
-  /**
-   * Obtém o papel do usuário e a função para verificar permissões.
-   */
   const { role, hasRole } = useAccessControl();
-
-  /**
-   * Lista de agendamentos.
-   */
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
-
-  /**
-   * Estado para armazenar dados do novo agendamento (sem id).
-   */
   const [novoAgendamento, setNovoAgendamento] = useState<Omit<Agendamento, 'id'>>({
     psicologoId: '',
     fantasy_name: '',
@@ -134,57 +64,23 @@ export default function AgendamentoPage() {
     duracao: '',
     code: '',
   });
-
-  /**
-   * Mapeia o ID do agendamento para o peerId (chamada P2P).
-   */
   const [peerIds, setPeerIds] = useState<{ [key: string]: string }>({});
-
-  /**
-   * ID do usuário atual.
-   */
   const [idUser, setIdUser] = useState<string>("");
-
-  /**
-   * Estado de carregamento de ações assíncronas.
-   */
   const [loading, setLoading] = useState<boolean>(false);
-
-  /**
-   * Data atual formatada como dd/MM/yyyy.
-   */
   const hoje = format(new Date(), 'dd/MM/yyyy');
-
-  /**
-   * Armazena mensagens de erro.
-   */
   const [error, setError] = useState<string | null>(null);
-
-  /**
-   * Indica quais links de agendamento já foram copiados.
-   */
   const [copiedLinks, setCopiedLinks] = useState<{ [key: string]: boolean }>({});
-
-  /**
-   * Define o filtro de período para exibição (ex: Dia, Semana).
-   */
   const [periodo, setPeriodo] = useState<string>('Dia');
-
-  const [modalAberto, setModalAberto] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
-  //status da reunião
-
-  //pedir pra confirmar se o paciente logou
   const [online, setOnline] = useState<boolean>(false);
-
-  //controle de busca de agendamentos
   const [buscando, setBuscando] = useState<boolean>(true);
-
+  const [agendamentosDoDia, setAgendamentosDoDia] = useState<Agendamento[]>([]);
+  const [modalAberto, setModalAberto] = useState(false);
   const emProcesso = useRef<Set<string>>(new Set());
 
 
 
-  //função para editar o agendamento
+ //edição de reuniões
   const handleEditar = (agendamento: any) => {
     if (agendamento.id === 'fake-id') {
       showErrorMessage("impossivel editar demonstração");
@@ -195,48 +91,30 @@ export default function AgendamentoPage() {
     if (!modalAberto) {
       setBuscando(true)
     }
-
   };
 
 
-
-  /**
-  * Busca os agendamentos na API e atualiza o estado com os dados recebidos.
-  * 
-  * Faz uma requisição GET para a rota "/api/gen-meet".
-  * Em caso de sucesso, atualiza o estado `agendamentos` com os dados retornados.
-  * Em caso de erro, exibe erro
-  */
+  //buscar os agendamentos
   const buscarAgendamentos = async () => {
-
     try {
       const response = await fetch(`/api/internal/gen-meet/?id=${psicologo}`);
       if (response.ok) {
         const data = await response.json();
         setBuscando(false)
         setAgendamentos(data);
-
         setLoading(false)
 
       } else {
-       showErrorMessage("Erro ao buscar agendamentos");
-
+        showErrorMessage("Erro ao buscar agendamentos");
       }
     } catch (error) {
       showErrorMessage("Erro de conexão" + error);
-
     }
   };
 
-
-  /**
- * Executa a função `buscarAgendamentos` uma única vez ao montar o componente.
- * 
- * Equivalente ao `componentDidMount`. Garante que os agendamentos sejam carregados ao iniciar.
- */
+//buscar quando inciar a tela
   useEffect(() => {
     if (buscando === true) {
-
       //definir tempo de atualização dos agendamentos
       const intervalId = setInterval(() => {
         buscarAgendamentos();
@@ -248,17 +126,15 @@ export default function AgendamentoPage() {
     }
   }, [buscando]);
 
-  //função para buscar o peerId
+  
+
+  //buscando o id de conexão para a reunião
   const fetchPeerId = async (id: string, meet: Agendamento) => {
-       
-
-
     if (emProcesso.current.has(id)) return;
     emProcesso.current.add(id);
     try {
-     
       const toastId = showPersistentLoadingMessage(`Verificando se ${meet.name} está na sala...`);
-      if(id==='fake-id'){
+      if (id === 'fake-id') {
         updateToastMessage(toastId, `Usuario demonstrativo, não avaliado para consultas`, 'error');
         return
       }
@@ -272,7 +148,6 @@ export default function AgendamentoPage() {
           setIdUser(data.peerId);
           setError(null);
         }
-       
       } else {
         updateToastMessage(toastId, `${meet.name} ainda não está na sala!`, 'error');
         setOnline(false)
@@ -291,51 +166,19 @@ export default function AgendamentoPage() {
 
 
 
-
-  /**
-   * Monitora os agendamentos e tenta buscar o `peerId` correspondente para cada um deles.
-   * 
-   * A cada 20 segundos, faz uma requisição para `/api/save_peer` usando o ID do agendamento.
-   * Se encontrar o `peerId`, atualiza o estado correspondente. Para quando o componente desmonta.
-   * 
-   * Dependências: `agendamentos`, `peerIds`.
-   */
-  /*   useEffect(() => {
-      if (online === true) {
-        const intervalId = setInterval(() => {
-          agendamentos.forEach((ag) => {
-            if (!peerIds[ag.id]) {
-              fetchPeerId(ag.id);
-  
-            } else {
-  
-            }
-          });
-        }, 1000);
-  
-        // Limpeza do intervalo ao desmontar o componente
-        return () => clearInterval(intervalId);
-  
-      } else {
-        return
-      }
-  
-  
-    }, [agendamentos, peerIds, online]); */
-
-
-  //função ainda será definida
+  //quando o usuario clica no dia do mes
   const handleDayClick = (dia: number) => {
     showInfoMessage(`Abrindo consultas para o dia ${dia}`);
+    // Filtrar agendamentos do dia selecionado
+    const filtrados = agendamentos.filter((agendamento) => {
+      const dataAgendamento = new Date(agendamento.data); // Ajuste conforme formato da data
+      return dataAgendamento.getDate() === dia;
+    });
+    setAgendamentosDoDia(filtrados);
+    setModalAberto(true);
   };
 
-  /**
- * Copia o link da chamada pública para a área de transferência e atualiza o estado visual de cópia.
- * 
- * @param {string} id - ID do agendamento usado para montar o link da chamada.
- * 
- * Exibe feedback visual por 1 segundo indicando que o link foi copiado com sucesso.
- */
+ //permite copiar o link da reunião
   const handleCopy = (id: string) => {
     if (id === "fake-id") {
       showErrorMessage("O link de demonstração não pode ser copiado!");
@@ -351,6 +194,7 @@ export default function AgendamentoPage() {
   };
 
 
+  //copiar o link e mandar pelo whatsapp
   const copiarLinkParaWhatsApp = (idReuniao: string, data: string, hora: string) => {
     if (idReuniao === "fake-id") {
       showErrorMessage("O link de demonstração não pode ser copiado!");
@@ -370,28 +214,40 @@ export default function AgendamentoPage() {
     }
   };
 
-
-  //criar doc do delete
+//deletar reunião
   const handleDeletar = async (id: string) => {
+    Notiflix.Confirm.show(
+      'Título',
+      'Deseja mesmo deletar essa reunião?',
+      'Sim',
+      'Não',
+      async () => {
+        if (id === "fake-id") {
+          showErrorMessage('Impossível deletar a demonstração');
+        } else {
+          try {
+            const response = await fetch(`/api/internal/gen-meet`, {
+              method: 'DELETE',
+              body: JSON.stringify({ id }),
+            });
+            if (response.ok) {
+              showSuccessMessage("Agendamento deletado com sucesso");
+              buscarAgendamentos();
+            } else {
+              showErrorMessage("Erro ao deletar agendamento");
+            }
+          } catch (error) {
+            showErrorMessage("Erro de conexão com o servidor");
+          }
+        }
+      },
+      () => {
+        showInfoMessage("Nenhuma alteração realizada!");
+      }
+    );
+  };
 
-    if (id === "fake-id") {
-      showErrorMessage('Impossivel deletar a demonstração')
-    } else {
-      const response = await fetch(`/api/internal/gen-meet`, {
-        method: 'DELETE',
-        body: JSON.stringify({ id }),
-      });
-      if (response.ok) {
-        showSuccessMessage("Agendamento deletado com sucesso");
-        buscarAgendamentos();
-      } else {
-
-      };
-    }
-  }
-
-
-
+  //verifica se ha agendamento
   const verifica = (ag: Agendamento) => {
     const agora = new Date().getTime();
 
@@ -416,35 +272,6 @@ export default function AgendamentoPage() {
     }
   };
 
-
-
-
-
-
-
-
-
-
-
-
-  /**
-   * Componente principal da página de Agendamentos.
-   * 
-   * Renderiza a interface de visualização e controle de consultas agendadas,
-   * com filtros por período (Dia, Semana, Mês), além de botões para copiar e
-   * compartilhar o link da reunião. Disponível apenas para usuários com o papel de psicólogo.
-   * 
-   * @returns {JSX.Element} Interface de agendamentos com filtros, botões de ação e visualização por período.
-   * 
-   * - Role != 'PSYCHOLOGIST': Mostra a interface completa de agendamentos.
-   * - Role == 'PSYCHOLOGIST': Mostra aviso de acesso restrito.
-   * 
-   * Funcionalidades:
-   * - Filtragem por Dia, Semana e Mês
-   * - Iniciar chamada se `peerId` estiver disponível
-   * - Copiar link ou compartilhar via WhatsApp
-   * - Abertura de modal para novo agendamento
-   */
   return (
     <>
       {/* componente cabeçalho das paginas */}
@@ -487,136 +314,99 @@ export default function AgendamentoPage() {
             {periodo == 'Dia' &&
               <div className="bg-gray-200 p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
                 <ul>
-                  {agendamentos.map((meet) => (
-                    /* melhorar esse layout */
-
-                    <li key={meet.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
-                      <div className="text-xl w-full font-semibold text-white text-center bg-slate-600">
-                        Consulta Online com: {meet.name}
-
-                      </div>
-                      <div className="text-lg font-medium text-blue-800">
-                        Nick name: {meet.fantasy_name}
-                      </div>
-                      <div className="text-base text-blue-800">
-                        Data da reunião: <span className="font-medium">{meet.data} | duração: {meet.duracao} minutos</span>
-                      </div>
-                      <div className="text-sm text-blue-700">
-                        Horário: {meet.hora}
-                      </div>
-                      <div className="text-sm text-blue-600">
-                        {meet.observacao}
-                      </div>
-                      <div className="text-sm text-blue-400">
-                        {peerIds[meet.id] ? (
-                          <button
-                            onClick={() => redirect(`/call/${meet.id}/?iddinamico=${idUser}`)}
-                            className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
-                          >
-                            Iniciar Reunião com {meet.name}
-                          </button>
-                        ) : (
-                          <div>
-                            {verifica(meet) ? (
-                              <div className='text-red-600 text-sm'>Reunião vencida</div>
-                            ) : (
-
-                              <div className='text-red-600 text-sm'>
-
-                                Link:
-                                <div
-                                  className="text-black cursor-pointer w-full"
-                                  onClick={() => { handleCopy(meet.id) }}
-                                >
-                                  /publiccall/{meet.id}
-                                </div>
-                              </div>
-
-                            )
-
-                            }
-
-
-                            {copiedLinks[meet.id] && <span className="text-green-500 text-sm">Link copiado!</span>}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex space-x-2 pt-5">
-                        <button
-                          className="text-blue-500 hover:text-blue-700"
-                          onClick={() => handleEditar(meet)}
-                        >
-                          <FaEdit size={20} />
-                        </button>
-                        <button
-                          className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDeletar(meet.id)}
-                        >
-                          <FaTrash size={20} />
-                        </button>
-                        <button
-                          className="text-green-600 hover:text-green-400"
-                          onClick={() => { copiarLinkParaWhatsApp(meet.id, meet.data, meet.hora) }}
-                        >
-                          {verifica(meet) ? (
-                            <></>
+                  {agendamentos
+                    .filter((meet) => {
+                      const hoje = new Date().toISOString().split("T")[0]; // formato: yyyy-mm-dd
+                      return meet.data === hoje;
+                    })
+                    .map((meet) => (
+                      <li key={meet.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
+                        <div className="text-xl w-full font-semibold text-white text-center bg-slate-600">
+                          Consulta Online com: {meet.name}
+                        </div>
+                        <div className="text-lg font-medium text-blue-800">
+                          Nick name: {meet.fantasy_name}
+                        </div>
+                        <div className="text-base text-blue-800">
+                          Data da reunião: <span className="font-medium">{meet.data} | duração: {meet.duracao} minutos</span>
+                        </div>
+                        <div className="text-sm text-blue-700">Horário: {meet.hora}</div>
+                        <div className="text-sm text-blue-600">{meet.observacao}</div>
+                        <div className="text-sm text-blue-400">
+                          {peerIds[meet.id] ? (
+                            <button
+                              onClick={() => redirect(`/call/${meet.id}/?iddinamico=${idUser}`)}
+                              className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
+                            >
+                              Iniciar Reunião com {meet.name}
+                            </button>
                           ) : (
-                            <FaWhatsapp size={20} />
-                          )
-                          }
-
-                        </button>
-
-                        <button
-                          className="px-4 py-2 rounded-2xl bg-green-100 text-green-700 font-medium hover:bg-green-200 hover:text-green-800 transition-colors duration-200 shadow-sm border border-green-300"
-                          onClick={() => {
-                            fetchPeerId(meet.id, meet)
-                            
-                          }}
-                        >
-                          Status do paciente
-                        </button>
-
-                      </div>
-
-
-                    </li>
-
-                  ))}
+                            <div>
+                              {verifica(meet) ? (
+                                <div className="text-red-600 text-sm">Reunião vencida</div>
+                              ) : (
+                                <div className="text-red-600 text-sm">
+                                  Link:
+                                  <div
+                                    className="text-black cursor-pointer w-full"
+                                    onClick={() => {
+                                      handleCopy(meet.id);
+                                    }}
+                                  >
+                                    /publiccall/{meet.id}
+                                  </div>
+                                </div>
+                              )}
+                              {copiedLinks[meet.id] && (
+                                <span className="text-green-500 text-sm">Link copiado!</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex space-x-2 pt-5">
+                          <button
+                            className="text-blue-500 hover:text-blue-700"
+                            onClick={() => handleEditar(meet)}
+                          >
+                            <FaEdit size={20} />
+                          </button>
+                          <button
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => handleDeletar(meet.id)}
+                          >
+                            <FaTrash size={20} />
+                          </button>
+                          <button
+                            className="text-green-600 hover:text-green-400"
+                            onClick={() => {
+                              copiarLinkParaWhatsApp(meet.id, meet.data, meet.hora);
+                            }}
+                          >
+                            {!verifica(meet) && <FaWhatsapp size={20} />}
+                          </button>
+                          <button
+                            className="px-4 py-2 rounded-2xl bg-green-100 text-green-700 font-medium hover:bg-green-200 hover:text-green-800 transition-colors duration-200 shadow-sm border border-green-300"
+                            onClick={() => {
+                              fetchPeerId(meet.id, meet);
+                            }}
+                          >
+                            Status do paciente
+                          </button>
+                        </div>
+                      </li>
+                    ))}
                 </ul>
-
               </div>
 
             }
 
             {/* agendamentos por semana */}
-
             {periodo == 'Semana' &&
-              <div className="bg-gray-200 text-black p-4 max-h-[480px] overflow-y-auto rounded-xl shadow-2xl">
-                <h2 className="text-xl font-semibold mb-4">Agendamentos da Semana</h2>
-
-                <div className="grid grid-cols-7 gap-4">
-                  {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia, index) => (
-                    <div key={dia} className="bg-white p-3 rounded-lg shadow">
-                      <h3 className="text-lg font-medium">{dia}</h3>
-
-                      {agendamentos
-                        .filter((agendamento) => new Date(agendamento.data).getDay() === index)
-                        .map((agendamento) => (
-                          <div key={agendamento.id} className="mt-2 p-2 bg-blue-100 rounded-lg">
-                            <p className="font-semibold">{agendamento.name}</p>
-                            <p>{agendamento.hora}</p>
-
-                          </div>
-                        ))}
-
-                      {agendamentos.filter((a) => new Date(a.data).getDay() === index).length === 0 && (
-                        <p className="text-sm text-gray-500">Sem agendamentos</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ViewSemanal
+                agendamentos={agendamentos}
+                onDelete={handleDeletar}
+                onEdit={handleEditar}
+              />
             }
 
             {/* Agendamentos por Mês */}
@@ -630,6 +420,14 @@ export default function AgendamentoPage() {
 
 
             )}
+
+            <ViewDay
+              isOpen={modalAberto}
+              onClose={() => setModalAberto(false)}
+              agendamentos={agendamentos}
+              onEdit={(agendamentos) => { handleDeletar(agendamentos.id) }}
+              onDelete={(agendamentos) => { handleEditar(agendamentos.id) }}
+            />
 
 
             <div className="w-full h-auto mt-5 flex justify-around items-end">
@@ -663,15 +461,6 @@ export default function AgendamentoPage() {
         <div className="flex justify-center items-center h-screen">Essa pagina é acessivel apenas para psicologos</div>
       )}
 
-
-
-
     </>
-
-    //envio para produção
-
   );
 }
-
-
-//amanha definir no prisma o status da reunião para controlar por la se ela está ou não vencida e ai decidir se delta ou mantam
