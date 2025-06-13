@@ -1,27 +1,20 @@
 'use client'
 
-import { useAccessControl } from "@/app/context/AcessControl";
-import { showInfoMessage } from "@/app/util/messages";
 import { useState, ChangeEvent } from "react";
 import { CgProfile } from "react-icons/cg";
 import HeadPage from "@/app/protected-components/headPage";
-import { useParams } from "next/navigation";
-import { Paciente } from "../../../../../types/paciente";
-
-interface Props {
-  paciente?: Paciente;
-}
+import { Paciente } from "../../../../../types/paciente"; // ajuste o caminho conforme sua estrutura
 
 const pacienteMock: Paciente = {
-  id: "1a2b3c4d",
+  id: "1a2b3c4d-uuid-mock",
   nome: "Maria Silva",
-  cpf: "123.456.789-00",
   fantasy_name: "Maria Psicóloga",
+  cpf: "123.456.789-00",
   idade: "35",
   sintomas: "Ansiedade, insônia",
   telefone: "(11) 99999-9999",
   convenio: "Unimed",
-  sexo: "Feminino",
+  sexo: "feminino",
   cep: "01234-567",
   cidade: "São Paulo",
   bairro: "Centro",
@@ -32,14 +25,14 @@ const pacienteMock: Paciente = {
   estado: "SP",
   email: "maria.silva@email.com",
   rg: "12.345.678-9",
-  psicologoId: '',
+  psicologoId: "abc123xyz",
 };
 
 const labels: Record<keyof Paciente, string> = {
   id: "ID",
   nome: "Nome",
-  cpf: "CPF",
   fantasy_name: "Nome Fantasia",
+  cpf: "CPF",
   idade: "Idade",
   sintomas: "Sintomas",
   telefone: "Telefone",
@@ -58,14 +51,9 @@ const labels: Record<keyof Paciente, string> = {
   psicologoId: "ID Psicólogo",
 };
 
-export default function PerfilPaciente({ paciente }: Props) {
+export default function PerfilPacientePage() {
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState<Paciente>(paciente ?? pacienteMock);
-
-  const params = useParams();
-  const id = params.id as string | undefined;
-
-  const { role } = useAccessControl();
+  const [formData, setFormData] = useState<Paciente>(pacienteMock);
 
   const dadosPessoaisFields: (keyof Paciente)[] = [
     "nome",
@@ -74,7 +62,7 @@ export default function PerfilPaciente({ paciente }: Props) {
     "sexo",
     "idade",
     "fantasy_name",
-    "psicologoId", // corrigido aqui
+    "psicologoId",
     "convenio",
     "sintomas",
   ];
@@ -94,24 +82,24 @@ export default function PerfilPaciente({ paciente }: Props) {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
-    showInfoMessage("Dados salvos!");
+    alert("Dados salvos! (Mock)");
     setEditMode(false);
-    // aqui você pode incluir chamada para API salvar os dados no backend
   };
 
   const handleCancel = () => {
-    setFormData(paciente ?? pacienteMock);
+    setFormData(pacienteMock);
     setEditMode(false);
   };
 
   return (
     <>
-      <HeadPage title={formData.nome ?? "Paciente"} icon={<CgProfile size={20} />} />
-      <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
+      <HeadPage title="Perfil do Paciente" icon={<CgProfile size={20} />} />
+
+      <main className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
         <div className="bg-white shadow-lg rounded-2xl p-8">
           <h2 className="text-3xl font-bold mb-8 text-center">Perfil do Paciente</h2>
 
@@ -205,6 +193,7 @@ export default function PerfilPaciente({ paciente }: Props) {
             </div>
           </section>
 
+          {/* Botões */}
           <div className="flex justify-center gap-6">
             {editMode ? (
               <>
@@ -231,7 +220,7 @@ export default function PerfilPaciente({ paciente }: Props) {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </>
   );
 }
