@@ -4,6 +4,7 @@ import { showInfoMessage } from "@/app/util/messages";
 import { useState, ChangeEvent } from "react";
 import { CgProfile } from "react-icons/cg";
 import HeadPage from "@/app/protected-components/headPage";
+import { useParams } from "next/navigation";
 
 
 interface Paciente {
@@ -82,6 +83,8 @@ const labels: Record<keyof Paciente, string> = {
 export default function PerfilPaciente({ paciente }: Props) {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState<Paciente>(paciente ?? pacienteMock);
+  const { id } = useParams(); // supondo que a rota tenha [id]
+
 
   const { role } = useAccessControl()
 
