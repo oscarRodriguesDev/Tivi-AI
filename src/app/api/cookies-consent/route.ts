@@ -9,11 +9,10 @@ export async function GET(req: Request) {
     const forwardedFor = req.headers.get('x-forwarded-for');
     const ipNumber = forwardedFor ? forwardedFor.split(',')[0] : 'unknown';
     
-    // Busca o consentimento no banco de dados
-    const consent = await prisma.cookies_consent.findUnique({
+    const consent = await prisma.cookies_consent.findFirst({
       where: {
-        ipNumber: ipNumber
-      }
+        ipNumber: ipNumber,
+      },
     });
 
     // Se não encontrar o consentimento, retorna 404
@@ -66,7 +65,7 @@ export async function DELETE(req: Request) {
     const ipNumber = forwardedFor ? forwardedFor.split(',')[0] : 'unknown';
     
     // Deleta o consentimento do banco de dados
-    await prisma.cookies_consent.delete({
+    await prisma.cookies_consent.deleteMany({
       where: {
         ipNumber: ipNumber
       }
