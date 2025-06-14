@@ -282,6 +282,7 @@ const Cadastro = () => {
 
     function clearInputs() {
         setCPF('')
+        setInvalid('')
         setCFP('')
         setCRP('')
         setRG('')

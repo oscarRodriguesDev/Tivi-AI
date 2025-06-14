@@ -334,6 +334,7 @@ export async function PUT(req: Request) {
 
 
 
+
 export async function DELETE(req: Request) {
   try {
     const { cpf } = await req.json();
@@ -351,16 +352,18 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Psicólogo não encontrado" }, { status: 404 });
     }
 
-    // Notifica o psicólogo antes de deletar
+    // Notifica o psicólogo antes de deletar se ele estiver com status habilitado como false
+    if (!psicologo.habilitado) {
     await reproveNotify(
       psicologo.email,
       psicologo.nome,
       psicologo.email, // email_system (caso queira mudar, pode adaptar)
       "Obrigado por entrar em contato" // pode ser "" ou algo simbólico, não será usada nesse caso
     );
+  }
 
-    // Deleta o registro do psicólogo
-    await prisma.prePsicologo.delete({
+    // Deleta o registro do psicólogo 
+  await prisma.prePsicologo.delete({
       where: { cpf },
     });
 

@@ -83,6 +83,7 @@ const ListaPsicologos = () => {
         const data = await response.json();
         showSuccessMessage(data.message || 'Psicólogo habilitado com sucesso');
         //window.location.reload();
+        deletePsicologoHabilitado(cpf)
         fetchPsychologists(); 
       } else {
         const errorData = await response.json();
@@ -95,6 +96,38 @@ const ListaPsicologos = () => {
     }
   };
 
+
+  //deletar psicologo
+  const deletePsicologoHabilitado =async(cpf:string)=>{
+    const toastId = showPersistentLoadingMessage('Pre-cadastro esta sendo rejeitado, Psicologo irá receber uma mensagem informando!');
+    try {
+      const response = await fetch('/api/internal/analize_psco', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cpf }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        updateToastMessage(toastId,"Psicólogo rejeitado com sucesso. Um e-mail foi enviado com as instruções.");
+       // window.location.reload();
+       fetchPsychologists(); 
+        // Aqui você pode recarregar a lista ou remover visualmente o psicólogo da tela, se necessário
+      } else {
+       updateToastMessage(toastId, "Ocorreu um erro, nenhuma modificação no pré cadastro do Psicologo");
+       //window.location.reload();
+       fetchPsychologists(); 
+      }
+    } catch (error) {
+      console.error("Erro ao chamar a API de rejeição:", error);
+      showErrorMessage("Erro inesperado. Tente novamente.");
+    } 
+
+
+  }
 
 //rejeitar psicologo
   const rejeitarPisicologo = async (cpf: string) => {
