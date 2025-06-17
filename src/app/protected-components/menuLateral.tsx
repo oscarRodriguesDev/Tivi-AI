@@ -29,9 +29,10 @@ const Menu: React.FC = () => {
   const { data: session, status } = useSession(); // Obtém os dados da sessão
 
   const id = session?.user.id
+  const role = session?.user?.role
   return (
     <div className="absolute w-[244px] h-auto bg-white p-5">
-        <CardUser />
+      <CardUser />
       {/* logomarca */}
       <div className="w-[187px] h-[78px] bg-white  mb-5">
         <Image src={Logomarca} alt="logomarca tiviai" className="w-full h-full object-contain" />
@@ -39,19 +40,33 @@ const Menu: React.FC = () => {
       </div>
 
       {/* Itens do menu */}
-      <nav className="space-y-5 border-r-[1px] border-gray-400">
-        <MenuItem icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
-        {/* <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push(`/cadastro-pacientes/${id}`)} /> */}{/* vai pegar o id do psicolog */}
-        <MenuItem icon={<LuCalendarDays size={25} />} label="Agendamentos" onClick={() => router.push(`/dating/${id}`)} />
-        <MenuItem icon={<BsCalendarCheckFill size={25} />} label="Meus atendimentos" onClick={() => router.push(`/atendimentos/${id}`)} />
-        <MenuItem icon={<FaSadTear size={25} />} label="Meus Pacientes" onClick={() => router.push(`/meus-pacientes/${id}`)} />
-        <MenuItem icon={<LuLibraryBig size={25} />} label="Base Científica" onClick={() => router.push(`/cientific/${id}`)} />
-       {/*  <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push(`/finance/${id}`)} /> */}
-        <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push(`/credit/${id}`)} />
-        <MenuItem icon={<PiUserCheckFill size={25} />} label="Novos psicologos" onClick={() => router.push('/aprove-psc')} />
-        <MenuItem icon={<GrUserAdmin size={25} />} label="Novo Administrador" onClick={() => router.push('/novo_admin')} />
 
-      </nav>
+
+      {role === 'PSYCHOLOGIST' ? (
+
+        <nav className="space-y-5 border-r-[1px] border-gray-400">
+          <MenuItem icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
+          {/* <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push(`/cadastro-pacientes/${id}`)} /> */}{/* vai pegar o id do psicolog */}
+          <MenuItem icon={<LuCalendarDays size={25} />} label="Agendamentos" onClick={() => router.push(`/dating/${id}`)} />
+          <MenuItem icon={<BsCalendarCheckFill size={25} />} label="Meus atendimentos" onClick={() => router.push(`/atendimentos/${id}`)} />
+          <MenuItem icon={<FaSadTear size={25} />} label="Meus Pacientes" onClick={() => router.push(`/meus-pacientes/${id}`)} />
+          <MenuItem icon={<LuLibraryBig size={25} />} label="Base Científica" onClick={() => router.push(`/cientific/${id}`)} />
+          {/*  <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push(`/finance/${id}`)} /> */}
+          <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push(`/credit/${id}`)} />
+       
+
+        </nav>
+      ) : (
+        <nav className="space-y-5 border-r-[1px] border-gray-400">
+          <MenuItem icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
+          <MenuItem icon={<PiUserCheckFill size={25} />} label="Novos psicologos" onClick={() => router.push('/aprove-psc')} />
+          <MenuItem icon={<GrUserAdmin size={25} />} label="Novo Administrador" onClick={() => router.push('/novo_admin')} />
+
+        </nav>
+
+      )}
+
+
 
 
     </div>

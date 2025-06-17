@@ -6,6 +6,7 @@ type AvaliacaoCampos = {
   audio: number;
   video: number;
   experienciaGeral: number;
+  avaliacaoProfissional: number;
   comentario: string;
 };
 
@@ -14,22 +15,23 @@ export default function AvaliacaoReuniao() {
     audio: 0,
     video: 0,
     experienciaGeral: 0,
+    avaliacaoProfissional: 0,
     comentario: "",
   });
 
-  const [isAvaliado, setAvaliado] = useState<boolean>(false)
+  const [isAvaliado, setAvaliado] = useState<boolean>(false);
 
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setAvaliado(true)
-    showSuccessMessage("Obrigado Por avaliar, até breve !!!");
+    setAvaliado(true);
+    showSuccessMessage("Avaliação enviada com sucesso!");
   };
 
   const campos: { label: string; key: keyof AvaliacaoCampos }[] = [
     { label: "Qualidade do Áudio", key: "audio" },
     { label: "Qualidade do Vídeo", key: "video" },
     { label: "Experiência Geral", key: "experienciaGeral" },
+    { label: "Atendimento do Psicólogo", key: "avaliacaoProfissional" },
   ];
 
   const renderNota = (campo: keyof AvaliacaoCampos) => (
@@ -38,10 +40,11 @@ export default function AvaliacaoReuniao() {
         <button
           key={nota}
           type="button"
-          className={`w-9 h-9 rounded-full text-sm font-semibold border transition-colors duration-150 ${avaliacao[campo] === nota
+          className={`w-9 h-9 rounded-full text-sm font-semibold border transition-colors duration-150 ${
+            avaliacao[campo] === nota
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-800 hover:bg-blue-100"
-            }`}
+          }`}
           onClick={() =>
             setAvaliacao((prev) => ({ ...prev, [campo]: nota }))
           }
@@ -51,7 +54,6 @@ export default function AvaliacaoReuniao() {
       ))}
     </div>
   );
-  <img src='/public/marca/big_icon_tiviai.png' alt="teste" />
 
   return (
     <div
@@ -63,50 +65,58 @@ export default function AvaliacaoReuniao() {
         backgroundSize: "1500px",
       }}
     >
-      {/* camada com cor + blur */}
-      <div className={`w-full max-w-2xl bg-white/10 backdrop-blur-lg rounded-xl shadow-lg p-8 ${isAvaliado ? "hidden" : ""
-        }`}>
-        <h2 className="text-center text-2xl font-semibold text-gray-800 mb-8">
-          Avalie sua reunião
-        </h2>
+      {!isAvaliado ? (
+        <div className="w-full max-w-2xl bg-white/10 backdrop-blur-lg rounded-xl shadow-lg p-8">
+          <h2 className="text-center text-2xl font-semibold text-gray-800 mb-8">
+            Avalie sua reunião e atendimento
+          </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            {campos.map(({ label, key }) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className="text-gray-700 w-48">{label}</span>
-                {renderNota(key)}
-              </div>
-            ))}
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              {campos.map(({ label, key }) => (
+                <div key={key} className="flex items-center justify-between">
+                  <span className="text-gray-700 w-48">{label}</span>
+                  {renderNota(key)}
+                </div>
+              ))}
+            </div>
 
-          <div>
-            <label className="block text-gray-700 mb-1">Comentários:</label>
-            <textarea
-              className="w-full p-2 border border-gray-300 rounded-md resize-none"
-              rows={4}
-              placeholder="Conte-nos o que achou da reunião..."
-              value={avaliacao.comentario}
-              onChange={(e) =>
-                setAvaliacao((prev) => ({
-                  ...prev,
-                  comentario: e.target.value,
-                }))
-              }
-            />
-          </div>
+            <div>
+              <label className="block text-gray-700 mb-1">Comentários:</label>
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded-md resize-none"
+                rows={4}
+                placeholder="Conte-nos o que achou da reunião e do atendimento..."
+                value={avaliacao.comentario}
+                onChange={(e) =>
+                  setAvaliacao((prev) => ({
+                    ...prev,
+                    comentario: e.target.value,
+                  }))
+                }
+              />
+            </div>
 
-          <div className="text-center">
-            <button
-              type="submit"
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-            >
-              Enviar Avaliação
-            </button>
-          </div>
-        </form>
-      </div>
+            <div className="text-center">
+              <button
+                type="submit"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+              >
+                Enviar Avaliação
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : (
+        <div className="w-full max-w-2xl bg-white/30 backdrop-blur-lg rounded-xl shadow-lg p-8 text-center">
+          <h2 className="text-3xl font-semibold text-gray-800 mb-4">
+            Obrigado pela sua avaliação!
+          </h2>
+          <p className="text-gray-700">
+            Sua opinião é muito importante para nós. Até breve!
+          </p>
+        </div>
+      )}
     </div>
   );
 }
-/* adaptar o prisma para salvar a avaliação do paciente */

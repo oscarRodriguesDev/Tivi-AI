@@ -12,24 +12,6 @@ import LoadingNoHidration from "@/app/protected-components/noHidration";
 import { useAccessControl } from "@/app/context/AcessControl";
 import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
 
-
-
-/**
- * Componente de perfil do psicólogo.
- *
- * Este componente permite visualizar e editar as informações do psicólogo,
- * incluindo nome, contato, registro profissional, descrição e foto de perfil.
- *
- * Funcionalidades principais:
- * - Buscar dados do psicólogo no banco de dados via API.
- * - Permitir a edição dos dados cadastrais.
- * - Alterar a senha com criptografia (bcrypt).
- * - Fazer upload e atualização da foto de perfil.
- * - Controlar o fluxo de primeiro acesso com validação de senha.
- *
- * @component
- * @returns {JSX.Element} Interface de perfil do psicólogo.
- */
 const Perfil = () => {
     const { id } = useParams<{ id: string }>();
     const [psicologo, setPsicologo] = useState<Psicologo | null>(null);
@@ -40,20 +22,7 @@ const Perfil = () => {
 
     const { role } = useAccessControl()
 
-    /**
-     * Busca os dados do psicólogo no banco de dados.
-     *
-     * Esta função realiza uma requisição à API para obter os dados do psicólogo
-     * com base no `userId` fornecido. Os dados recebidos são armazenados nos estados
-     * `psicologo` e `formData`.
-     *
-     * @async
-     * @function fetchUserData
-     * @param {string} userId - O ID do psicólogo a ser buscado.
-     * @returns {Promise<void>} Não retorna valor diretamente, mas atualiza os estados do componente.
-     *
-     * @throws {Error} Lança um erro caso a requisição falhe ou a resposta não seja bem-sucedida.
-     */
+
     async function fetchUserData(userId: string) {
         try {
             const res = await fetch(`/api/user-profile?id=${userId}`);
@@ -75,19 +44,7 @@ const Perfil = () => {
         }
     }, [id]);
 
-    /**
-    * Controla a renderização do componente de troca de senha.
-    *
-    * Regras:
-    * - Renderiza o componente (`setRenderBox(true)`) se:
-    *   - O usuário for um psicólogo e ainda não tiver feito o primeiro acesso (first_acess === false)
-    *   - Ou se a flag `alterar` estiver ativada manualmente
-    * - Caso contrário, oculta o componente (`setRenderBox(false)`)
-    *
-    * @param {object} psicologo - Objeto do psicólogo logado
-    * @param {boolean} alterar - Flag que indica se o componente deve ser aberto manualmente
-    * @param {Function} setRenderBox - Função que ativa/desativa a renderização do componente
-    */
+
     useEffect(() => {
         if (!psicologo) return
 
@@ -95,16 +52,7 @@ const Perfil = () => {
         setRenderBox(deveRenderizar)
     }, [alterar])
 
-    /**
-     * Manipula as alterações nos campos de entrada do formulário.
-     *
-     * Atualiza o estado `formData` com os valores inseridos pelo usuário
-     * em campos de entrada (`input` ou `textarea`).
-     *
-     * @function handleChange
-     * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Evento de mudança no campo de entrada.
-     * @returns {void} Não retorna nenhum valor.
-     */
+
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
@@ -112,17 +60,6 @@ const Perfil = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    /**
-     * Salva as alterações feitas no perfil do psicólogo.
-     *
-     * Atualiza o estado `psicologo` com os dados do formulário,
-     * chama a função `handleUpdate` para persistir as alterações no banco de dados
-     * e desativa o modo de edição.
-     *
-     * @async
-     * @function handleSave
-     * @returns {Promise<void>} Não retorna nenhum valor explícito.
-     */
     const handleSave = async () => {
         setPsicologo(formData);
         await handleUpdate();
@@ -131,23 +68,74 @@ const Perfil = () => {
 
 
 
-    /**
-     * Função responsável por atualizar os dados do perfil do psicólogo.
-     * Envia uma requisição PUT para a API com as informações atualizadas e, caso tenha sucesso, atualiza o estado do psicólogo.
-     * Exibe uma mensagem de sucesso ou erro conforme o resultado da operação.
-     *
-     * @async
-     * @function handleUpdate
-     * @returns {Promise<void>} Retorna uma promessa que não resolve com valor, apenas executa a atualização e exibe  correspondentes.
-     */
+  
+
+    const handleProfilePictures = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+    
+        try {
+            const fileData = new FormData();
+            fileData.append("file", file);
+    
+            const res = await fetch("/api/uploads/?path=profile-pictures", {
+                method: "POST",
+                body: fileData,
+            });
+    
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || "Erro no upload");
+            }
+    
+            const data = await res.json();
+            showSuccessMessage("Foto carregada. Clique em salvar para aplicar.");
+    
+            setFormData((prevFormData) =>
+                prevFormData ? { ...prevFormData, photoprofile: data.url } : null
+            );
+        } catch (error) {
+            showErrorMessage("Erro ao carregar a foto.");
+        }
+    };
+    
+
+    const handleBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+    
+        try {
+            const fileData = new FormData();
+            fileData.append("file", file);
+    
+            const res = await fetch("/api/uploads/?path=banner", {
+                method: "POST",
+                body: fileData,
+            });
+    
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || "Erro no upload");
+            }
+    
+            const data = await res.json();
+            showSuccessMessage("Banner carregado. Clique em salvar para aplicar.");
+    
+            setFormData((prevFormData) =>
+                prevFormData ? { ...prevFormData, banner: data.url } : null
+            );
+        } catch (error) {
+            showErrorMessage("Erro ao carregar o banner.");
+        }
+    };
+    
+
     const handleUpdate = async () => {
         if (!formData) return;
-
-
         try {
-            const { id, ...restOfFormData } = formData || {}; // Desestruturando o formData
+            const { id, ...restOfFormData } = formData;
             const payload = { id: psicologo?.id, ...restOfFormData };
-
+    
             const res = await fetch(`/api/user-profile`, {
                 method: "PUT",
                 headers: {
@@ -155,9 +143,11 @@ const Perfil = () => {
                 },
                 body: JSON.stringify(payload),
             });
-
-            if (!res.ok) throw new Error("Erro ao atualizar perfil");
-
+    
+            if (!res.ok) {
+                throw new Error("Erro ao atualizar perfil");
+            }
+    
             const updatedUser = await res.json();
             setPsicologo(updatedUser);
             showSuccessMessage("Perfil atualizado com sucesso!");
@@ -165,89 +155,10 @@ const Perfil = () => {
             showErrorMessage("Falha ao atualizar perfil. Tente novamente.");
         }
     };
-
-    /**
-     * Função responsável por lidar com a alteração do arquivo de imagem (foto de perfil).
-     * Realiza o upload do arquivo para o servidor e atualiza a URL da foto de perfil no estado do formulário.
-     * Exibe um aviso caso ocorra algum erro durante o upload.
-     *
-     * @async
-     * @function handleProfilePictures
-     * @param {React.ChangeEvent<HTMLInputElement>} e - O evento de mudança de arquivo do input de tipo arquivo.
-     * @returns {Promise<void>} Retorna uma promessa que não resolve com valor, apenas executa o upload e atualiza o estado do formulário.
-     */
-    const handleProfilePictures = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !formData) return;
-
-        try {
-            const fileData = new FormData();
-            fileData.append("file", file);
-
-            const res = await fetch("/api/uploads/?path=profile-pictures", {
-                method: "POST",
-                body: fileData,
-            });
-
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.error || "Erro no upload");
-            }
-
-            const data = await res.json();
-            showSuccessMessage("Foto de perfil atualizada!");
-
-            // Atualiza com a URL correta
-            setFormData((prevFormData) =>
-                prevFormData ? { ...prevFormData, photoprofile: data.url } : null
-            );
-        } catch (error) {
-            showErrorMessage("Erro ao enviar a foto. Tente novamente.");
-        }
-    };
+    
 
 
 
-
-    //função para alterar banner
-    const handleBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !formData) return;
-
-        try {
-            const fileData = new FormData();
-            fileData.append("file", file);
-
-            const res = await fetch("/api/uploads/?path=banner", {
-                method: "POST",
-                body: fileData,
-            });
-
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.error || "Erro no upload");
-            }
-
-            const data = await res.json();
-            showSuccessMessage("Banner atualizado!");
-
-            // Atualiza com a URL correta
-            setFormData((prevFormData) =>
-                prevFormData ? { ...prevFormData, banner: data.url } : null
-            );
-        } catch (error) {
-            showErrorMessage("Erro ao enviar o banner. Tente novamente.");
-        }
-    };
-
-
-
-    /**
-  * Condicional que verifica se os dados do psicólogo ou o formulário estão carregados.
-  * Caso contrário, exibe a mensagem de "Carregando..." enquanto os dados são carregados.
-  *
-  * @returns {LoadingNoHidration} O componente de carregamento ou o conteúdo do perfil do psicólogo.
-  */
 
     if (!psicologo || !formData) {
         return (
@@ -258,7 +169,7 @@ const Perfil = () => {
 
         return (
             <>
-              
+
                 {!renderBox ? (
 
                     <div className="w-full min-h-screen bg-gray-100 flex flex-col items-center">
@@ -281,7 +192,7 @@ const Perfil = () => {
                             <div className="w-full rounded-xl overflow-hidden border border-gray-300 shadow-md bg-white">
                                 <div className="relative w-full h-60 bg-gray-800">
                                     <Image
-                                        src={tiviai}
+                                        src={formData.banner || capa_default}
                                         width={800}
                                         height={375}
                                         alt="Banner"
@@ -332,6 +243,13 @@ const Perfil = () => {
                                         onChange={handleProfilePictures} // Atualiza a foto ao selecionar
                                         placeholder="Foto de perfil"
                                     />
+                                     <Image
+                                    src={formData.photoprofile || userDefault}
+                                    alt="imagem de perfil"
+                                    width={75}
+                                    height={75}
+                                    className="w-20 h-20 rounded-full object-cover" // Usando as classes Tailwind
+                                />
                                 </>
                             ) : (
                                 <Image

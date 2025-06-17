@@ -27,10 +27,10 @@ export default function Footer() {
 
             <p className="text-gray-600 mb-4">Inteligencia que transforma vidas!</p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
+            {/*   <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
                 <FaFacebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
+              </a> */}
+              <a href="https://www.instagram.com/tiviai.ia/" className="text-gray-400 hover:text-tivi-primary transition-colors">
                 <FaInstagram className="h-5 w-5" />
               </a>
               <a href="https://www.linkedin.com/company/tiviai/?viewAsMember=true" className="text-gray-400 hover:text-tivi-primary transition-colors">

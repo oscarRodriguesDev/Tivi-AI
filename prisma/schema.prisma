@@ -16,16 +16,16 @@ enum UserRole {
 
 // Usuários do sistema (Admin e Psicólogo)
 model User {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   name          String
   lastname      String?
-  email         String   @unique
-  email_confirm String?   
+  email         String      @unique
+  email_confirm String?
   password      String
   role          UserRole
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  registro      String?  // Campo opcional
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  registro      String? // Campo opcional
   cfp           String?
   crp           String?
   celular       String?
@@ -42,8 +42,8 @@ model User {
   rua           String?
   cidade        String?
   uf            String?
-  description   String?   //bio do psicologo
-  banner        String?  //foto de capa do psicolog
+  description   String? //bio do psicologo
+  banner        String? //foto de capa do psicolog
   photoprofile  String? //foto de perfil do pisicologo
   linkedin      String? //
   instagram     String?
@@ -51,79 +51,94 @@ model User {
   whatsapp      String?
   psicologoid   String? //id do psicologo responsavel especifico para pacientes
   first_acess   Boolean? // vamos utilizar esse boolean para que o usuario troque sua senha
-
+  avaliacoes    Avaliacao[]
 }
 
 //pré cadastro de Psicologos
 model PrePsicologo {
- id            String   @id @default(uuid())
- cpf           String   @unique
- cfp           String   @unique
- crp           String   @unique
- nome          String
- lastname      String?
- rg            String
- email         String  
- data_nasc     String
- celular       String  
- telefone      String
- habilitado    Boolean
+  id         String  @id @default(uuid())
+  cpf        String  @unique
+  cfp        String  @unique
+  crp        String  @unique
+  nome       String
+  lastname   String?
+  rg         String
+  email      String
+  data_nasc  String
+  celular    String
+  telefone   String
+  habilitado Boolean
 }
- 
- //se um dia paciente fizer login será como common user
+
+//se um dia paciente fizer login será como common user
 model Paciente {
-   id             String @id @default(uuid())//psc
-   nome           String? 
-   cpf            String 
-   fantasy_name   String?
-   idade          String?
-   sintomas       String?
-   telefone       String?
-   convenio       String?
-   sexo           String?
-   cep            String?
-   cidade         String?
-   bairro         String?
-   rua            String?
-   numero         String?
-   pais           String?
-   complemento    String?
-   estado         String?
-   email          String?
-   rg             String?
-   psicologoId    String? //id do psicologo responsavel
+  id           String  @id @default(uuid()) //psc
+  nome         String?
+  cpf          String
+  fantasy_name String?
+  idade        String?
+  sintomas     String?
+  telefone     String?
+  convenio     String?
+  sexo         String?
+  cep          String?
+  cidade       String?
+  bairro       String?
+  rua          String?
+  numero       String?
+  pais         String?
+  complemento  String?
+  estado       String?
+  email        String?
+  rg           String?
+  psicologoId  String? //id do psicologo responsavel
 }
+
 //as consultas vão ter um modelo para serem criadas
-model Consulta{
-  id             String @id @default(uuid()) //id da reunião
-  pacienteId     String? //id do paciente
-  fantasy_name   String?
-  name           String?
-  titulo         String?
-  psicologoId    String? //id do psicologo
-  data           String? //data da consulta
-  hora           String? //hora da consulta
-  tipo_consulta  String? //tipo de consulta presencial ou online
-  observacao     String? //observação da consulta
-  recorrencia    String?
-  code           String? @unique
-  duracao        String? //tempo de duração da reunião
+model Consulta {
+  id            String  @id @default(uuid()) //id da reunião
+  pacienteId    String? //id do paciente
+  fantasy_name  String?
+  name          String?
+  titulo        String?
+  psicologoId   String? //id do psicologo
+  data          String? //data da consulta
+  hora          String? //hora da consulta
+  tipo_consulta String? //tipo de consulta presencial ou online
+  observacao    String? //observação da consulta
+  recorrencia   String?
+  code          String? @unique
+  duracao       String? //tempo de duração da reunião
 }
 
 // registro do consentimento do usuário
-model Consents_Agreements{
-   id             String @id @default(uuid()) //id do termos de dados        
-   ipNumber       String 
-   data_consent   String
-   hora_consent   String 
-   nome_consent   String
-   cpf_consent    String  
+model Consents_Agreements {
+  id           String @id @default(uuid()) //id do termos de dados        
+  ipNumber     String
+  data_consent String
+  hora_consent String
+  nome_consent String
+  cpf_consent  String
 }
 
-model cookies_consent{
-  id              String @id @default(uuid()) //id do consentimento de cookies   
-  ipNumber        String 
-  data            String
-  Hora            String
-  permissão       Boolean
+model cookies_consent {
+  id         String  @id @default(uuid()) //id do consentimento de cookies   
+  ipNumber   String
+  data       String
+  Hora       String
+  permissão Boolean
+}
+
+model Avaliacao {
+  id                    String   @id @default(uuid())
+  audio                 Int
+  video                 Int
+  experienciaGeral      Int
+  avaliacaoProfissional Int
+  comentario            String?
+  createdAt             DateTime @default(now())
+
+  // Relação com Psicologo
+  psicologo   User   @relation(fields: [psicologoId], references: [id])
+  psicologoId String
 }
