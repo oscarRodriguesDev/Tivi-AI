@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
-import { showSuccessMessage } from "../util/messages";
+import { useEffect, useState } from "react";
+import { showSuccessMessage } from "@/app/util/messages";
+import { useParams } from "next/navigation";
 
 type AvaliacaoCampos = {
   audio: number;
@@ -8,6 +9,7 @@ type AvaliacaoCampos = {
   experienciaGeral: number;
   avaliacaoProfissional: number;
   comentario: string;
+  psicologoId:string;
 };
 
 export default function AvaliacaoReuniao() {
@@ -17,15 +19,51 @@ export default function AvaliacaoReuniao() {
     experienciaGeral: 0,
     avaliacaoProfissional: 0,
     comentario: "",
+    psicologoId: "",
   });
 
   const [isAvaliado, setAvaliado] = useState<boolean>(false);
 
+  const { idPsicologo } = useParams();
+  const psicologoId = String(idPsicologo); // garante que é string
+  
+
+  useEffect(() => {
+    setAvaliacao((prev) => ({
+      ...prev,
+      psicologoId: psicologoId, ///agora tem que pegar ID real do psicologo que esta sendo avaliado
+    }));
+  }, []);
+  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setAvaliado(true);
-    showSuccessMessage("Avaliação enviada com sucesso!");
+  
+    try {
+      const res = await fetch('/api/avaliacao', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(avaliacao) // Envia os valores selecionados
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao enviar avaliação');
+      }
+  
+      setAvaliado(true);
+      showSuccessMessage("Avaliação enviada com sucesso!");
+    } catch (error) {
+      console.error(error);
+      // Você pode exibir um alerta de erro aqui
+    }
   };
+  
+
+
 
   const campos: { label: string; key: keyof AvaliacaoCampos }[] = [
     { label: "Qualidade do Áudio", key: "audio" },

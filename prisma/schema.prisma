@@ -51,7 +51,6 @@ model User {
   whatsapp      String?
   psicologoid   String? //id do psicologo responsavel especifico para pacientes
   first_acess   Boolean? // vamos utilizar esse boolean para que o usuario troque sua senha
-  avaliacoes    Avaliacao[]
 }
 
 //pré cadastro de Psicologos
@@ -137,8 +136,5 @@ model Avaliacao {
   avaliacaoProfissional Int
   comentario            String?
   createdAt             DateTime @default(now())
-
-  // Relação com Psicologo
-  psicologo   User   @relation(fields: [psicologoId], references: [id])
   psicologoId String
 }

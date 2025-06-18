@@ -11,62 +11,14 @@
  * - Ícones (`Mic`, `MicOff`, `Video`, `VideoOff`, `LogOut`): Ícones da biblioteca Lucide para representar os controles da interface.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from '../../components/transcriptPAC'
+import LiveTranscription from '../../../components/transcriptPAC'
 import { Mic, MicOff, Video, VideoOff, LogOut, Router } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { showCustomMessage, showErrorMessage, showInfoMessage } from "@/app/util/messages";
+import {  showErrorMessage, showInfoMessage } from "@/app/util/messages";
 
-
-/**
- * Componente `PublicCallPage`
- *
- * Este componente representa a interface da videochamada pública entre psicólogo e paciente.
- * Ele utiliza a biblioteca `peerjs` para estabelecer uma conexão P2P (peer-to-peer) de vídeo e áudio,
- * além de monitorar o microfone do paciente e gerar transcrições em tempo real, que são exibidas para o psicólogo.
- *
- * 🔹 FUNCIONALIDADES PRINCIPAIS:
- * - Estabelece chamada de vídeo e áudio entre dois usuários (psicólogo e paciente).
- * - Identifica o papel do participante (psicólogo ou paciente) e organiza a transcrição conforme o papel.
- * - Usa o Web Audio API (`AnalyserNode`) para monitorar o volume de entrada e determinar se alguém está falando.
- * - Envia o ID do peer para uma API back-end para mapeamento com a sessão da sala.
- * - Exibe a transcrição em tempo real usando o componente `<LiveTranscription />`.
- * - Permite ligar/desligar microfone e vídeo localmente.
- *
- * 🔧 USO DE HOOKS E REFERÊNCIAS:
- * - `useState`: Controla estados de interface e dados como vídeo, áudio, transcrição, ID do peer, etc.
- * - `useRef`: Armazena elementos de vídeo/áudio e instâncias persistentes como `Peer` e `AudioContext`.
- * - `useEffect`: Inicializa o peer e define os manipuladores de chamada ao carregar o componente.
- * - `useParams`: Captura o `iddinamico` da URL para identificar a sala.
- *
- * 🧠 MONITORAMENTO DE MICROFONE:
- * - A função `monitorMicrophone` usa `AnalyserNode` para ler o volume do microfone.
- * - Quando o volume é alto o suficiente, assume que o usuário está falando e dispara `handleTranscription`.
- * - O áudio remoto é automaticamente mutado para evitar eco durante a fala.
-
- * 📝 TRANSCRIÇÃO:
- * - `handleTranscription` atualiza o estado com a transcrição da conversa, separando psicólogo e paciente.
- * - A transcrição é exibida ao vivo para o psicólogo, e associada à sala em questão.
-
- * 📹 INTERFACE:
- * - Vídeo principal: mostra o vídeo do outro participante.
- * - Vídeo em miniatura: mostra o próprio vídeo.
- * - Controles flutuantes: ativar/desativar microfone, vídeo e encerrar chamada.
- *
- * 🚨 NOTAS:
- * - A parte de ligar/desligar microfone e vídeo ainda precisa ser implementada funcionalmente.
- * - Atualmente, a transcrição é feita apenas do lado do paciente (ou quem estiver configurado como `!isPsychologist`).
- * - A gravação e transcrição do áudio do psicólogo diretamente do alto-falante ainda está em desenvolvimento.
- *
- * 🧪 DEPENDÊNCIAS:
- * - `peerjs`: conexão WebRTC simplificada.
- * - `lucide-react`: ícones para a interface.
- * - `LiveTranscription`: componente personalizado para exibir e salvar transcrições.
-
- * @returns JSX.Element - Interface completa da videochamada com transcrição ao vivo.
- */
 
 
 export default function PublicCallPage() {
@@ -108,7 +60,8 @@ export default function PublicCallPage() {
   /**
    * ID dinâmico da sala de atendimento, extraído da URL usando o App Router do Next.js.
    */
-  const { iddinamico } = useParams();
+  const { iddinamico} = useParams();
+  const {idpsc} = useParams();
 
   /**
    * ID único gerado para o peer atual ao se conectar ao servidor PeerJS.
@@ -166,7 +119,6 @@ export default function PublicCallPage() {
   const [textButton, setTextButton] = useState<string>("Ingessar na Consulta");
 
   const router = useRouter();
-
 
 
 
@@ -337,7 +289,7 @@ export default function PublicCallPage() {
     setCallActive(false);
 
     //chamar tela de avaliação
-    router.push("/avaliacao");
+    router.push(`/avaliacao/${idpsc}`);
 
   };
 

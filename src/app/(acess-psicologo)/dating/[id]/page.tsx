@@ -183,7 +183,7 @@ export default function AgendamentoPage() {
     if (id === "fake-id") {
       showErrorMessage("O link de demonstração não pode ser copiado!");
     } else {
-      const link = `${window.location.origin}/publiccall/${id}`;
+      const link = `${window.location.origin}/publiccall/${id}/${psicologo}`;
       navigator.clipboard.writeText(link).then(() => {
         setCopiedLinks((prev) => ({ ...prev, [id]: true }));
         setTimeout(() => {
@@ -199,7 +199,7 @@ export default function AgendamentoPage() {
     if (idReuniao === "fake-id") {
       showErrorMessage("O link de demonstração não pode ser copiado!");
     } else {
-      const linkReuniao = `/publiccall/${idReuniao}`;
+      const linkReuniao = `/publiccall/${idReuniao}/${psicologo}`;
       const mensagem = `Olá! Aqui está o link para acessar sua reunião agendada:
       Data: ${data}
       Hora: ${hora}
