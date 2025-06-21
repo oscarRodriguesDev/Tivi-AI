@@ -17,6 +17,7 @@ import { HiDocumentMagnifyingGlass } from "react-icons/hi2";
 import { RiPlayList2Fill } from "react-icons/ri";
 import TranscriptionModal from "./modalTranscription";
 import { showErrorMessage, showInfoMessage, showLoadingMessage, showPersistentLoadingMessage,updateToastMessage, } from "../util/messages";
+import { DocumentoModal } from "./modaldoc";
 
 
 
@@ -90,6 +91,27 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   const [analise, setAnalise] = useState<string>('nenhuma analise')
   const [ligado, setLigado] = useState<boolean>(false) //usar essa variavel pra controlar quando vai transcrever
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState(false);
+  const [tipoSelecionado, setTipoSelecionado] = useState<string>();
+
+
+  const handleSelectTipo = (tipo: string) => {
+    setTipoSelecionado(tipo);
+    console.log('Tipo selecionado:', tipo);
+  };
+
+  const handleGenerate = () => {
+    if (tipoSelecionado) {
+      console.log('Gerar documento do tipo:', tipoSelecionado);
+      // Chama a função que gera o insight/documento
+      handleGetInsights(transcription);
+      setShowModal(false);
+    } else {
+      alert('Selecione um tipo de documento primeiro!');
+    }
+  };
+
+
 
 
 
@@ -366,7 +388,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 120000); //120 segundos
     try {
-      const response = await fetch('/api/internal/insight/psicochat', {
+      const response = await fetch(`/api/internal/insight/psicochat/?tipo=${tipoSelecionado}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -397,112 +419,20 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
 
 
 
-  /**
- * Hook `useEffect` que solicita permissão de uso do microfone ao montar o componente
- * e inicia automaticamente a transcrição de voz.
- *
- * - Verifica se a API de reconhecimento de voz está disponível no navegador.
- * - Solicita permissão de uso do microfone via `getUserMedia`.
- * - Se concedida, inicia uma instância de `SpeechRecognition` configurada para transcrição contínua em português (PT-BR).
- * - Salva automaticamente cada transcrição final na API.
- * - Trata erros de permissão ou falhas na API de reconhecimento de voz.
- * - Interrompe o reconhecimento ao desmontar o componente.
- *
- * @function useEffect
- * @returns {void}
- */
-
-
-  /*   //use efect para gravar automaticamentde
-    useEffect(() => {
-      if (typeof window === "undefined") return;
-    
-      const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
-      if (!SpeechRecognition) {
-        setError("Seu navegador não suporta reconhecimento de voz.");
-        return;
-      }
-    
-      // Função para pedir permissão e iniciar a transcrição
-      const requestMicrophonePermission = async () => {
-        try {
-          // Tentamos acessar o microfone. O prompt de permissão é exibido automaticamente.
-          await navigator.mediaDevices.getUserMedia({ audio: true });
-    
-          const recognitionInstance = new SpeechRecognition();
-          recognitionInstance.continuous = true;
-          recognitionInstance.interimResults = false;
-          recognitionInstance.lang = "PT-BR";
-    
-          recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
-            let transcript = "";
-    
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-              const result = event.results[i];
-              if (result.isFinal) {
-                transcript = result[0].transcript + "\n";
-              }
-            }
-    
-            if (transcript.trim()) {
-              setTranscription((prev) => `${usuario}: ${transcript}`);
-              saveMessage(`${usuario}: ${transcript}`); // Salvar transcrição na API
-            }
-          };
-    
-          recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
-            setError(`Erro no reconhecimento: ${event.error}`);
-          };
-    
-          setRecognition(recognitionInstance);
-    
-          // Iniciar transcrição após permissão
-          recognitionInstance.start();
-        } catch (err) {
-          setError("Permissão para usar o microfone não concedida.");
-        }
-      };
-    
-      // Dispara a solicitação de permissão
-      requestMicrophonePermission();
-    
-      // Cleanup
-      return () => {
-        if (recognition) {
-          recognition.stop(); // Parar o reconhecimento quando o componente for desmontado
-        }
-      };
-    }, []); // A dependência vazia faz com que isso seja executado apenas uma vez no mount
-    
-   */
-
-
-
-  /**
-* Renderiza a interface do componente principal de transcrição.
-*
-* Componentes e elementos incluídos:
-* - `TranscriptionModal`: Modal que exibe a análise da transcrição.
-* - Título da transcrição.
-* - Mensagem de erro (se houver).
-* - Bloco de exibição da transcrição (rolável, com altura máxima de 60vh).
-* - Conjunto de botões fixos para ações:
-*   - Exibir modal com análise (`setIsOpen`).
-*   - Salvar a transcrição em PDF (`handleSavePDF`).
-*   - Gerar insights com base na transcrição (`handleGetInsights`).
-*   - Iniciar ou parar a escuta do microfone (toggle entre `handleStartListening` e `handleStopListening`).
-*
-* A interface é responsiva e utiliza ícones (FaEraser, FaFilePdf, FaBrain, RiPlayList2Fill, FaStop)
-* para facilitar a interação do usuário com as funções principais.
-*
-* @returns {JSX.Element} Interface completa da transcrição de voz e controles de interação.
-*/
-
   return (
 
     <>
+
+<div>
+      {showModal && (
+        <DocumentoModal
+          onClose={() => setShowModal(false)}
+          onGenerate={handleGenerate}
+          onSelectTipo={handleSelectTipo}
+          tipoSelecionado={tipoSelecionado}
+        />
+      )}
+    </div>
 
       <TranscriptionModal isOpen={isOpen} onClose={() => setIsOpen(false)} transcription={analise} />
 
@@ -548,7 +478,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
           <FaFilePdf size={14} />
         </button> */}
         <button
-          onClick={() => handleGetInsights(transcription)}
+         onClick={() =>    setShowModal(true) /* handleGetInsights(transcription) */}
           className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
           title="Análise"
         >

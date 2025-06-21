@@ -9,9 +9,7 @@
  */
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import nodemailer from 'nodemailer';
-import cryptoRandomString from 'crypto-random-string';
-import bcrypt from 'bcrypt';
+
 
 
 /**

@@ -160,26 +160,27 @@ const Pacientes = () => {
      * @return void
      *  */
     const calcularIdade = () => {
-        const dataNascimento = new Date(nasc);
+        if (!nasc) {
+          console.error("Data de nascimento não fornecida.");
+          return;
+        }
+      
+        const [ano, mes, dia] = nasc.split("-").map(Number); // formato yyyy-mm-dd
+        const dataNascimento = new Date(ano, mes - 1, dia);
         const dataAtual = new Date();
-
+      
         let idade = dataAtual.getFullYear() - dataNascimento.getFullYear();
-
-        // Verifica se o aniversário já aconteceu neste ano
-        const mesNascimento = dataNascimento.getMonth();
-        const diaNascimento = dataNascimento.getDate();
-
+      
         const mesAtual = dataAtual.getMonth();
         const diaAtual = dataAtual.getDate();
-
-        // Se o mês atual for antes do mês de nascimento ou se for o mês de nascimento mas o dia atual ainda não chegou
-        if (mesAtual < mesNascimento || (mesAtual === mesNascimento && diaAtual < diaNascimento)) {
-            idade--;
+      
+        if (mesAtual < mes - 1 || (mesAtual === mes - 1 && diaAtual < dia)) {
+          idade--;
         }
-
+      
         setIdade(String(idade));
-    }
-
+      };
+      
 
     /**
      * Função que faz o fetch para pegar o endereço quando o usuário digita o CEP.
@@ -341,8 +342,11 @@ const Pacientes = () => {
                                         value={nasc}
                                         onChange={(e) => {
                                             setNasc(e.target.value)
-                                            calcularIdade()
+                                           
                                         }}
+
+                                        onBlur={()=>{calcularIdade()}}
+                                      
                                         required
                                     />
                                 </div>

@@ -50,7 +50,9 @@ model User {
   facebook      String?
   whatsapp      String?
   psicologoid   String? //id do psicologo responsavel especifico para pacientes
-  first_acess   Boolean? // vamos utilizar esse boolean para que o usuario troque sua senha
+  first_acess   Boolean? 
+  pontuacao     Int[]
+  // vamos utilizar esse boolean para que o usuario troque sua senha
 }
 
 //pré cadastro de Psicologos
@@ -69,6 +71,50 @@ model PrePsicologo {
   habilitado Boolean
 }
 
+//pré-pacient //deletado depois de tratado e efetivado pelo psicologo
+model PrePaciente {
+  id                 Int      @id @default(autoincrement())
+  nome               String?
+  email              String?
+  endereco           String?
+  nascimento         String?
+  idade              String?
+  cpf                String?
+  telefone           String?
+  emergencia         String?
+  generoOrientacao   String?
+  estadoCivil        String?
+  origemConhecimento String?
+  preocupacao        String?
+  motivoAtendimento  String?
+  experienciaAnterior String?
+  saudeFisica        String?
+  detalhesSaudeFisica String?
+  medicamentos       String?
+  diagnosticoMental  String?
+  historicoFamiliar  String?
+  rotina             String?
+  sono               String?
+  atividadeFisica    String?
+  estresse           String?
+  convivencia        String?
+  relacaoFamiliar    String?
+  apoioSocial        String?
+  nivelFelicidade    String?
+  ansiedade          String?
+  pensamentosNegativos String?
+  objetivoTerapia    String?
+  temasDelicados     String?
+  estiloAtendimento  String?
+  observacoesFinais  String?
+  autorizacaoLGPD    Boolean?
+  habilitado         Boolean  @default(false)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+
 //se um dia paciente fizer login será como common user
 model Paciente {
   id           String  @id @default(uuid()) //psc
@@ -76,6 +122,8 @@ model Paciente {
   cpf          String
   fantasy_name String?
   idade        String?
+  resumo_anmp  String?
+ result_amnp   String[]
   sintomas     String?
   telefone     String?
   convenio     String?
@@ -138,3 +186,15 @@ model Avaliacao {
   createdAt             DateTime @default(now())
   psicologoId String
 }
+
+model AcessoAnamneseTemp {
+  id           String   @id @default(uuid())
+  token        String   @unique
+  ip           String?  // capturado no 1º acesso
+  acessado_em  DateTime? // registrado no 1º clique
+  pacienteId   String
+  psicologoId  String
+  criado_em    DateTime @default(now()) // usado para expiração
+}
+
+
