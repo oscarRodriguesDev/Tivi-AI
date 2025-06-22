@@ -1,7 +1,9 @@
+preciso salvar o psicologo id dentro do prepaciente
+para que eu consiga efetivar ele como paciente do psicologo
+o precadastro deve ser limpo a cada x dias para evitar dados incertos e desnecessarios
+mostrar uma lista de prepacientes na mesma lista de pacientes com um botão habilitar
+criar uma rotina de agendamento de reuniçoes com pacientes cadastrados, não impedindo de marcar com avulsos
 
-tela de precadastro não ficou legal com tema escuro, o fundo ta branco
-nova consulta em dashboards não abre o modal de nova consulta
-tela agendamento não ficou legal com tema escuro fndo ta branco 
-na pagina de novos administradores quando clicar no botoão novo adminnistrador tem que abrir o modal de novo administrador
+tem que mudar o prisma para que prepaciente aceite o id do psicologo
 
 

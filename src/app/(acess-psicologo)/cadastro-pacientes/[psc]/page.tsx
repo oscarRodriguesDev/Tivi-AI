@@ -1,8 +1,7 @@
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
-import { redirect, useRouter } from "next/navigation"; // Para redirecionamento
 import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone, FaExclamationTriangle } from 'react-icons/fa';
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Endereco } from "../../../../../types/adress";
 import HeadPage from "@/app/protected-components/headPage";
@@ -34,10 +33,7 @@ const Pacientes = () => {
     const [rg, setRg] = useState<string>(String(''))
     const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
 
-
-    /**
-     * limpa os campos do form para um novo envio
-     */
+   
     const resetForm = () => {
         setNome('');
         setCpf('');
@@ -62,11 +58,6 @@ const Pacientes = () => {
     };
 
 
-    /**
-     * envia os dados do paciente para o backend
-     * @param event 
-     * 
-     */
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 

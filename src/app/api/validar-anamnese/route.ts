@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: { psicologoId:string,token: string } }
 ) {
-  const { token } = params;
+  const { psicologoId,token } = params;
 
   // Extrai o IP (primeiro da lista de possíveis IPs)
   const ip =

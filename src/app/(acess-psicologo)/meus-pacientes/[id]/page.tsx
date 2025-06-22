@@ -10,12 +10,13 @@ import { GrDocumentUser } from "react-icons/gr";
 import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages"
 import { ModalPacientes } from "./components/modal-pacientes"
 import { Paciente } from "../../../../../types/paciente"
+import { PrePaciente } from "../../../../../types/prePacientes"
 import Notiflix from 'notiflix';
 
 const mockAtendimentos = [
   {
     id: '000001',
-    nome: "Oscar Rodrigues Neto",
+    nome: "paciente fake",
     idade: 40,
     telefone: "(27) 99999-9999",
     cidade: "Serra",
@@ -25,7 +26,7 @@ const mockAtendimentos = [
   },
   {
     id: '000002',
-    nome: "Tatiane Pontes",
+    nome: "paciente fake",
     idade: 33,
     telefone: "(27) 98888-8888",
     cidade: "Serra",
@@ -35,7 +36,7 @@ const mockAtendimentos = [
   },
   {
     id: '000003',
-    nome: "Cássio Jordan Almeida Alves",
+    nome: "pacient fake",
     idade: 32,
     telefone: "(27) 99777-7777",
     cidade: "Serra",
@@ -60,12 +61,14 @@ const getStatus = (status: string) => {
 
 
 //alterar depois meus atendimentos para meus pacientes
-const MeusAtendimentos = () => {
+const MeusPacientes = () => {
   const { role } = useAccessControl()
   const [pacientes, setPacientes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const { id } = useParams()
   const router = useRouter()
+  const [prePacientes, setPrePacientes] = useState<PrePaciente[]>([])
+ 
 
 
 
@@ -89,8 +92,32 @@ const MeusAtendimentos = () => {
   const { data: session, status } = useSession(); // Obtém os dados da sessão
   const name_psico = session?.user.name
 
+//busca os pré pacientes no banco
+  useEffect(() => {
+    const fetchPrePacientes = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/internal/register_pacientes/pre-pacientes?psicologoId=${id}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          setPrePacientes(data);
+          console.log(prePacientes)
+        } else {
+          showErrorMessage('Erro ao carregar pré-pacientes');
+        }
+      } catch (error) {
+        showErrorMessage('Erro ao carregar pré-pacientes');
+        console.error('Erro:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-
+    if (id) {
+      fetchPrePacientes();
+    }
+  }, [id]);
 
 
 
@@ -285,5 +312,5 @@ const MeusAtendimentos = () => {
   )
 }
 
-export default MeusAtendimentos
+export default MeusPacientes
 //caveman method skincare

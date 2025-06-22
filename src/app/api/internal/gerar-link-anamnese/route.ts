@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const link = `${process.env.NEXTAUTH_URL}/amnp/${token}`;
+    const link = `${process.env.NEXTAUTH_URL}/amnp/${psicologoId}/${token}`;
 
     return NextResponse.json({ link }, { status: 201 });
   } catch (error) {
