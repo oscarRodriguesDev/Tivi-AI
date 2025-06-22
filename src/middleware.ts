@@ -1,14 +1,4 @@
-/* import { withAuth } from "next-auth/middleware";
 
-export default withAuth({
-  pages: {
-    signIn: "/login", // Página de login
-  },
-});
-
-export const config = {
-  matcher: ["/app/:path*", ], // Rotas protegidas
-}; */
 
 import { withAuth } from "next-auth/middleware";
 
@@ -29,6 +19,4 @@ export const config = {
     "/app/:path*",
     "/api/internal/:path*",   // Protege rotas API internas
   ],
-};
-
-
+}; 

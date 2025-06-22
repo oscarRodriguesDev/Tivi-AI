@@ -192,8 +192,7 @@ model AcessoAnamneseTemp {
   token        String   @unique
   ip           String?  // capturado no 1º acesso
   acessado_em  DateTime? // registrado no 1º clique
-  pacienteId   String
-  psicologoId  String
+  psicologoId  String?
   criado_em    DateTime @default(now()) // usado para expiração
 }
 

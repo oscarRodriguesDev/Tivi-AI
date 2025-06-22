@@ -10,6 +10,7 @@ import { PiUserCheckFill } from "react-icons/pi";
 import { FaSadTear } from "react-icons/fa";
 import { GrUserAdmin } from "react-icons/gr";
 import { BsCalendarCheckFill } from "react-icons/bs";
+import { FaHourglassHalf } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import Logomarca from '../../../public/marca/marca tiviai.png'
 import Image from "next/image";
@@ -53,6 +54,7 @@ const Menu: React.FC = () => {
           <MenuItem icon={<LuLibraryBig size={25} />} label="Base Científica" onClick={() => router.push(`/cientific/${id}`)} />
           {/*  <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push(`/finance/${id}`)} /> */}
           <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push(`/credit/${id}`)} />
+          <MenuItem icon={<FaHourglassHalf size={25} />} label="Link Temporario" onClick={() => router.push(`/temp-link/${id}`)} />
        
 
         </nav>

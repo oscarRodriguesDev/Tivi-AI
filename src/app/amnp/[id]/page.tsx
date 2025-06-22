@@ -1,6 +1,9 @@
 'use client'
 import { useState,useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import ValidadorLinkAnamnese from "@/app/protected-components/avalielink/avaliador";
+import { showErrorMessage } from "@/app/util/messages";
+
 
 interface AnamneseData {
   nome: string;
@@ -92,8 +95,8 @@ export default function FormularioAnamnese() {
         setAutorizado(true);
       } else {
         setAutorizado(false);
-        alert("Link expirado ou acesso não autorizado.");
-        router.push("/acesso-negado"); // ou uma página de erro
+        showErrorMessage("Link expirado ou acesso não autorizado.");
+        router.push("/link-error"); // ou uma página de erro
       }
     }
 
@@ -207,6 +210,11 @@ export default function FormularioAnamnese() {
   }
 
   return (
+
+    <>
+      <ValidadorLinkAnamnese
+    token={String(id)}
+    />
     <div className="max-w-6xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold mb-6 text-center">Formulário de Anamnese</h1>
 
@@ -352,5 +360,7 @@ export default function FormularioAnamnese() {
         </div>
       </form>
     </div>
+    
+    </>
   );
 }

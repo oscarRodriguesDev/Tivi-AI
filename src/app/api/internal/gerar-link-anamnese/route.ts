@@ -5,12 +5,13 @@ import { randomUUID } from 'crypto';
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
+  console.log("Recebido POST em /api/internal/gerar-link-anamnese");
   try {
-    const { pacienteId, psicologoId } = await req.json();
+    const {  psicologoId } = await req.json();
 
-    if (!pacienteId || !psicologoId) {
+    if ( !psicologoId) {
       return NextResponse.json(
-        { error: "Campos obrigatórios: pacienteId, psicologoId" },
+        { error: "Campos obrigatórios: psicologoId" },
         { status: 400 }
       );
     }
@@ -20,12 +21,11 @@ export async function POST(req: NextRequest) {
     await prisma.acessoAnamneseTemp.create({
       data: {
         token,
-        pacienteId,
-        psicologoId,
+        psicologoId, 
       },
     });
 
-    const link = `${process.env.NEXT_PUBLIC_APP_URL}/amnp/${token}`;
+    const link = `${process.env.NEXTAUTH_URL}/amnp/${token}`;
 
     return NextResponse.json({ link }, { status: 201 });
   } catch (error) {
