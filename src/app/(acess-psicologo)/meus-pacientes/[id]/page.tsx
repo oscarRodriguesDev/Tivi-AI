@@ -1,6 +1,6 @@
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"
-import { FaList, FaFileAlt, FaThumbsUp, FaThumbsDown, FaTrash, FaEdit } from "react-icons/fa"//icones de like e dislike
+import { FaList, FaFileAlt, FaThumbsUp, FaThumbsDown, FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa"//icones de like e dislike
 import HeadPage from "@/app/protected-components/headPage"
 import { useEffect, useState } from "react"
 import { redirect, useParams, useRouter } from "next/navigation"
@@ -65,7 +65,8 @@ const MeusPacientes = () => {
   const { role } = useAccessControl()
   const [pacientes, setPacientes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const { id } = useParams()
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter()
   const [prePacientes, setPrePacientes] = useState<PrePaciente[]>([])
  
@@ -94,14 +95,16 @@ const MeusPacientes = () => {
 
 //busca os pré pacientes no banco
   useEffect(() => {
+
+    console.log(id)
     const fetchPrePacientes = async () => {
       try {
         setLoading(true);
         const response = await fetch(`/api/internal/register_pacientes/pre-pacientes?psicologoId=${id}`);
-        
         if (response.ok) {
           const data = await response.json();
           setPrePacientes(data);
+          console.log(data)
           console.log(prePacientes)
         } else {
           showErrorMessage('Erro ao carregar pré-pacientes');
@@ -297,6 +300,56 @@ const MeusPacientes = () => {
             )}
           </tbody>
         </table>
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Futuros pacientes</h2>
+        <table className="w-full bg-white rounded-lg shadow overflow-hidden">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Idade</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {prePacientes.length > 0 ? (
+              prePacientes.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm text-gray-900">{item.nome || 'N/A'}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{item.idade || 'N/A'}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{item.email || 'N/A'}</td>
+                  <td className="px-4 py-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900 px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                        onClick={() => alert('habilitar')}
+                        title="Habilitar como paciente"
+                      >
+                        <FaCheck />
+                        Habilitar
+                      </button>
+                      <button
+                        className="flex items-center gap-1 bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-800 px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                        onClick={() => alert('descartear')}
+                        title="Descartar pré-paciente"
+                      >
+                        <FaTimes />
+                        Descartar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                  Nenhum pré-paciente encontrado
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
       </div>
 
       {isModalOpen && (

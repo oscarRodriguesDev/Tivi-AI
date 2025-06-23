@@ -45,6 +45,7 @@ export async function POST(req: Request) {
       estiloAtendimento,
       observacoesFinais,
       autorizacaoLGPD,
+      psicologoId 
     } = body;
 
     // Validação simples dos campos obrigatórios (pode ser mais elaborado)
@@ -101,6 +102,7 @@ export async function POST(req: Request) {
         observacoesFinais,
         autorizacaoLGPD,
         habilitado: false,
+        psicologoId 
       },
     });
 

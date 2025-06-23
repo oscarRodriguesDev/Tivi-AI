@@ -109,7 +109,7 @@ model PrePaciente {
   observacoesFinais  String?
   autorizacaoLGPD    Boolean?
   habilitado         Boolean  @default(false)
-
+  psicologoId        String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }

@@ -3,10 +3,11 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const psicologoId = searchParams.get('psicologoId');
+    const psicologoId = searchParams.get("psicologoId");
 
     if (!psicologoId) {
       return NextResponse.json(
@@ -17,7 +18,8 @@ export async function GET(req: Request) {
 
     const prePacientes = await prisma.prePaciente.findMany({
       where: {
-        habilitado: false
+        habilitado: false,
+        psicologoId: psicologoId,
       },
       select: {
         id: true,
@@ -55,10 +57,10 @@ export async function GET(req: Request) {
         estiloAtendimento: true,
         observacoesFinais: true,
         autorizacaoLGPD: true,
-        habilitado: true,
+        habilitado: true, // ou false, conforme sua lógica
         createdAt: true,
-        updatedAt: true
-      }
+        updatedAt: true,
+      },
     });
 
     return NextResponse.json(prePacientes, { status: 200 });

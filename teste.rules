@@ -6,4 +6,6 @@ criar uma rotina de agendamento de reuniçoes com pacientes cadastrados, não im
 
 tem que mudar o prisma para que prepaciente aceite o id do psicologo
 
+verificar a possibilidade de associações das tabelas do banco de dados
+
 
