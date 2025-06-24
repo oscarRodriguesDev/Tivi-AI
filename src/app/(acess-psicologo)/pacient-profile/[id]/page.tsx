@@ -228,3 +228,8 @@ export default function PerfilPacientePage() {
     </>
   );
 }
+/* 
+git add *
+git commit -m 'alteração'
+git push origin oscar
+*/
