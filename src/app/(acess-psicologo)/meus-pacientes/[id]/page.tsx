@@ -36,7 +36,7 @@ const mockAtendimentos = [
     status:'ativo',
   
     // campos que estavam faltando
-    result_amnp: [], // ou algo mais significativo
+    result_amnp: [null], // ou algo mais significativo
     resumo_anmp: "", // idem
   },
   {
@@ -61,7 +61,7 @@ const mockAtendimentos = [
     status:'ativo',
   
     // campos que estavam faltando
-    result_amnp: [], // ou algo mais significativo
+    result_amnp: [null], // ou algo mais significativo
     resumo_anmp: "", // idem
   },
   {
@@ -86,7 +86,7 @@ const mockAtendimentos = [
     status:'inativo',
   
     // campos que estavam faltando
-    result_amnp: [], // ou algo mais significativo
+    result_amnp: [null], // ou algo mais significativo
     resumo_anmp: "", // idem
   }
 ]
