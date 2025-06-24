@@ -33,6 +33,7 @@ const mockAtendimentos = [
     complemento: "Apto 45",
     email: "maria@email.com",
     psicologoId: "uuid-psicologo-1",
+    status:'ativo',
   
     // campos que estavam faltando
     result_amnp: [], // ou algo mais significativo
@@ -57,6 +58,7 @@ const mockAtendimentos = [
     complemento: "Apto 45",
     email: "maria@email.com",
     psicologoId: "uuid-psicologo-1",
+    status:'ativo',
   
     // campos que estavam faltando
     result_amnp: [], // ou algo mais significativo
@@ -81,6 +83,7 @@ const mockAtendimentos = [
     complemento: "Apto 45",
     email: "maria@email.com",
     psicologoId: "uuid-psicologo-1",
+    status:'inativo',
   
     // campos que estavam faltando
     result_amnp: [], // ou algo mais significativo
