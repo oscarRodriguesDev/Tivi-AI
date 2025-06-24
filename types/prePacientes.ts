@@ -1,6 +1,6 @@
 // Remove os campos automáticos do banco que não fazem sentido no formulário
 export interface PrePaciente {
-  id?:string;
+  id:string;
   nome?: string;
   email?: string;
   endereco?: string;

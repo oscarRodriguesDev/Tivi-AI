@@ -16,18 +16,18 @@ import Notiflix from 'notiflix';
 const mockAtendimentos = [
   {
     id: "mock-id-123",
-  nome: "Maria da Silva",
-  cpf: "123.456.789-00",
-  idade: "32",
-  sintomas: "Ansiedade e insônia",
-  telefone: "(11) 98765-4321",
-  sexo: "Feminino",
-  email: "maria@email.com",
-  psicologoId: "psico-id-456",
-  result_amnp: ["resposta 1", "resposta 2"],
-  resumo_anmp: "Paciente relata sintomas de ansiedade associados a eventos recentes de estresse.",
-    status:'ativo',
-  
+    nome: "Maria da Silva",
+    cpf: "123.456.789-00",
+    idade: "32",
+    sintomas: "Ansiedade e insônia",
+    telefone: "(11) 98765-4321",
+    sexo: "Feminino",
+    email: "maria@email.com",
+    psicologoId: "psico-id-456",
+    result_amnp: ["resposta 1", "resposta 2"],
+    resumo_anmp: "Paciente relata sintomas de ansiedade associados a eventos recentes de estresse.",
+    status: 'ativo',
+
 
   },
   {
@@ -42,7 +42,7 @@ const mockAtendimentos = [
     psicologoId: "psico-id-456",
     result_amnp: ["resposta 1", "resposta 2"],
     resumo_anmp: "Paciente relata sintomas de ansiedade associados a eventos recentes de estresse.",
-      status:'ativo',
+    status: 'ativo',
   },
   {
     id: "mock-id-123",
@@ -56,7 +56,7 @@ const mockAtendimentos = [
     psicologoId: "psico-id-456",
     result_amnp: ["resposta 1", "resposta 2"],
     resumo_anmp: "Paciente relata sintomas de ansiedade associados a eventos recentes de estresse.",
-      status:'ativo',
+    status: 'ativo',
   }
 ]
 
@@ -84,7 +84,7 @@ const MeusPacientes = () => {
   const idpsc = params?.id as string;
   const router = useRouter()
   const [prePacientes, setPrePacientes] = useState<PrePaciente[]>([])
- 
+
 
 
 
@@ -108,7 +108,7 @@ const MeusPacientes = () => {
   const { data: session, status } = useSession(); // Obtém os dados da sessão
   const name_psico = session?.user.name
 
-//busca os pré pacientes no banco
+  //busca os pré pacientes no banco
   useEffect(() => {
 
     console.log(idpsc)
@@ -213,9 +213,17 @@ const MeusPacientes = () => {
 
 
   //abre a pagina com o id do  paciente e do psicologo na url
-  const openPacTrasn = (psc:string,pac:string) => {
-    router.push(`/pacient-transform/${psc}/${pac}`);
-   
+  const openPacTrasn = (psc: string, pac: string) => {
+    try{
+      router.push(`/pacient-transform/${psc}/${pac}`);
+
+    }catch(error){
+  showErrorMessage("Ocorreu um erro ao tentar identificar o psicologo!")
+    }
+    finally{
+      router.push('/common-page')
+    }
+
   }
 
 
@@ -308,7 +316,7 @@ const MeusPacientes = () => {
                   <td className="px-4 py-2">{item.nome}</td>
                   <td className="px-4 py-2">{item.idade}</td>
                   <td className="px-4 py-2">{item.telefone}</td>
-                 
+
                   <td className="px-4 py-2">
                     <FaFileAlt className="text-blue-500 hover:text-blue-700 cursor-pointer" />
                   </td>
@@ -322,57 +330,62 @@ const MeusPacientes = () => {
             )}
           </tbody>
         </table>
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Futuros pacientes</h2>
-        <table className="w-full bg-white rounded-lg shadow overflow-hidden">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Idade</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {prePacientes.length > 0 ? (
-              prePacientes.map((item, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-900">{item.id || 'N/A'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{item.nome || 'N/A'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{item.idade || 'N/A'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{item.email || 'N/A'}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900 px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                        onClick={() => openPacTrasn(idpsc,item.id)}
-                        title="Habilitar como paciente"
-                      >
-                        <FaCheck />
-                        Habilitar
-                      </button>
-                      <button
-                        className="flex items-center gap-1 bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-800 px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                        onClick={() => alert('descartear')}
-                        title="Descartar pré-paciente"
-                      >
-                        <FaTimes />
-                        Descartar
-                      </button>
-                    </div>
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Futuros pacientes</h2>
+          <table className="w-full bg-white rounded-lg shadow overflow-hidden">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Idade</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {prePacientes.length > 0 ? (
+                prePacientes.map((item, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm text-gray-900">{item.id || 'N/A'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900">{item.nome || 'N/A'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900">{item.idade || 'N/A'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900">{item.email || 'N/A'}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900 px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                          onClick={() => {
+                           
+                              openPacTrasn(idpsc, item.id);
+                            
+                          }}
+                          
+                          title="Habilitar como paciente"
+                        >
+                          <FaCheck />
+                          Habilitar
+                        </button>
+                        <button
+                          className="flex items-center gap-1 bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-800 px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                          onClick={() => alert('descartear')}
+                          title="Descartar pré-paciente"
+                        >
+                          <FaTimes />
+                          Descartar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                    Nenhum pré-paciente encontrado
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
-                  Nenhum pré-paciente encontrado
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {isModalOpen && (
