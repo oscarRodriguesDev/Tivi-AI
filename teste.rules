@@ -17,4 +17,8 @@ a pagina pacient-transform vai receber o id do psicologo e tambem o id do pacien
  apagar o pré paciente
  tambem preciso garantir que os links expirados sejam apagados
 
+git add *
+git commit -m 'commit for correction'
+git push origin oscar
+
 

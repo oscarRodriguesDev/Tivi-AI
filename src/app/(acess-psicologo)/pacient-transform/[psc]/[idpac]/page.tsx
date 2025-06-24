@@ -3,7 +3,7 @@ import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook
 import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone, FaExclamationTriangle } from 'react-icons/fa';
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { Endereco } from "../../../../../types/adress";
+import { Endereco } from "../../../../../../types/adress";
 import HeadPage from "@/app/protected-components/headPage";
 import { FaBookMedical } from "react-icons/fa";
 import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
