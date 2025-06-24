@@ -15,37 +15,73 @@ import Notiflix from 'notiflix';
 
 const mockAtendimentos = [
   {
-    id: '000001',
-    nome: "paciente fake",
-    idade: 40,
-    telefone: "(27) 99999-9999",
-    cidade: "Serra",
-    estado: "Espírito Santo",
-    operadora: "Unimed",
-    status: "ok",
-    result_amnp:null
+    id: "1a2b3c4d-uuid-mock",
+    nome: "Maria Silva",
+    fantasy_name: "Maria Psicóloga",
+    cpf: "123.456.789-00",
+    idade: "34",
+    sintomas: "Ansiedade, insônia",
+    telefone: "(11) 91234-5678",
+    convenio: "Particular",
+    sexo: "Feminino",
+    cep: "01234-567",
+    cidade: "São Paulo",
+    bairro: "Centro",
+    rua: "Rua das Flores",
+    numero: "123",
+    complemento: "Apto 45",
+    email: "maria@email.com",
+    psicologoId: "uuid-psicologo-1",
+  
+    // campos que estavam faltando
+    result_amnp: [], // ou algo mais significativo
+    resumo_anmp: "", // idem
   },
   {
-    id: '000002',
-    nome: "paciente fake",
-    idade: 33,
-    telefone: "(27) 98888-8888",
-    cidade: "Serra",
-    estado: "Espírito Santo",
-    operadora: "Unimed",
-    status: "ok",
-    result_amnp:null
+    id: "1a2b3c4d-uuid-mock",
+    nome: "Maria Silva",
+    fantasy_name: "Maria Psicóloga",
+    cpf: "123.456.789-00",
+    idade: "34",
+    sintomas: "Ansiedade, insônia",
+    telefone: "(11) 91234-5678",
+    convenio: "Particular",
+    sexo: "Feminino",
+    cep: "01234-567",
+    cidade: "São Paulo",
+    bairro: "Centro",
+    rua: "Rua das Flores",
+    numero: "123",
+    complemento: "Apto 45",
+    email: "maria@email.com",
+    psicologoId: "uuid-psicologo-1",
+  
+    // campos que estavam faltando
+    result_amnp: [], // ou algo mais significativo
+    resumo_anmp: "", // idem
   },
   {
-    id: '000003',
-    nome: "pacient fake",
-    idade: 32,
-    telefone: "(27) 99777-7777",
-    cidade: "Serra",
-    estado: "Espírito Santo",
-    convenio: "Unimed",
-    status: "stoped",
-    result_amnp:null
+    id: "1a2b3c4d-uuid-mock",
+    nome: "Maria Silva",
+    fantasy_name: "Maria Psicóloga",
+    cpf: "123.456.789-00",
+    idade: "34",
+    sintomas: "Ansiedade, insônia",
+    telefone: "(11) 91234-5678",
+    convenio: "Particular",
+    sexo: "Feminino",
+    cep: "01234-567",
+    cidade: "São Paulo",
+    bairro: "Centro",
+    rua: "Rua das Flores",
+    numero: "123",
+    complemento: "Apto 45",
+    email: "maria@email.com",
+    psicologoId: "uuid-psicologo-1",
+  
+    // campos que estavam faltando
+    result_amnp: [], // ou algo mais significativo
+    resumo_anmp: "", // idem
   }
 ]
 
