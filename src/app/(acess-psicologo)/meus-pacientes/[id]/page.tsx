@@ -15,79 +15,48 @@ import Notiflix from 'notiflix';
 
 const mockAtendimentos = [
   {
-    id: "1a2b3c4d-uuid-mock",
-    nome: "Maria Silva",
-    fantasy_name: "Maria Psicóloga",
-    cpf: "123.456.789-00",
-    idade: "34",
-    estado:'blablabla',
-    sintomas: "Ansiedade, insônia",
-    telefone: "(11) 91234-5678",
-    convenio: "Particular",
-    sexo: "Feminino",
-    cep: "01234-567",
-    cidade: "São Paulo",
-    bairro: "Centro",
-    rua: "Rua das Flores",
-    numero: "123",
-    complemento: "Apto 45",
-    email: "maria@email.com",
-    psicologoId: "uuid-psicologo-1",
+    id: "mock-id-123",
+  nome: "Maria da Silva",
+  cpf: "123.456.789-00",
+  idade: "32",
+  sintomas: "Ansiedade e insônia",
+  telefone: "(11) 98765-4321",
+  sexo: "Feminino",
+  email: "maria@email.com",
+  psicologoId: "psico-id-456",
+  result_amnp: ["resposta 1", "resposta 2"],
+  resumo_anmp: "Paciente relata sintomas de ansiedade associados a eventos recentes de estresse.",
     status:'ativo',
   
-    // campos que estavam faltando
-    result_amnp: [null], // ou algo mais significativo
-    resumo_anmp: "", // idem
+
   },
   {
-    id: "1a2b3c4d-uuid-mock",
-    nome: "Maria Silva",
-    fantasy_name: "Maria Psicóloga",
+    id: "mock-id-123",
+    nome: "Maria da Silva",
     cpf: "123.456.789-00",
-    idade: "34",
-    sintomas: "Ansiedade, insônia",
-    telefone: "(11) 91234-5678",
-    estado:'blablabla',
-    convenio: "Particular",
+    idade: "32",
+    sintomas: "Ansiedade e insônia",
+    telefone: "(11) 98765-4321",
     sexo: "Feminino",
-    cep: "01234-567",
-    cidade: "São Paulo",
-    bairro: "Centro",
-    rua: "Rua das Flores",
-    numero: "123",
-    complemento: "Apto 45",
     email: "maria@email.com",
-    psicologoId: "uuid-psicologo-1",
-    status:'ativo',
-  
-    // campos que estavam faltando
-    result_amnp: [null], // ou algo mais significativo
-    resumo_anmp: "", // idem
+    psicologoId: "psico-id-456",
+    result_amnp: ["resposta 1", "resposta 2"],
+    resumo_anmp: "Paciente relata sintomas de ansiedade associados a eventos recentes de estresse.",
+      status:'ativo',
   },
   {
-    id: "1a2b3c4d-uuid-mock",
-    nome: "Maria Silva",
-    fantasy_name: "Maria Psicóloga",
+    id: "mock-id-123",
+    nome: "Maria da Silva",
     cpf: "123.456.789-00",
-    idade: "34",
-    sintomas: "Ansiedade, insônia",
-    estado:'blablabla',
-    telefone: "(11) 91234-5678",
-    convenio: "Particular",
+    idade: "32",
+    sintomas: "Ansiedade e insônia",
+    telefone: "(11) 98765-4321",
     sexo: "Feminino",
-    cep: "01234-567",
-    cidade: "São Paulo",
-    bairro: "Centro",
-    rua: "Rua das Flores",
-    numero: "123",
-    complemento: "Apto 45",
     email: "maria@email.com",
-    psicologoId: "uuid-psicologo-1",
-    status:'inativo',
-  
-    // campos que estavam faltando
-    result_amnp: [null], // ou algo mais significativo
-    resumo_anmp: "", // idem
+    psicologoId: "psico-id-456",
+    result_amnp: ["resposta 1", "resposta 2"],
+    resumo_anmp: "Paciente relata sintomas de ansiedade associados a eventos recentes de estresse.",
+      status:'ativo',
   }
 ]
 
@@ -339,9 +308,7 @@ const MeusPacientes = () => {
                   <td className="px-4 py-2">{item.nome}</td>
                   <td className="px-4 py-2">{item.idade}</td>
                   <td className="px-4 py-2">{item.telefone}</td>
-                  <td className="px-4 py-2">{item.cidade}</td>
-                  <td className="px-4 py-2">{item.estado}</td>
-                  <td className="px-4 py-2">{item.convenio}</td>
+                 
                   <td className="px-4 py-2">
                     <FaFileAlt className="text-blue-500 hover:text-blue-700 cursor-pointer" />
                   </td>
