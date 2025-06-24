@@ -26,6 +26,8 @@ const pacienteMock: Paciente = {
   email: "maria.silva@email.com",
   rg: "12.345.678-9",
   psicologoId: "abc123xyz",
+  result_amnp:['null'],
+  resumo_anmp:''
 };
 
 const labels: Record<keyof Paciente, string> = {
@@ -49,6 +51,8 @@ const labels: Record<keyof Paciente, string> = {
   email: "Email",
   rg: "RG",
   psicologoId: "ID Psicólogo",
+    result_amnp: 'lista',
+  resumo_anmp:'resumo'
 };
 
 export default function PerfilPacientePage() {
