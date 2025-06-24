@@ -22,7 +22,8 @@ const mockAtendimentos = [
     cidade: "Serra",
     estado: "Espírito Santo",
     operadora: "Unimed",
-    status: "ok"
+    status: "ok",
+    result_amnp:null
   },
   {
     id: '000002',
@@ -32,7 +33,8 @@ const mockAtendimentos = [
     cidade: "Serra",
     estado: "Espírito Santo",
     operadora: "Unimed",
-    status: "ok"
+    status: "ok",
+    result_amnp:null
   },
   {
     id: '000003',
@@ -42,7 +44,8 @@ const mockAtendimentos = [
     cidade: "Serra",
     estado: "Espírito Santo",
     convenio: "Unimed",
-    status: "stoped"
+    status: "stoped",
+    result_amnp:null
   }
 ]
 
