@@ -8,4 +8,7 @@ tem que mudar o prisma para que prepaciente aceite o id do psicologo
 
 verificar a possibilidade de associações das tabelas do banco de dados
 
+a pagina pacient-transform vai receber o id do psicologo e tambem o id do paciente  que vai ser efetivado,
+ ai os dados vão ser auto completados na pagina de cadastro
+
 

@@ -8,19 +8,15 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+   
 
     // Extrai todos os campos da anamnese
     const {
       nome,
       email,
-      endereco,
-      nascimento,
       idade,
       cpf,
       telefone,
-      emergencia,
-      generoOrientacao,
-      estadoCivil,
       origemConhecimento,
       preocupacao,
       motivoAtendimento,
@@ -45,18 +41,20 @@ export async function POST(req: Request) {
       estiloAtendimento,
       observacoesFinais,
       autorizacaoLGPD,
-      psicologoId 
+      psicologoId,
+   
     } = body;
 
     // Validação simples dos campos obrigatórios (pode ser mais elaborado)
     if (
-      !nome ||
-      !email ||
-      !nascimento ||
-      !idade ||
-      !cpf ||
-      !preocupacao ||
-      !motivoAtendimento
+      !nome||
+      !email||
+      !idade||
+      !cpf||
+      !preocupacao||
+      !motivoAtendimento||
+      !psicologoId
+    
     
     ) {
       return NextResponse.json(
@@ -69,14 +67,9 @@ export async function POST(req: Request) {
       data: {
         nome,
         email,
-        endereco,
-        nascimento,
         idade,
         cpf,
         telefone,
-        emergencia,
-        generoOrientacao,
-        estadoCivil,
         origemConhecimento,
         preocupacao,
         motivoAtendimento,
@@ -102,7 +95,8 @@ export async function POST(req: Request) {
         observacoesFinais,
         autorizacaoLGPD,
         habilitado: false,
-        psicologoId 
+        psicologoId, 
+       
       },
     });
 

@@ -46,6 +46,7 @@ const mockAtendimentos = [
   }
 ]
 
+
 const getStatus = (status: string) => {
   switch (status) {
     case "ok":
@@ -66,7 +67,7 @@ const MeusPacientes = () => {
   const [pacientes, setPacientes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const params = useParams();
-  const id = params?.id as string;
+  const idpsc = params?.id as string;
   const router = useRouter()
   const [prePacientes, setPrePacientes] = useState<PrePaciente[]>([])
  
@@ -96,11 +97,11 @@ const MeusPacientes = () => {
 //busca os pré pacientes no banco
   useEffect(() => {
 
-    console.log(id)
+    console.log(idpsc)
     const fetchPrePacientes = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/internal/register_pacientes/pre-pacientes?psicologoId=${id}`);
+        const response = await fetch(`/api/internal/register_pacientes/pre-pacientes?psicologoId=${idpsc}`);
         if (response.ok) {
           const data = await response.json();
           setPrePacientes(data);
@@ -117,10 +118,10 @@ const MeusPacientes = () => {
       }
     };
 
-    if (id) {
+    if (idpsc) {
       fetchPrePacientes();
     }
-  }, [id]);
+  }, [idpsc]);
 
 
 
@@ -179,7 +180,7 @@ const MeusPacientes = () => {
   useEffect(() => {
     const fetchPacientes = async () => {
       try {
-        const response = await fetch(`/api/internal/register_pacientes?psicologoId=${id}`)
+        const response = await fetch(`/api/internal/register_pacientes?psicologoId=${idpsc}`)
         if (!response.ok) {
           throw new Error('Erro ao buscar pacientes')
         }
@@ -194,7 +195,16 @@ const MeusPacientes = () => {
 
     // se quiser realmente testar a API, descomente:
     fetchPacientes()
-  }, [id])
+  }, [idpsc])
+
+
+  //abre a pagina com o id do  paciente e do psicologo na url
+  const openPacTrasn = (psc:string,pac:string) => {
+    router.push(`/pacient-transform/${psc}/${pac}`);
+   
+  }
+
+
 
   if (role === 'ADMIN') {
     return (
@@ -214,7 +224,7 @@ const MeusPacientes = () => {
       <div className="overflow-x-auto p-4">
         <div className=" h-full px-5 py-3 flex justify-end">
           <FaCirclePlus size={30} className="text-green-800"
-            onClick={() => { redirect(`/cadastro-pacientes/${id}`) }}
+            onClick={() => { redirect(`/cadastro-pacientes/${idpsc}`) }}
             title='Adcionar novo paciente'
           />
         </div>
@@ -315,6 +325,7 @@ const MeusPacientes = () => {
             {prePacientes.length > 0 ? (
               prePacientes.map((item, index) => (
                 <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm text-gray-900">{item.id || 'N/A'}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{item.nome || 'N/A'}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{item.idade || 'N/A'}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{item.email || 'N/A'}</td>
@@ -322,7 +333,7 @@ const MeusPacientes = () => {
                     <div className="flex items-center gap-2">
                       <button
                         className="flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900 px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                        onClick={() => alert('habilitar')}
+                        onClick={() => openPacTrasn(idpsc,item.id)}
                         title="Habilitar como paciente"
                       >
                         <FaCheck />
