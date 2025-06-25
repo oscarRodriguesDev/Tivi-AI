@@ -1,179 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-// Tipos de usuário
-enum UserRole {
-  ADMIN
-  PSYCHOLOGIST
-  COMMON
-}
-
-// Usuários do sistema (Admin e Psicólogo)
 model User {
-  id            String      @id @default(uuid())
+  id            String   @id @default(uuid())
   name          String
-  lastname      String?
-  email         String      @unique
-  email_confirm String?
+  email         String   @unique
   password      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   role          UserRole
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  registro      String? // Campo opcional
-  cfp           String?
-  crp           String?
-  celular       String?
-  telefone      String?
-  rg            String?
-  cpf           String?
-  idade         String?
-  fantasy_name  String? //caso um dia paciente tenha login no sistema
-  creditos      String?
-  credit_card   String?
+  registro      String?
   bandeira      String?
-  cvc           String?
+  celular       String?
   cep           String?
-  rua           String?
   cidade        String?
+  cpf           String?
+  credit_card   String?
+  creditos      String?
+  crp           String?
+  cvc           String?
+  fantasy_name  String?
+  idade         String?
+  psicologoid   String?
+  rg            String?
+  rua           String?
+  telefone      String?
   uf            String?
-  description   String? //bio do psicologo
-  banner        String? //foto de capa do psicolog
-  photoprofile  String? //foto de perfil do pisicologo
-  linkedin      String? //
-  instagram     String?
+  email_confirm String?
+  cfp           String?
+  banner        String?
   facebook      String?
+  instagram     String?
+  linkedin      String?
+  photoprofile  String?
   whatsapp      String?
-  psicologoid   String? //id do psicologo responsavel especifico para pacientes
-  first_acess   Boolean? 
+  description   String?
+  first_acess   Boolean?
+  lastname      String?
   pontuacao     Int[]
-  // vamos utilizar esse boolean para que o usuario troque sua senha
 }
 
-//pré cadastro de Psicologos
 model PrePsicologo {
-  id         String  @id @default(uuid())
   cpf        String  @unique
-  cfp        String  @unique
-  crp        String  @unique
   nome       String
-  lastname   String?
   rg         String
   email      String
   data_nasc  String
   celular    String
   telefone   String
+  crp        String  @unique
   habilitado Boolean
+  id         String  @id @default(uuid())
+  cfp        String  @unique
+  lastname   String?
 }
 
-//pré-pacient //deletado depois de tratado e efetivado pelo psicologo
 model PrePaciente {
-  id                 Int      @id @default(autoincrement())
-  nome               String?
-  email              String?
-  endereco           String?
-  nascimento         String?
-  idade              String?
-  cpf                String?
-  telefone           String?
-  emergencia         String?
-  generoOrientacao   String?
-  estadoCivil        String?
-  origemConhecimento String?
-  preocupacao        String?
-  motivoAtendimento  String?
-  experienciaAnterior String?
-  saudeFisica        String?
-  detalhesSaudeFisica String?
-  medicamentos       String?
-  diagnosticoMental  String?
-  historicoFamiliar  String?
-  rotina             String?
-  sono               String?
-  atividadeFisica    String?
-  estresse           String?
-  convivencia        String?
-  relacaoFamiliar    String?
-  apoioSocial        String?
-  nivelFelicidade    String?
-  ansiedade          String?
+  id                   Int      @id @default(autoincrement())
+  nome                 String?
+  email                String?
+  endereco             String?
+  nascimento           String?
+  idade                String?
+  cpf                  String?
+  telefone             String?
+  emergencia           String?
+  generoOrientacao     String?
+  estadoCivil          String?
+  origemConhecimento   String?
+  preocupacao          String?
+  motivoAtendimento    String?
+  experienciaAnterior  String?
+  saudeFisica          String?
+  detalhesSaudeFisica  String?
+  medicamentos         String?
+  diagnosticoMental    String?
+  historicoFamiliar    String?
+  rotina               String?
+  sono                 String?
+  atividadeFisica      String?
+  estresse             String?
+  convivencia          String?
+  relacaoFamiliar      String?
+  apoioSocial          String?
+  nivelFelicidade      String?
+  ansiedade            String?
   pensamentosNegativos String?
-  objetivoTerapia    String?
-  temasDelicados     String?
-  estiloAtendimento  String?
-  observacoesFinais  String?
-  autorizacaoLGPD    Boolean?
-  habilitado         Boolean  @default(false)
-  psicologoId        String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  objetivoTerapia      String?
+  temasDelicados       String?
+  estiloAtendimento    String?
+  observacoesFinais    String?
+  autorizacaoLGPD      Boolean?
+  habilitado           Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  psicologoId          String?
 }
 
-
-//se um dia paciente fizer login será como common user
 model Paciente {
-  id           String  @id @default(uuid()) //psc
+  id           String   @id @default(uuid())
   nome         String?
   cpf          String
-  fantasy_name String?
   idade        String?
-  resumo_anmp  String?
- result_amnp   String[]
   sintomas     String?
   telefone     String?
   convenio     String?
-  sexo         String?
+  fantasy_name String?
+  bairro       String?
   cep          String?
   cidade       String?
-  bairro       String?
-  rua          String?
+  complemento  String?
+  email        String?
+  estado       String?
   numero       String?
   pais         String?
-  complemento  String?
-  estado       String?
-  email        String?
   rg           String?
-  psicologoId  String? //id do psicologo responsavel
+  rua          String?
+  sexo         String?
+  psicologoId  String?
+  resumo_anmp  String?
+  result_amnp  String[]
 }
 
-//as consultas vão ter um modelo para serem criadas
 model Consulta {
-  id            String  @id @default(uuid()) //id da reunião
-  pacienteId    String? //id do paciente
+  id            String  @id @default(uuid())
+  pacienteId    String?
   fantasy_name  String?
-  name          String?
-  titulo        String?
-  psicologoId   String? //id do psicologo
-  data          String? //data da consulta
-  hora          String? //hora da consulta
-  tipo_consulta String? //tipo de consulta presencial ou online
-  observacao    String? //observação da consulta
+  psicologoId   String?
+  data          String?
+  hora          String?
+  tipo_consulta String?
+  observacao    String?
   recorrencia   String?
+  titulo        String?
+  name          String?
   code          String? @unique
-  duracao       String? //tempo de duração da reunião
+  duracao       String?
 }
 
-// registro do consentimento do usuário
 model Consents_Agreements {
-  id           String @id @default(uuid()) //id do termos de dados        
   ipNumber     String
   data_consent String
   hora_consent String
   nome_consent String
   cpf_consent  String
+  id           String @id @default(uuid())
 }
 
 model cookies_consent {
-  id         String  @id @default(uuid()) //id do consentimento de cookies   
   ipNumber   String
   data       String
   Hora       String
   permissão Boolean
+  id         String  @id @default(uuid())
 }
 
 model Avaliacao {
@@ -184,16 +169,20 @@ model Avaliacao {
   avaliacaoProfissional Int
   comentario            String?
   createdAt             DateTime @default(now())
-  psicologoId String
+  psicologoId           String
 }
 
 model AcessoAnamneseTemp {
-  id           String   @id @default(uuid())
-  token        String   @unique
-  ip           String?  // capturado no 1º acesso
-  acessado_em  DateTime? // registrado no 1º clique
-  psicologoId  String?
-  criado_em    DateTime @default(now()) // usado para expiração
+  id          String    @id @default(uuid())
+  token       String    @unique
+  ip          String?
+  acessado_em DateTime?
+  psicologoId String?
+  criado_em   DateTime  @default(now())
 }
 
-
+enum UserRole {
+  ADMIN
+  PSYCHOLOGIST
+  COMMON
+}
