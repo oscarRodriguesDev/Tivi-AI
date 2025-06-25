@@ -18,6 +18,7 @@ export default function FormularioAnamnese() {
 
 
   const [form, setForm] = useState<PrePaciente>({
+    id,
     nome: "",
     email: "",
     idade: "",
@@ -121,6 +122,7 @@ export default function FormularioAnamnese() {
 
     // Validação básica campos obrigatórios
     const {
+      id,
       nome,
       email,
       nascimento,
@@ -148,6 +150,7 @@ export default function FormularioAnamnese() {
       } else {
         setSuccessMsg("Formulário enviado com sucesso!");
         setForm({
+          id:id,
           nome: "",
           email: "",
           idade: "",
