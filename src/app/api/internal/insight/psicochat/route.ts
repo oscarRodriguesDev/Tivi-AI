@@ -10,7 +10,9 @@ import { generateRN } from "@/app/util/RN";
 import { generateTRT } from "@/app/util/TRT";
 
 
-export const runtime = 'edge';
+//export const runtime = 'edge';
+export const runtime = 'node';
+
 
 
 
