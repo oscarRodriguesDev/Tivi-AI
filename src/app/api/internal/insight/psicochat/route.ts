@@ -11,6 +11,7 @@ import { generateTRT } from "@/app/util/TRT";
 
 
 //export const runtime = 'edge';
+//o que houve
 export const runtime = 'node';
 
 
