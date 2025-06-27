@@ -1,5 +1,6 @@
 // Remove os campos automáticos do banco que não fazem sentido no formulário
 export interface PrePaciente {
+  id:string;
   nome?: string;
   email?: string;
   endereco?: string;
@@ -36,4 +37,5 @@ export interface PrePaciente {
   autorizacaoLGPD?: boolean;
   psicologoId?: string; // Se quiser receber no formulário, pode deixar opcional
   habilitado?: boolean;
+  motivacao?:string;
 }

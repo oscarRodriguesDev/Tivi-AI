@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ValidadorLinkAnamnese from "@/app/protected-components/avalielink/avaliador";
-import { showErrorMessage } from "@/app/util/messages";
+import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
 import { PrePaciente } from "../../../../../types/prePacientes";
 
 
@@ -18,6 +18,7 @@ export default function FormularioAnamnese() {
 
 
   const [form, setForm] = useState<PrePaciente>({
+    id,
     nome: "",
     email: "",
     idade: "",
@@ -121,6 +122,7 @@ export default function FormularioAnamnese() {
 
     // Validação básica campos obrigatórios
     const {
+      id,
       nome,
       email,
       nascimento,
@@ -148,6 +150,7 @@ export default function FormularioAnamnese() {
       } else {
         setSuccessMsg("Formulário enviado com sucesso!");
         setForm({
+          id:id,
           nome: "",
           email: "",
           idade: "",
@@ -179,9 +182,11 @@ export default function FormularioAnamnese() {
           autorizacaoLGPD: false,
           psicologoId: psicologoid
         });
+        showSuccessMessage('enviado');
       }
     } catch (error) {
       setErrorMsg("Erro de conexão. Tente novamente.");
+      showErrorMessage('Não enviado');
     } finally {
       setLoading(false);
     }
@@ -245,7 +250,7 @@ export default function FormularioAnamnese() {
                   name="idade"
                   required
                   value={form.idade}
-                  onChange={handleInputChange}
+                  onChange={ handleInputChange}
                   className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
               </div>
@@ -756,6 +761,13 @@ export default function FormularioAnamnese() {
 
 
 
+          <div className="flex justify-center mt-6">
+            <input
+              type="submit"
+              value="Enviar"
+              className="bg-[#117E43] text-white font-semibold px-6 py-2 rounded-full shadow-md hover:bg-[#0e6b39] transition"
+            />
+          </div>
 
 
 

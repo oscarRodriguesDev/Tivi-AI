@@ -80,7 +80,7 @@ export default function AgendamentoPage() {
 
 
 
- //edição de reuniões
+  //edição de reuniões
   const handleEditar = (agendamento: any) => {
     if (agendamento.id === 'fake-id') {
       showErrorMessage("impossivel editar demonstração");
@@ -112,7 +112,7 @@ export default function AgendamentoPage() {
     }
   };
 
-//buscar quando inciar a tela
+  //buscar quando inciar a tela
   useEffect(() => {
     if (buscando === true) {
       //definir tempo de atualização dos agendamentos
@@ -126,7 +126,7 @@ export default function AgendamentoPage() {
     }
   }, [buscando]);
 
-  
+
 
   //buscando o id de conexão para a reunião
   const fetchPeerId = async (id: string, meet: Agendamento) => {
@@ -178,7 +178,7 @@ export default function AgendamentoPage() {
     setModalAberto(true);
   };
 
- //permite copiar o link da reunião
+  //permite copiar o link da reunião
   const handleCopy = (id: string) => {
     if (id === "fake-id") {
       showErrorMessage("O link de demonstração não pode ser copiado!");
@@ -214,7 +214,7 @@ export default function AgendamentoPage() {
     }
   };
 
-//deletar reunião
+  //deletar reunião
   const handleDeletar = async (id: string) => {
     Notiflix.Confirm.show(
       'Título',
@@ -272,6 +272,27 @@ export default function AgendamentoPage() {
     }
   };
 
+
+  //formatar data:
+  function formatLocalDate(date: Date | string) {
+    const d = new Date(date);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+
+  function formatDate(date: Date | string) {
+    const d = new Date(date);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+
+
   return (
     <>
       {/* componente cabeçalho das paginas */}
@@ -316,9 +337,13 @@ export default function AgendamentoPage() {
                 <ul>
                   {agendamentos
                     .filter((meet) => {
-                      const hoje = new Date().toISOString().split("T")[0]; // formato: yyyy-mm-dd
-                      return meet.data === hoje;
+                      const hoje = formatLocalDate(new Date()); // usa horário local, sem UTC
+                      const dataAgendamento =meet.data;
+                      console.log(hoje, '\\',dataAgendamento)
+                      return dataAgendamento === hoje;
                     })
+
+
                     .map((meet) => (
                       <li key={meet.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
                         <div className="text-xl w-full font-semibold text-white text-center bg-slate-600">
@@ -328,7 +353,7 @@ export default function AgendamentoPage() {
                           Nick name: {meet.fantasy_name}
                         </div>
                         <div className="text-base text-blue-800">
-                          Data da reunião: <span className="font-medium">{meet.data} | duração: {meet.duracao} minutos</span>
+                          Data da reunião: <span className="font-medium">{formatDate(meet.data)} | duração: {meet.duracao} minutos</span>
                         </div>
                         <div className="text-sm text-blue-700">Horário: {meet.hora}</div>
                         <div className="text-sm text-blue-600">{meet.observacao}</div>
