@@ -41,6 +41,7 @@ export async function GET(req: Request) {
         rg: true,
         sintomas: true,
         rua: true,
+        
 
 
       }
@@ -60,12 +61,12 @@ export async function POST(req: Request) {
   try {
     const body: Paciente = await req.json();
     const { nome, fantasy_name, idade, sintomas, telefone, convenio, cpf, 
-      sexo, cep, cidade, bairro, rua, numero, pais, complemento, estado, email, rg, psicologoId } = body;
+      sexo, cep, cidade, bairro, rua, numero, pais, complemento, estado, email, rg, psicologoId,resumo_anmp } = body;
 
 
     // Validação dos campos obrigatórios
     if (!nome || !fantasy_name || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep
-       || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg || !psicologoId) {
+       || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg || !psicologoId ||!resumo_anmp) {
       return NextResponse.json(
         { error: "Todos os campos obrigatórios devem ser preenchidos" },
         { status: 400 }
@@ -93,7 +94,8 @@ export async function POST(req: Request) {
         complemento,        // Complemento do endereço
         estado,             // Estado do paciente
         email,              // E-mail do paciente
-        rg
+        rg,
+        resumo_anmp
       },
     });
 

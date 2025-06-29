@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 export default function ValidadorLinkAnamnese({ token }: { token: string }) {
   const [valido, setValido] = useState<boolean | null>(null);
   const [mensagem, setMensagem] = useState('');
-  const [segundosRestantes, setSegundosRestantes] = useState(5 * 60); // 50 minutos
+  const [segundosRestantes, setSegundosRestantes] = useState(10 * 60); // 10 minutos
   const router = useRouter();
 
   useEffect(() => {
@@ -22,10 +22,19 @@ export default function ValidadorLinkAnamnese({ token }: { token: string }) {
         if (res.ok && data.autorizado) {
           setValido(true);
           setMensagem('');
-        } else {
+        }
+
+        if (!res.ok && data.autorizado) {
           setValido(false);
           setMensagem(data.erro || 'Link expirado ou inválido.');
-          router.push('/link-error'); // redireciona para a página de erro
+          try {
+            await fetch(`/api/amnp/${token}`, {
+              method: 'DELETE',
+            });
+          } catch (error) {
+            console.error('Erro ao deletar token:', error);
+          }
+          router.push('/link-error');
         }
       } catch (err) {
         setValido(false);

@@ -1,16 +1,19 @@
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
 import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone, FaExclamationTriangle } from 'react-icons/fa';
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Endereco } from "../../../../../../types/adress";
+import { PrePaciente } from "@prisma/client";
 import HeadPage from "@/app/protected-components/headPage";
 import { FaBookMedical } from "react-icons/fa";
 import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
+import Router from "next/router";
 
 
 const Pacientes = () => {
-    const { psc } = useParams()
+    const params = useParams()
+    const { idpac, psc } = params;
     const [userId, setUserId] = useState<string>(String(psc))
     const [nome, setNome] = useState<string>('')
     const [cpf, setCpf] = useState<string>('')
@@ -32,6 +35,9 @@ const Pacientes = () => {
     const [email, setEmail] = useState<string>('')
     const [rg, setRg] = useState<string>(String(''))
     const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
+    const [responses,setResponses]= useState<string>()
+    const [anamnese,setAnamnese] = useState<string>('gerando anamnese...')
+   
 
    
     const resetForm = () => {
@@ -54,9 +60,11 @@ const Pacientes = () => {
         setEstado('');
         setEmail('');
         setRg('');
+        setAnamnese("");
 
     };
 
+    
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -80,6 +88,7 @@ const Pacientes = () => {
             email,
             rg,
             cpf,
+            resumo_anmp:anamnese || '',
             psicologoId: userId,
         };
 
@@ -96,12 +105,25 @@ const Pacientes = () => {
 
             if (response.ok) {
                 showSuccessMessage("Paciente cadastrado com sucesso!");
-                resetForm();
+                // Deletar o pre-paciente após cadastrar com sucesso
+                try {
+                    const deleteResponse = await fetch(`/api/internal/register_pacientes/transform?idpac=${idpac}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
 
-                // Se estiver usando Next.js:
-                // import { useRouter } from "next/router";
-                // const router = useRouter();
-                // router.push(`/meus-pacientes/${userId}`);
+                    if (deleteResponse.ok) {
+                        console.log('Pre-paciente deletado com sucesso');
+                    } else {
+                        console.error('Erro ao deletar pre-paciente:', await deleteResponse.text());
+                    }
+                } catch (error) {
+                    console.error('Erro ao deletar pre-paciente:', error);
+                }
+
+                resetForm();
                 window.location.href = `/meus-pacientes/${userId}`;
             } else {
                 showErrorMessage(data.error || "Erro ao cadastrar paciente.");
@@ -112,12 +134,7 @@ const Pacientes = () => {
     };
 
 
-    /**
-   * Valida um CPF.
-   *
-   * @param cpf - O CPF a ser validado (pode ser formatado ou não).
-   * @returns Retorna `true` se o CPF for válido, caso contrário `false`.
-   */
+
     function validarCPF(cpf: string): boolean {
         const cleanedCPF = cpf.replace(/\D/g, '');
         if (cleanedCPF.length !== 11 || /^(\d)\1{10}$/.test(cleanedCPF)) {
@@ -138,18 +155,14 @@ const Pacientes = () => {
     }
 
 
-    /**  Função determina a seleção de sexo do usuário no check box 
-    * @param e:Event - tipagem do evento especifo para checkbox
-    */
+ 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSexo(e.target.value);
     };
 
 
-    /**
-     * Essa função calcula a idade atraves do data de nascimento passada pelo usuario
-     * @return void
-     *  */
+
+
     const calcularIdade = () => {
         if (!nasc) {
           console.error("Data de nascimento não fornecida.");
@@ -173,10 +186,7 @@ const Pacientes = () => {
       };
       
 
-    /**
-     * Função que faz o fetch para pegar o endereço quando o usuário digita o CEP.
-     * @param cep O CEP que será utilizado para buscar o endereço.
-     */
+ 
     const buscaEndereco = async (cep: string) => {
         try {
             const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
@@ -198,6 +208,93 @@ const Pacientes = () => {
         }
     };
 
+
+
+
+//não esta buscando pacientes ainda
+ 
+
+    useEffect(() => {
+        const fetchPrePaciente = async () => {
+            try {
+                const response = await fetch(`/api/internal/register_pacientes/transform?idpac=${idpac}`);
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar dados do paciente');
+                }
+                const data = await response.json();
+                
+                // Preencher os campos com os dados do PrePaciente
+                setNome(data.nome || '');
+                setEmail(data.email || '');
+                setNasc(data.nascimento || '');
+                setIdade(data.idade || '');
+                setCpf(data.cpf || '');
+                setTelefone(data.telefone || '');
+                setSintomas(data.motivoAtendimento||"");
+                
+                // Converter o objeto data para string separada por vírgulas
+                const dataString = Object.values(data).join(', ');
+                setResponses(dataString);
+                
+            } catch (error) {
+                showErrorMessage('Erro ao carregar dados do paciente');
+                console.error('Erro ao buscar PrePaciente:', error);
+            }
+        };
+
+        if (idpac) {
+            fetchPrePaciente();
+        }
+    }, [idpac]);
+
+    // useEffect separado para gerar anamnese quando responses mudar
+    useEffect(() => {
+        if (responses) {
+            generateAnamnese();
+        }
+    }, [responses]);
+
+
+    //gera a anamnese
+    const generateAnamnese = async () => {
+      
+        try {
+            if (!responses) {
+                showErrorMessage('Nenhuma resposta disponível para gerar anamnese');
+                return;
+            }
+
+            setAnamnese('Gerando anamnese...');
+            
+            const response = await fetch('/api/internal/insight/generate-anamnese', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: responses
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao gerar anamnese');
+            }
+
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            setAnamnese(data.response);
+            showSuccessMessage('Anamnese gerada com sucesso!');
+            
+        } catch (error) {
+            console.error('Erro ao gerar anamnese:', error);
+            setAnamnese('Erro ao gerar anamnese');
+            showErrorMessage('Erro ao gerar anamnese. Tente novamente.');
+        }
+    };
 
 
     return (
@@ -227,6 +324,7 @@ const Pacientes = () => {
                                     <input
                                         type="text"
                                         value={userId}
+                                        onChange={(e) => setUserId(e.target.value)}
                                         className="w-full h-[40px] bg-[#F9FAFC] border border-[#D9D9D9] rounded p-2"
                                         disabled
                                         readOnly
@@ -461,6 +559,16 @@ const Pacientes = () => {
                                     className="w-full h-[120px] bg-[#F9FAFC] border border-[#D9D9D9] rounded p-2"
                                     onChange={(e) => setSintomas(e.target.value)}
                                     value={sintomas}
+                                />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-black text-sm mb-1">Anamnese Clinica</label>
+                                <textarea
+                                    className="w-full h-[120px] bg-[#F9FAFC] border border-[#D9D9D9] rounded p-2"
+                                    value={anamnese||'error'}
+                                    onChange={(e) => setAnamnese(e.target.value)}
+                                  
+                                   
                                 />
                             </div>
                             {/* Bottom Section */}

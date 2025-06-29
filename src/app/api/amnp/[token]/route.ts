@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
   // 🔴 Caso 1: Expirado e nunca acessado
   const expiradoSemUso = !registro.acessado_em &&
-    agora.getTime() - new Date(registro.criado_em).getTime() > 5 * 60 * 1000;
+    agora.getTime() - new Date(registro.criado_em).getTime() > 10 * 60 * 1000;
 
   if (expiradoSemUso) {
     await prisma.acessoAnamneseTemp.delete({ where: { token } });
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
   // 🟢 Caso 3: Acesso já feito, validar IP e tempo
   const tempoDesdePrimeiroAcesso = agora.getTime() - new Date(registro.acessado_em).getTime();
-  const valido = tempoDesdePrimeiroAcesso <= 5 * 60 * 1000;
+  const valido = tempoDesdePrimeiroAcesso <= 10 * 60 * 1000;
 
   if (registro.ip === ip && valido) {
     return NextResponse.json({ autorizado: true });
@@ -80,3 +80,4 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
+ 

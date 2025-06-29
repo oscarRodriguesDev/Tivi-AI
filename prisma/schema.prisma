@@ -62,7 +62,7 @@ model PrePsicologo {
 }
 
 model PrePaciente {
-  id                   Int      @id @default(autoincrement())
+  id                   String      @id @default(uuid())
   nome                 String?
   email                String?
   endereco             String?

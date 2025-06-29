@@ -119,8 +119,7 @@ const MeusPacientes = () => {
         if (response.ok) {
           const data = await response.json();
           setPrePacientes(data);
-          console.log(data)
-          console.log(prePacientes)
+     
         } else {
           showErrorMessage('Erro ao carregar pré-pacientes');
         }
@@ -191,22 +190,25 @@ const MeusPacientes = () => {
   }
 
 
-  useEffect(() => {
-    const fetchPacientes = async () => {
-      try {
-        const response = await fetch(`/api/internal/register_pacientes?psicologoId=${idpsc}`)
-        if (!response.ok) {
-          throw new Error('Erro ao buscar pacientes')
-        }
-        const data = await response.json()
-        setPacientes(data)
-      } catch (error) {
-        showErrorMessage(`Erro ao buscar paciente`)
-      } finally {
-        setLoading(false)
-      }
-    }
 
+  const fetchPacientes = async () => {
+    try {
+      const response = await fetch(`/api/internal/register_pacientes?psicologoId=${idpsc}`)
+      if (!response.ok) {
+        throw new Error('Erro ao buscar pacientes')
+      }
+      const data = await response.json()
+      setPacientes(data)
+    } catch (error) {
+      showErrorMessage(`Erro ao buscar paciente`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+  useEffect(() => {
+  
     // se quiser realmente testar a API, descomente:
     fetchPacientes()
   }, [idpsc])
@@ -221,10 +223,36 @@ const MeusPacientes = () => {
   showErrorMessage("Ocorreu um erro ao tentar identificar o psicologo!")
     }
     finally{
-      router.push('/common-page')
+     console.log('finalizou')
     }
 
   }
+
+
+  
+    //descarte de pré paciente
+const descartarPrePaciente = async (idpac:string) => {
+  try {
+      const response = await fetch(`/api/internal/register_pacientes/transform?idpac=${idpac}`, {
+          method: 'DELETE',
+      });
+
+      if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erro ao descartar pré-paciente');
+      }
+
+      const data = await response.json();
+     
+      showInfoMessage('Pré-paciente descartado com sucesso!');
+      
+        fetchPacientes()
+      
+  } catch (error) {
+      showErrorMessage(`Erro ao descartar pré-paciente: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      console.error('Erro ao descartar PrePaciente:', error);
+  }
+};
 
 
 
@@ -313,6 +341,8 @@ const MeusPacientes = () => {
               mockAtendimentos.map((item, index) => (
                 <tr key={index} className="border-t border-gray-200 text-sm">
                   {/*  <td className="px-4 py-2">{name_psico}</td> */}
+                  
+                 
                   <td className="px-4 py-2">{item.nome}</td>
                   <td className="px-4 py-2">{item.idade}</td>
                   <td className="px-4 py-2">{item.telefone}</td>
@@ -335,6 +365,7 @@ const MeusPacientes = () => {
           <table className="w-full bg-white rounded-lg shadow overflow-hidden">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Id</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Idade</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
@@ -366,7 +397,7 @@ const MeusPacientes = () => {
                         </button>
                         <button
                           className="flex items-center gap-1 bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-800 px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                          onClick={() => alert('descartear')}
+                          onClick={() => descartarPrePaciente(item.id)}
                           title="Descartar pré-paciente"
                         >
                           <FaTimes />
