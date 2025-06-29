@@ -2,7 +2,7 @@
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
 import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone, FaExclamationTriangle } from 'react-icons/fa';
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { Endereco } from "../../../../../types/adress";
 import HeadPage from "@/app/protected-components/headPage";
 import { FaBookMedical } from "react-icons/fa";
@@ -97,12 +97,7 @@ const Pacientes = () => {
             if (response.ok) {
                 showSuccessMessage("Paciente cadastrado com sucesso!");
                 resetForm();
-
-                // Se estiver usando Next.js:
-                // import { useRouter } from "next/router";
-                // const router = useRouter();
-                // router.push(`/meus-pacientes/${userId}`);
-                window.location.href = `/meus-pacientes/${userId}`;
+                redirect(`/meus-pacientes/${psc}`)
             } else {
                 showErrorMessage(data.error || "Erro ao cadastrar paciente.");
             }
@@ -465,15 +460,17 @@ const Pacientes = () => {
                             </div>
                             {/* Bottom Section */}
                             <div className="flex justify-between items-center mt-8">
-                                <button
+                                <input 
+                                type='button'
                                     className="bg-blue-500 text-white px-6 py-3 rounded-md"
-                                >
-                                    Cancelar
-                                </button>
+                                    onClick={()=>{redirect(`/meus-pacientes/${psc}`)}}
+                                    value={'Cancelar'}
+                               / >
+                                   
+                             
                                 <input type='submit'
                                     className="bg-green-500 text-white px-6 py-3 rounded-md"
                                     value='Salvar'
-                                    //onClick={() => showInfoMessage('quando implementado vai sair da pagina')}
                                 />
                             </div>
                         </div>

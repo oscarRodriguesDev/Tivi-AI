@@ -66,6 +66,8 @@ export default function Home() {
   }, [])
 
   return (
+
+    <>
     <div className="bg-white">
       <Navbar/>
       {/* Home Section */}
@@ -98,5 +100,6 @@ export default function Home() {
       </div>
 
     </div>
+    </>
   )
 }

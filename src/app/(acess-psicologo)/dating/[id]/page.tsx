@@ -1,27 +1,4 @@
 'use client';
-
-
-/**
- * Importações necessárias para o componente de agendamento e controle de acesso.
- *
- * @module AgendamentoPage
- *
- * @requires useState - Hook do React para gerenciar o estado local do componente.
- * @requires useEffect - Hook do React para lidar com efeitos colaterais, como requisições ou sincronizações.
- * @requires format - Função da biblioteca `date-fns` usada para formatar datas de forma flexível.
- * @requires redirect - Função do Next.js usada para redirecionar o usuário para outra rota programaticamente.
- * @requires useAccessControl - Hook personalizado que fornece informações de controle de acesso do usuário, como permissões e roles.
- *
- * @requires FaCalendarAlt - Ícone de calendário da biblioteca `react-icons`, usado para representar ações ou seções relacionadas a datas.
- * @requires Modal - Componente de modal personalizado utilizado para exibir e manipular agendamentos.
- * @requires HeadPage - Componente responsável pelo cabeçalho da página, incluindo título e navegação contextual.
- * @requires ViewMes - Componente que renderiza a visualização do mês atual no calendário ou agendamentos.
- *
- * @requires FaTrash - Ícone de lixeira usado para ações de exclusão.
- * @requires FaEdit - Ícone de lápis usado para ações de edição.
- * @requires FaWhatsapp - Ícone do WhatsApp, normalmente usado para ações de compartilhamento ou comunicação via app.
- */
-
 import { useState, useEffect, use, useRef } from 'react';
 import { format } from 'date-fns';
 import { redirect } from 'next/navigation';
@@ -79,7 +56,6 @@ export default function AgendamentoPage() {
   const emProcesso = useRef<Set<string>>(new Set());
 
 
-
   //edição de reuniões
   const handleEditar = (agendamento: any) => {
     if (agendamento.id === 'fake-id') {
@@ -90,6 +66,7 @@ export default function AgendamentoPage() {
     }
     if (!modalAberto) {
       setBuscando(true)
+      buscarAgendamentos()
     }
   };
 
@@ -111,6 +88,8 @@ export default function AgendamentoPage() {
       showErrorMessage("Erro de conexão" + error);
     }
   };
+
+
 
   //buscar quando inciar a tela
   useEffect(() => {
@@ -214,6 +193,7 @@ export default function AgendamentoPage() {
     }
   };
 
+
   //deletar reunião
   const handleDeletar = async (id: string) => {
     Notiflix.Confirm.show(
@@ -246,6 +226,8 @@ export default function AgendamentoPage() {
       }
     );
   };
+
+
 
   //verifica se ha agendamento
   const verifica = (ag: Agendamento) => {
@@ -306,7 +288,7 @@ export default function AgendamentoPage() {
         <div className="flex-col h-[80vh]  p-8 text-white">
           <Modal isOpen={isModalOpen} onClose={() => {
             handleCloseModal()
-            window.location.reload()
+           buscarAgendamentos()
           }} />
 
           {/* Filtro */}

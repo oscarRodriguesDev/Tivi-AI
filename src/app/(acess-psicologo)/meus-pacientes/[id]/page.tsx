@@ -309,10 +309,12 @@ const descartarPrePaciente = async (idpac:string) => {
                   <td className="px-4 py-2">
                     <div className="flex gap-2">
                       <button className="flex items-center gap-1 bg-blue-700 text-white hover:bg-blue-400 hover:text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                        onClick={() => { getPaciente(item.id) }}
+                       // onClick={() => { getPaciente(item.id) }}
+                        onClick={() => abrirModal(item)}
                       >
 
                         Abrir
+                        {/* Esse modal vamos usar em outra versão */}
                         <GrDocumentUser />
                       </button>
                       <button

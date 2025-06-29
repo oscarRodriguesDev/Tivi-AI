@@ -17,6 +17,8 @@ const PoliticaCookies = () => {
     };
 
     return (
+
+        <>
         <div className="max-w-4xl mx-auto px-6 py-10 text-justify bg-white text-black rounded-2xl shadow-md" id="politica-cookies">
             <h1 className="text-3xl font-bold mb-6 text-[#3D975B]">Política de Cookies – TiviAi</h1>
 
@@ -137,6 +139,7 @@ const PoliticaCookies = () => {
                 </button>
             </div>
         </div>
+        </>
 
 
     );

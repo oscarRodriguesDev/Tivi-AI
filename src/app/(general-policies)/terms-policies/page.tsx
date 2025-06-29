@@ -113,6 +113,8 @@ Para dúvidas, solicitações ou denúncias sobre uso indevido da plataforma, en
   };
 
   return (
+
+    <>
     <div className="max-w-4xl mx-auto py-10 px-6 bg-[#fff] text-[#000] min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-[#3D975B]">
         Termo de Uso e Política de Privacidade – TiviAi
@@ -132,5 +134,6 @@ Para dúvidas, solicitações ou denúncias sobre uso indevido da plataforma, en
         {texto}
       </pre>
     </div>
+    </>
   );
 }
