@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react"; // Importando useEffect
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Home from "./landing/page";
 import HeygenAvatar from "./components/heygen/heigen";

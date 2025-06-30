@@ -3,9 +3,9 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect, useId } from "react";
 import Image from "next/image";
-import tiviai from "../../../../../public/patern_capa/banner_pattern.png";
-import capa_default from "../../../../../public/patern_capa/tivia.jpg";
-import userDefault from "../../../../../public/profile_pictures_ps/userdefault.png";
+
+import capa_default from '../../../../../../public/patern_capa/tivia.jpg';
+import userDefault from "../../../../../../public/profile_pictures_ps/userdefault.png";
 import AlteracaoSenha from "../components/trocar_senha";
 import { Psicologo } from "../../../../../../types/psicologos";
 import LoadingNoHidration from "@/app/(private-access)/components/noHidrationn";
