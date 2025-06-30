@@ -11,7 +11,7 @@ export default function ComoFuncionaSection() {
             <div className="absolute left-8 top-0 h-full w-0.5 bg-tivi-tertiary hidden md:block"></div>
 
             <div className="mb-12 md:pl-20 relative">
-              <div className="absolute left-0 top-0 bg-tivi-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold hidden md:flex">
+              <div className="absolute left-0 top-0 bg-tivi-primary text-white w-16 h-16 rounded-full hidden md:flex items-center justify-center text-2xl font-bold">
                 1
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md">
@@ -33,7 +33,7 @@ export default function ComoFuncionaSection() {
             </div>
 
             <div className="mb-12 md:pl-20 relative">
-              <div className="absolute left-0 top-0 bg-tivi-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold hidden md:flex">
+              <div className="absolute left-0 top-0 bg-tivi-primary text-white w-16 h-16 rounded-full hidden md:flex items-center justify-center text-2xl font-bold">
                 2
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md">
@@ -58,7 +58,8 @@ export default function ComoFuncionaSection() {
             </div>
 
             <div className="md:pl-20 relative">
-              <div className="absolute left-0 top-0 bg-tivi-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold hidden md:flex">
+              <div className="absolute left-0 top-0 bg-tivi-primary text-white w-16 h-16 rounded-full hidden md:flex items-center justify-center text-2xl font-bold">
+
                 3
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md">

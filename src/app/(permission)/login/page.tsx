@@ -1,36 +1,6 @@
 "use client";
 
 
-
-/**
- * Importações utilizadas para autenticação, gerenciamento de estado e interface do usuário:
- * 
- * - `signIn`, `useSession` (next-auth/react):
- *    Funções e hooks para autenticação e gerenciamento de sessão.
- * 
- * - `useState`, `useEffect` (react):
- *    Hooks do React para gerenciamento de estado local e efeitos colaterais.
- * 
- * - `redirect`, `useRouter` (next/navigation):
- *    Funções e hooks para navegação programática e redirecionamento.
- * 
- * - `FaEye`, `FaEyeSlash` (react-icons/fa):
- *    Componentes de ícones para mostrar/ocultar senha.
- * 
- * - `Image` (next/image):
- *    Componente otimizado para renderização de imagens.
- * 
- * - `Logo`:
- *    Importação do arquivo de logo da aplicação.
- * 
- * - `Link` (next/link):
- *    Componente para navegação declarativa.
- * 
- * - `KeyboardEvent` (react):
- *    Tipo para eventos de teclado.
- */
-
-
 import { signIn } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { redirect, useRouter } from 'next/navigation';
@@ -44,26 +14,7 @@ import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
 
 
 
-
- /**
-  * Esta pagina serve para permitir login do usuaio utilizando emaile senha
-  *  */ 
 export default function LoginPage() {
-  /**
-   * Estados do componente de login:
-   * 
-   * @param {string} email - Estado para armazenar o email do usuário durante o login
-   * @param {string} password - Estado para armazenar a senha do usuário durante o login
-   * @param {boolean} showPassword - Estado para controlar a visibilidade da senha no campo de input
-   * @param {string} aviso - Estado para armazenar mensagens de erro ou avisos durante o processo de login
-   * 
-   * @example
-   * // Exemplo de uso dos estados
-   * setEmail("usuario@exemplo.com");
-   * setPassword("senha123");
-   * setShowPassword(true);
-   * setAviso("Credenciais inválidas");
-   */
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -73,49 +24,22 @@ export default function LoginPage() {
   const [aviso, setAviso] = useState('')
   
 
- 
-
-
-  /**
-   * Função assíncrona que gerencia o processo de login do usuário.
-   * 
-   * Esta função utiliza o método `signIn` do NextAuth para autenticar o usuário
-   * com as credenciais fornecidas (email e senha). Em caso de sucesso, o usuário
-   * é redirecionado para a página comum. Em caso de falha, uma mensagem de erro
-   * é exibida e o campo de senha é limpo.
-   * 
-   * @async
-   * @function handleLogin
-   * @throws {Error} Lança um erro se as credenciais forem inválidas
-   * @example
-   * // Exemplo de uso
-   * await handleLogin();
-   * 
-   * @returns {Promise<void>} Uma Promise que resolve quando o processo de login é concluído
-   */
+   //função para logar
   const handleLogin = async () => {
-    
-
     try {
       const result = await signIn("credentials", { email, password, callbackUrl: `/common-page`, redirect: false });
-    
-
       if (result?.error) {
-
         //experimental
         showErrorMessage(result?.error);
         setPassword('')
         if(result.error==='Usuario não existe no sistema'){
-
           setEmail("");
         }
         throw new Error(result.error);
-      
       }else{
         showSuccessMessage('Seja bem vindo de volta')
         redirect('/common-page')
       }
-
       // Se não houver erro, o usuário será redirecionado automaticamente pelo NextAuth
     } catch (error) {
       setAviso('Usuário ou senha incorretos')
@@ -125,24 +49,7 @@ export default function LoginPage() {
 
 
   
-  /**
-   * Efeito que gerencia o redirecionamento do usuário com base no status da sessão.
-   * 
-   * Este efeito monitora o status da sessão do usuário e:
-   * - Se o usuário estiver autenticado, redireciona para a página comum
-   * - Se o usuário não estiver autenticado, permanece na página de login
-   * 
-   * @effect
-   * @param {string} session.status - Status atual da sessão do usuário
-   * @example
-   * // Exemplo de comportamento
-   * // Se session.status === 'authenticated' -> redireciona para /common-page
-   * // Se session.status === 'unauthenticated' -> permanece na página
-   * 
-   * @returns {void} Não retorna valor, apenas executa o redirecionamento quando necessário
-   */
-
-  
+  //verificando estado do usuario
   useEffect(() => {
     if (session.status === 'unauthenticated') {
       return
@@ -158,18 +65,7 @@ export default function LoginPage() {
     }
   };
 
-  /**
-   * Renderiza o formulário de login com campos para email e senha.
-   * 
-   * O componente inclui:
-   * - Logo da aplicação
-   * - Campo de email com validação
-   * - Campo de senha com toggle de visibilidade
-   * - Mensagem de erro quando aplicável
-   * - Botão de submit para autenticação
-   * 
-   * @returns {JSX.Element} Formulário de login estilizado com Tailwind CSS
-   */
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-green-400 via-green-600 to-gray-100 flex items-center justify-center">
