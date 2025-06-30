@@ -1,14 +1,14 @@
 "use client"
  
 import { useEffect, useRef, useState } from "react"
-import HomeSection from "../components/sections/home-section"
-import SobreSection from "../components/sections/sobre-section"
-import ComoFuncionaSection from "../components/sections/como-funciona-section"
-import EquipeSection from "../components/sections/equipe-section"
-import ContatoSection from "../components/sections/contato-section" // Importando useEffect
-import Navbar from "../components/navbar";
-import Footer from "../components/footer"
-import WhatsappButton from "../components/whatsapp-button"
+import HomeSection from "../../components/sections/home-section"
+import SobreSection from "../../components/sections/sobre-section"
+import ComoFuncionaSection from "../../components/sections/como-funciona-section"
+import EquipeSection from "../../components/sections/equipe-section"
+import ContatoSection from "../../components/sections/contato-section" // Importando useEffect
+import Navbar from "../../components/navbar";
+import Footer from "../../components/footer"
+import WhatsappButton from "../../components/whatsapp-button"
 
 
 export default function Home() {

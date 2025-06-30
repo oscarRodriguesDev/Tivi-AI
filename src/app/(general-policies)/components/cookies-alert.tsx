@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FaCookieBite } from 'react-icons/fa';
-import { showErrorMessage } from '../util/messages';
+import { showErrorMessage } from '../../util/messages';
 
 const CookiesAlert = () => {
 

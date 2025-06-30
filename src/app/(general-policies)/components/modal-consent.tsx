@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PrivacyPolicy from './termsAndPolicies';
-import { showErrorMessage, showSuccessMessage } from '../util/messages';
+import { showErrorMessage, showSuccessMessage } from '../../util/messages';
 
 interface ModalConsentProps {
   show: boolean;

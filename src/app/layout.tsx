@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Importante!
 import './globals.css'
-import CookiesAlert from "./components/cookies-alert";
+import CookiesAlert from "./(general-policies)/components/cookies-alert";
 
 
 export const metadata: Metadata = {
@@ -45,6 +45,4 @@ export default function RootLayout({
   );
 }
 
-//homologação
-//testes
-//produção
+

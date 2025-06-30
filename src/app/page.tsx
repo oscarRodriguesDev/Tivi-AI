@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Home from "./landing/page";
+import Home from "./(public-access)/landing/page";
 import HeygenAvatar from "./components/heygen/heigen";
 
 export default function LandingPage() {

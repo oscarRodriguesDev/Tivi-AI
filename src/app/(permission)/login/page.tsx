@@ -38,7 +38,8 @@ export default function LoginPage() {
         throw new Error(result.error);
       }else{
         showSuccessMessage('Seja bem vindo de volta')
-        redirect('/common-page')
+       /*  redirect('/common-page') */
+        router.push('/common-page')
       }
       // Se não houver erro, o usuário será redirecionado automaticamente pelo NextAuth
     } catch (error) {
@@ -54,7 +55,7 @@ export default function LoginPage() {
     if (session.status === 'unauthenticated') {
       return
     } else {
-      redirect('/common-page')
+      router.push('/common-page')
     }
   }, [session]);
 

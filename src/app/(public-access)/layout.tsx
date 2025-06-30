@@ -9,10 +9,24 @@ import WhatsappButton from "../components/whatsapp-button"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "TiviAi - Plataforma para Psicólogos",
-  description: "A plataforma inteligente que transforma suas consultas em resultados",
-    generator: 'v0.dev'
-}
+  title: "Tivi AI - Consultas Inteligentes",
+  description:
+    "Tivi AI é um sistema inteligente que transforma suas consultas online com transcrição, trazendo insights com inteligência artificial",
+  keywords:
+    `inteligência artificial, reuniões, transcrição automática,
+     agendamento inteligente, produtividade, assistente virtual,psicologia,psicologos,
+     nr1,saudeocupacional, saúde emocional,chat gpt, agente de ia `,
+  robots: "index, follow",
+  openGraph: {
+    title: "Tivi AI - Revolucione Suas Reuniões",
+    description:
+      "Aumente sua produtividade com o Tivi AI, o assistente inteligente para reuniões que transcreve, agenda e fornece insights em tempo real.",
+    url: "https://tivi.ai",
+    type: "website",
+    locale: "PT_BR",
+    siteName: "Tivi AI",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -20,13 +34,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
-      <body className={inter.className}>
-        <Navbar />
-        <main className="min-h-screen pt-16">{children}</main>
-        <Footer />
-        <WhatsappButton />
-      </body>
-    </html>
+    <>
+    
+    <Navbar />
+    <main className="min-h-screen pt-16">{children}</main>
+    <Footer />
+    <WhatsappButton />
+    </>
+    
   )
 }

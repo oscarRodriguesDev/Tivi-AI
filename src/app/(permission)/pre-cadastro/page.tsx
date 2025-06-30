@@ -15,7 +15,7 @@ import { IoIosInformationCircle } from "react-icons/io";
 import { useMemo, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { validarCPF } from "../../util/validarCPF";
-import ModalConsent from "../../components/modal-consent";
+import ModalConsent from "../../(general-policies)/components/modal-consent";
 import { showErrorMessage, showInfoMessage, showSuccessMessage } from "../../util/messages";
 
 
