@@ -24,7 +24,6 @@ import {  showErrorMessage, showInfoMessage } from "@/app/util/messages";
 export default function PublicCallPage() {
 
 
-
   /**
    * ID do peer remoto (opcionalmente utilizado para referência futura).
    * Pode ser usado para reconectar ou registrar a chamada.
@@ -47,78 +46,56 @@ export default function PublicCallPage() {
    */
   const analyserRef = useRef<AnalyserNode | null>(null);
 
-  /**
-   * Fonte de áudio conectada ao microfone local, usada como entrada para o analisador.
-   */
+  //Fonte de áudio conectada ao microfone local, usada como entrada para o analisador.
+  
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
 
-  /**
-   * Referência ao elemento de áudio do participante remoto, utilizado para controlar o som recebido.
-   */
+ 
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  /**
-   * ID dinâmico da sala de atendimento, extraído da URL usando o App Router do Next.js.
-   */
+
   const { iddinamico} = useParams();
   const {idpsc} = useParams();
 
-  /**
-   * ID único gerado para o peer atual ao se conectar ao servidor PeerJS.
-   */
+
   const [peerId, setPeerId] = useState<string>("");
 
-  /**
-   * Indica se uma chamada de vídeo está ativa no momento.
-   */
+
   const [callActive, setCallActive] = useState<boolean>(false);
 
-  /**
-   * Referência ao objeto PeerJS que representa o peer local.
-   */
+
   const peerRef = useRef<Peer | null>(null);
 
-  /**
-   * Referência ao elemento de vídeo local (do próprio usuário).
-   */
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  /**
-   * Referência ao vídeo do participante remoto.
-   */
+
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
-  /**
-   * Representa a conexão de mídia ativa com o outro participante da chamada.
-   */
+ 
   const currentCall = useRef<MediaConnection | null>(null);
 
-  /**
-   * Estado que controla se o microfone local está ligado ou desligado.
-   */
+
   const [mic, setMic] = useState<boolean>(true);
 
-  /**
-   * Estado que controla se a câmera local está ligada ou desligada.
-   */
+
   const [video, setVideo] = useState<boolean>(true);
 
-  /**
-   * Define se o usuário atual é o psicólogo.
-   * Usado para rotular corretamente as falas na transcrição.
-   */
+
   const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
 
-  /**
-   * Armazena a transcrição da conversa realizada durante a chamada.
-   */
+ 
   const [transcription, setTranscription] = useState<string>("");
 
-  //controle do texto do botão
+
 
   const [textButton, setTextButton] = useState<string>("Ingessar na Consulta");
 
+  const [hasShownAlert, setHasShownAlert] = useState(false);
+
   const router = useRouter();
+
+  
 
 
 
@@ -178,19 +155,6 @@ export default function PublicCallPage() {
   };
 
 
-
-  /**
-   * Efeito que inicializa a conexão PeerJS para chamadas de vídeo.
-   *
-   * - Cria um novo `Peer` e obtém seu ID ao abrir a conexão.
-   * - Envia o `peerId` gerado para a API associando-o ao `iddinamico` da URL.
-   * - Escuta chamadas recebidas e responde com mídia local (áudio/vídeo).
-   * - Conecta os fluxos de mídia local e remota aos elementos de vídeo correspondentes.
-   * - Inicia o monitoramento do microfone para controlar o áudio remoto com base no volume.
-   * - Limpa e destrói o peer ao desmontar o componente.
-   *
-   * @dependency `iddinamico` - ID dinâmico extraído da URL, necessário para associar o `peerId` na API.
-   */
 
  
 
@@ -262,19 +226,27 @@ export default function PublicCallPage() {
   }
 
 
+// Função para mutar/desmutar o microfone
+const toggleMic = () => {
+ setMic(!mic)
+};
+
+
+// Função para ligar/desligar o vídeo
+const toggleVideo = () => {
+  if (videoRef.current && videoRef.current.srcObject) {
+    const stream = videoRef.current.srcObject as MediaStream;
+    stream.getVideoTracks().forEach(track => {
+      track.enabled = !track.enabled;
+    });
+    setVideo(prev => !prev);
+  }
+};
 
 
 
 
-  /** 
-   * Encerra a chamada de vídeo atual.
-   *
-   * - Limpa a mensagem de status.
-   * - Fecha a conexão ativa.
-   * - Para o fluxo de vídeo local.
-   * - Para o fluxo de vídeo remoto.
-   * 
-   */
+//desliga a chamada
   const endCall = () => {
     setMsg('');
     if (currentCall.current) currentCall.current.close();
@@ -295,19 +267,7 @@ export default function PublicCallPage() {
 
 
 
-  /**
- * Renderiza a interface da chamada de vídeo entre psicólogo e paciente.
- *
- * - Exibe o vídeo remoto (psicólogo) em tela cheia.
- * - Exibe o vídeo local (paciente) em miniatura no canto inferior esquerdo.
- * - Mostra a identificação de quem é quem na chamada.
- * - Inclui um botão "Sair" para encerrar a chamada.
- * - Exibe a transcrição ao vivo da fala do paciente, sendo enviada ao psicólogo.
- * - Controles para ligar/desligar microfone e câmera, com ícones que refletem o estado atual.
- *
- * @returns {JSX.Element} JSX do layout da chamada com controles e transcrição.
- */
-  const [hasShownAlert, setHasShownAlert] = useState(false);
+
 
   useEffect(() => {
     if (!hasShownAlert) {
@@ -316,6 +276,8 @@ export default function PublicCallPage() {
     }
   }, [hasShownAlert]);
 
+
+  
   useEffect(() => {
     const handleUnload = () => {
       if (currentCall.current) {
@@ -394,24 +356,19 @@ export default function PublicCallPage() {
           className="p-3 rounded-full hover:bg-gray-700 transition-colors"
           onClick={() => {
             setMic(!mic);
-            if (mic) {
-              //LIGAR MICROFONE
-            } else {
-              //DESLIGAR MICROFONE
+            if (!mic) {
+             toggleMic()
             }
           }}
         >
           {mic ? <Mic size={20} className="text-white" /> : <MicOff size={20} className="text-red-500" />}
         </button>
-
         <button
           className="p-3 rounded-full hover:bg-gray-700 transition-colors"
           onClick={() => {
             setVideo(!video);
-            if (video) {
-              //LIGAR VIDEO
-            } else {
-              //DESLIGAR VIDEO
+            if (!video) {
+              toggleVideo()
             }
           }}
         >
