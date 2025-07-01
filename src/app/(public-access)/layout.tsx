@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "../../globals.css"
+import "../globals.css"
 import Navbar from "../components/navbar"
 import Footer from "../components/footer"
 import WhatsappButton from "../components/whatsapp-button"
@@ -34,11 +33,11 @@ export default function RootLayout({
 }) {
   return (
     <>
-    <Navbar />
-    <main className="min-h-screen pt-16">{children}</main>
-    <Footer />
-    <WhatsappButton />
+      <Navbar />
+      <main className="min-h-screen pt-16">{children}</main>
+      <Footer />
+      <WhatsappButton />
     </>
-    
+
   )
 }
