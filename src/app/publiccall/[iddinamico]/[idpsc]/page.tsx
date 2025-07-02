@@ -19,75 +19,41 @@ import { Mic, MicOff, Video, VideoOff, LogOut, Router } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {  showErrorMessage, showInfoMessage } from "@/app/util/messages";
 
-
-
 export default function PublicCallPage() {
 
+  const [msg, setMsg] = useState<string>("");
 
-  /**
-   * ID do peer remoto (opcionalmente utilizado para referência futura).
-   * Pode ser usado para reconectar ou registrar a chamada.
-   */
-  const [remoteId, setRemoteId] = useState<string>("");
-
-  /**
-   * Mensagem de status exibida durante a transcrição (ex: "Aguardando transcrição").
-   */
-  const [msg, setMsg] = useState<string>("Aguardando transcrição");
-
-  /**
-   * Referência ao contexto de áudio utilizado para processar e analisar o som do microfone.
-   */
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  /**
-   * Referência ao analisador de frequência da Web Audio API.
-   * Utilizado para monitorar o volume do microfone em tempo real.
-   */
   const analyserRef = useRef<AnalyserNode | null>(null);
-
-  //Fonte de áudio conectada ao microfone local, usada como entrada para o analisador.
   
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
 
- 
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
 
-
   const { iddinamico} = useParams();
-  const {idpsc} = useParams();
 
+  const {idpsc} = useParams();
 
   const [peerId, setPeerId] = useState<string>("");
 
-
   const [callActive, setCallActive] = useState<boolean>(false);
-
 
   const peerRef = useRef<Peer | null>(null);
 
-
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
 
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
- 
   const currentCall = useRef<MediaConnection | null>(null);
-
 
   const [mic, setMic] = useState<boolean>(true);
 
-
   const [video, setVideo] = useState<boolean>(true);
-
 
   const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
 
- 
   const [transcription, setTranscription] = useState<string>("");
-
-
 
   const [textButton, setTextButton] = useState<string>("Ingessar na Consulta");
 
@@ -97,17 +63,6 @@ export default function PublicCallPage() {
 
   
 
-
-
-  /**
-   * Função para monitorar o volume do microfone.
-   * 
-   * - Cria um contexto de áudio se ainda não existir.
-   * - Configura um analisador de frequência para detectar atividade sonora.
-   * - Conecta a fonte de áudio do microfone ao analisador.
-   * @param {MediaStream} stream - Fluxo de áudio do microfone local.
-   * @returns {void}
-   */
   const monitorMicrophone = (stream: MediaStream) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
@@ -138,13 +93,6 @@ export default function PublicCallPage() {
   };
 
 
-  /**
- * Atualiza a transcrição da conversa em tempo real, identificando o falante como psicólogo ou paciente.
- *
- * @param {string} text - Texto da fala capturada para ser adicionada à transcrição.
- * @param {boolean} isPsychologist - Indica se a fala é do psicólogo (`true`) ou do paciente (`false`).
- */
-
   const handleTranscription = (text: string, isPsychologist: boolean) => {
     // Definindo quem está falando, psicólogo ou paciente
     const speaker = isPsychologist ? 'psicologo' : 'paciente';
@@ -155,11 +103,6 @@ export default function PublicCallPage() {
   };
 
 
-
- 
-
-
-  //envia o peer id para o usuario informando que esta online e pronto para a chamada
 
   const entrar = () => {
     if (!iddinamico) return; // Se não tem ID na URL, não faz nada
@@ -188,6 +131,7 @@ export default function PublicCallPage() {
         .catch((error) => {
           showErrorMessage("Vídeo bloqueado, tentando somente áudio:" +  error);
           return navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        
         })
         .then((stream) => {
           if (!stream) {
@@ -200,6 +144,7 @@ export default function PublicCallPage() {
 
           call.answer(stream);
           setCallActive(true);
+          setTextButton('Psicologo entrou na sala!')
           currentCall.current = call;
           monitorMicrophone(stream);
           setMsg('Transcrevendo Chamada...');
@@ -301,88 +246,95 @@ const toggleVideo = () => {
 
 
   return (
-
-    <div className="min-h-screen bg-gray-900 text-white p-4 relative">
-
-      <div className="w-full flex justify-end p-4">
-        <button
-          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 border ${textButton === "Aguardando psicólogo..."
-              ? "bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200"
-              : "bg-green-100 text-green-800 border-green-300 hover:bg-green-200"
-            }`}
-          onClick={entrar}
-        >
-          {textButton}
-        </button>
-      </div>
-
-      {/* Video Container */}
-      <div className="relative w-full h-[calc(100vh-200px)] rounded-lg overflow-hidden">
-        {/* Remote Video (Psychologist) */}
+    <div className="min-h-screen bg-black text-white p-4 relative">
+    <div className="w-full flex justify-end p-4">
+      <button
+        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 border ${
+          textButton === "Aguardando psicólogo..."
+            ? "bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200"
+            : "bg-[#3D975B] text-white border-[#3D975B] hover:bg-[#2f7748]"
+        }`}
+        onClick={entrar}
+      >
+        {textButton}
+      </button>
+    </div>
+  
+    {/* Video Container */}
+    <div className="relative w-full h-[calc(100vh-200px)] rounded-lg overflow-hidden border border-[#3D975B]">
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        playsInline
+        className="w-full h-full object-cover"
+      />
+  
+      <div className="absolute bottom-4 right-4 w-48 h-36 rounded-lg overflow-hidden border-2 border-[#3D975B] shadow-lg">
         <video
-          ref={remoteVideoRef}
+          ref={videoRef}
           autoPlay
           playsInline
           className="w-full h-full object-cover"
+          muted={true}
         />
-
-        {/* Local Video (Patient) */}
-        <div className="absolute bottom-4 right-4 w-48 h-36 rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            className="w-full h-full object-cover"
-            muted={true}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-1 text-xs text-center">
-            Você
-          </div>
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1 text-xs text-center">
+          Você
         </div>
       </div>
-
-      {/* Transcription Area */}
-      <div className="mt-4 bg-gray-800 rounded-lg p-4 h-[150px] overflow-y-auto">
-        <LiveTranscription
-          usuario={'Paciente'}
-          mensagem={transcription}
-          sala={iddinamico as string}
-        />
-      </div>
-
-      {/* Control Buttons */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 bg-gray-800/80 p-3 rounded-full backdrop-blur-sm">
-        <button
-          className="p-3 rounded-full hover:bg-gray-700 transition-colors"
-          onClick={() => {
-            setMic(!mic);
-            if (!mic) {
-             toggleMic()
-            }
-          }}
-        >
-          {mic ? <Mic size={20} className="text-white" /> : <MicOff size={20} className="text-red-500" />}
-        </button>
-        <button
-          className="p-3 rounded-full hover:bg-gray-700 transition-colors"
-          onClick={() => {
-            setVideo(!video);
-            if (!video) {
-              toggleVideo()
-            }
-          }}
-        >
-          {video ? <Video size={20} className="text-white" /> : <VideoOff size={20} className="text-red-500" />}
-        </button>
-
-        <button
-          className="p-3 rounded-full hover:bg-red-600 transition-colors bg-red-500"
-          onClick={endCall}
-        >
-          <LogOut size={20} className="text-white" />
-        </button>
-      </div>
     </div>
+  
+    {/* Transcription Area */}
+    <div className="mt-4 bg-[#1a1a1a] rounded-lg p-4 h-[150px] overflow-y-auto border border-[#3D975B]">
+      <LiveTranscription
+        usuario={"Paciente"}
+        mensagem={transcription}
+        sala={iddinamico as string}
+      />
+    </div>
+  
+    {/* Control Buttons */}
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 bg-[#1a1a1a]/90 p-3 rounded-full backdrop-blur-md shadow-md border border-[#3D975B]">
+      <button
+        className="p-3 rounded-full hover:bg-[#3D975B]/30 transition-colors"
+        onClick={() => {
+          setMic(!mic);
+          if (!mic) {
+            toggleMic();
+          }
+        }}
+      >
+        {mic ? (
+          <Mic size={20} className="text-white" />
+        ) : (
+          <MicOff size={20} className="text-red-500" />
+        )}
+      </button>
+  
+      <button
+        className="p-3 rounded-full hover:bg-[#3D975B]/30 transition-colors"
+        onClick={() => {
+          setVideo(!video);
+          if (!video) {
+            toggleVideo();
+          }
+        }}
+      >
+        {video ? (
+          <Video size={20} className="text-white" />
+        ) : (
+          <VideoOff size={20} className="text-red-500" />
+        )}
+      </button>
+  
+      <button
+        className="p-3 rounded-full hover:bg-red-600 transition-colors bg-red-500"
+        onClick={endCall}
+      >
+        <LogOut size={20} className="text-white" />
+      </button>
+    </div>
+  </div>
+  
   );
 
 
