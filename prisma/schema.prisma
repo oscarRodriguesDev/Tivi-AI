@@ -186,3 +186,13 @@ enum UserRole {
   PSYCHOLOGIST
   COMMON
 }
+
+//model para armazenar os arquivos do model doc
+model model_doc{
+  id String @id @default(uuid())
+  name String
+  url String
+  criado_em DateTime @default(now())
+  psicologoId String
+
+}
