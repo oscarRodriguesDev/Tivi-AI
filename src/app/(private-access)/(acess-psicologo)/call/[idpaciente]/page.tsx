@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * Importações necessárias para a página de videochamada com transcrição ao vivo:
- * 
- * - `useEffect`, `useRef`, `useState`: Hooks do React usados para controlar estado, efeitos colaterais e referências a elementos DOM.
- * - `useParams`, `useSearchParams`: Hooks do Next.js App Router para acessar parâmetros da URL.
- * - `uuidv4`: Geração de IDs únicos, utilizado para criar o ID do peer na rede P2P.
- * - `Peer`, `MediaConnection`: Biblioteca PeerJS para criar e gerenciar conexões WebRTC ponto-a-ponto (P2P).
- * - `LiveTranscription`: Componente customizado para exibir a transcrição ao vivo da conversa.
- * - `HeadPage`: Componente para configurar o cabeçalho da página (título e ícone).
- * - `FaVideo`, `FcVideoCall`, `FcEndCall`: Ícones SVG utilizados nos botões da interface para indicar ações de vídeo.
- */
-
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
@@ -22,154 +10,30 @@ import { FaVideo } from "react-icons/fa";
 import { FcVideoCall, FcEndCall } from "react-icons/fc";
 import { showErrorMessage } from "@/app/util/messages";
 
-
-/**
- * Página principal da sala de reunião com videochamada entre psicólogo e paciente,
- * integrando transcrição em tempo real e controle de fluxo da chamada.
- * 
- * Funcionalidades principais:
- * 
- * - Inicializa uma instância do PeerJS (tecnologia P2P/WebRTC) para permitir conexão entre dois usuários (psicólogo e paciente).
- * - Gerencia chamadas de vídeo com áudio e vídeo via WebRTC, permitindo:
- *    - Iniciar chamada
- *    - Receber chamadas
- *    - Encerrar chamadas
- * - Exibe o vídeo local (psicólogo) e remoto (paciente) em tela.
- * - Monitora o volume do microfone para detectar fala e controlar o áudio remoto (evita eco).
- * - Realiza transcrição de falas, separando entre "psicólogo" e "paciente".
- * - Renderiza transcrição unificada usando o componente `<LiveTranscription />`.
- * 
- * Hooks usados:
- * - `useState`: controla o estado da chamada, transcrição, IDs, etc.
- * - `useEffect`: inicializa o PeerJS e escuta chamadas recebidas.
- * - `useRef`: mantém referências para elementos DOM (vídeos, áudio) e instâncias (PeerJS, MediaConnection).
- * - `useParams` e `useSearchParams`: obtém identificadores da URL, usados para vincular os participantes da reunião.
- * 
- * Layout:
- * - Usa Tailwind CSS para posicionamento e responsividade.
- * - Interface com botões de controle da chamada (iniciar e encerrar).
- * - Vídeo principal para o paciente, miniatura sobreposta para o psicólogo.
- * - Área lateral exibe a transcrição das falas em tempo real.
- * 
- * 🔒 Importante:
- * - Os papéis (psicólogo ou paciente) são determinados pelo parâmetro `iddinamico` da URL.
- * - Toda transcrição gerada é mantida localmente no estado e enviada para backend separadamente (não nesta função).
- */
-
-
 export default function Home() {
 
-   /**
-   * ID gerado automaticamente pelo PeerJS para identificar este cliente (psicólogo ou paciente).
-   */
    const [peerId, setPeerId] = useState<string>("");
 
-   /**
-    * ID do outro participante da chamada (usado para conectar a outra ponta).
-    */
-   const [remoteId, setRemoteId] = useState<string>("");
- 
-   /**
-    * Mensagem de status ou transcrição exibida na interface.
-    */
+
+   const [remoteId, setRemoteId] = useState<string>("")
    const [msg, setMsg] = useState<string>("Aguardando transcrição");
- 
-   /**
-    * Booleano que indica se uma chamada está atualmente ativa.
-    */
    const [callActive, setCallActive] = useState<boolean>(false);
- 
-   /**
-    * Referência à instância do PeerJS utilizada para chamadas WebRTC P2P.
-    */
    const peerRef = useRef<Peer | null>(null);
- 
-   /**
-    * Referência ao elemento de vídeo local (psicólogo).
-    */
    const videoRef = useRef<HTMLVideoElement | null>(null);
  
-   /**
-    * Referência ao elemento de vídeo remoto (paciente).
-    */
    const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
- 
-   /**
-    * Referência à chamada ativa do tipo `MediaConnection`.
-    */
    const currentCall = useRef<MediaConnection | null>(null);
- 
-   /**
-    * Referência ao contexto de áudio Web Audio API, usado para análise de volume/microfone.
-    */
    const audioContextRef = useRef<AudioContext | null>(null);
- 
-   /**
-    * Referência ao analisador de frequência, usado para detectar atividade de voz.
-    */
    const analyserRef = useRef<AnalyserNode | null>(null);
- 
-   /**
-    * Fonte de áudio vinculada ao microfone do usuário.
-    */
    const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
- 
-   /**
-    * Referência a um elemento de áudio que representa o som remoto (usado para mutar dependendo do volume).
-    */
    const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
- 
-   /**
-    * Parâmetros dinâmicos da URL obtidos via roteamento do Next.js.
-    * Exemplo: /sala/123 → params.idpaciente = "123"
-    */
    const params = useParams();
- 
-   /**
-    * Parâmetros de consulta (query string) da URL.
-    * Exemplo: /sala?idpaciente=123&iddinamico=abc → idpaciente = "123", iddinamico = "abc"
-    */
    const searchParams = useSearchParams();
- 
-   /**
-    * ID dinâmico do paciente extraído da URL (rota dinâmica).
-    */
    const iddinamico = params.idpaciente;
- 
-   /**
-    * ID do paciente extraído da query string (?iddinamico=).
-    */
    const idpaciente = searchParams.get('iddinamico');
- 
-   /**
-    * Booleano que identifica se o usuário atual é o psicólogo (padrão: true).
-    */
    const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
- 
-   /**
-    * Transcrição unificada contendo todas as falas da conversa (psicólogo e paciente).
-    */
    const [transcription, setTranscription] = useState<string>("");
  
-
-
-
-  /**
- * Inicia a análise em tempo real do volume captado pelo microfone local,
- * utilizando a Web Audio API. O volume é usado para identificar quando
- * o usuário está falando e, se for o paciente, silenciar o áudio remoto
- * para evitar eco durante a transcrição.
- *
- * @param {MediaStream} stream - O fluxo de mídia local contendo o áudio do microfone.
- *
- * - Cria um `AudioContext` se ainda não existir.
- * - Conecta o microfone a um `AnalyserNode` para análise de frequência.
- * - Verifica continuamente o volume e ajusta o `muted` do `remoteAudioRef` se necessário.
- * - Chama `handleTranscription('text', isPsychologist)` em cada frame de análise.
- *
- * ⚠️ Nota: o texto `'text'` passado para `handleTranscription` é fixo neste trecho
- * e pode ser substituído por transcrição real futuramente.
- */
   const monitorMicrophone = (stream: MediaStream) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
@@ -291,19 +155,6 @@ export default function Home() {
       });
     });
   };
-
-
-
-
-/**
- * Encerra a chamada de vídeo ativa e libera os recursos de mídia.
- *
- * - Limpa a mensagem de status da interface.
- * - Fecha a conexão da chamada ativa, se existir.
- * - Interrompe todas as trilhas de mídia (áudio e vídeo) da câmera local e do vídeo remoto.
- * - Remove os objetos de mídia das referências de vídeo (`videoRef` e `remoteVideoRef`).
- * - Atualiza o estado para indicar que a chamada não está mais ativa.
- */
 
   const endCall = () => {
     setMsg('');

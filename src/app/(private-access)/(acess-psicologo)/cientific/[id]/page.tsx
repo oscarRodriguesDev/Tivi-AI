@@ -1,17 +1,20 @@
 'use client'
+
 import { useAccessControl } from "@/app/context/AcessControl"
 import { GiMaterialsScience } from "react-icons/gi"
 import HeadPage from "@/app/(private-access)/components/headPage"
-import { FaUpload, FaFileAlt, FaRobot } from "react-icons/fa"
-import { useEffect, useRef, useState } from "react"
+import {  FaRobot } from "react-icons/fa"
+import { useRef, useState } from "react"
 import { useParams } from "next/navigation"
-import { FiInfo } from "react-icons/fi"
+
+
+import mammoth from "mammoth"
 
 interface Docs {
   id: string
   name: string
-  url: string
   psicologoId: string
+  prompt: string
 }
 
 const BaseCientifica = () => {
@@ -19,75 +22,69 @@ const BaseCientifica = () => {
   const { role } = useAccessControl()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [uploading, setUploading] = useState(false)
   const [docName, setDocName] = useState("")
   const [customPrompt, setCustomPrompt] = useState('')
   const [savingPrompt, setSavingPrompt] = useState(false)
-  const [modelos, setModelos] = useState<Docs[]>([])
   const [docs, setDocs] = useState<Docs[]>([])
-  
 
-  const handleUpload = async () => {
+  const handleFileChange = async () => {
     const file = fileInputRef.current?.files?.[0]
-    if (!file) return alert("Selecione um arquivo.")
-    if (!docName.trim()) return alert("Digite um nome para o documento.")
+    if (!file) return
 
-    const formData = new FormData()
-    formData.append("file", file)
-    formData.append("name", docName.trim())
-    formData.append("psicologoId", String(id))
+    const ext = file.name.split('.').pop()?.toLowerCase()
 
-    setUploading(true)
+    let text = ""
+
     try {
-      const response = await fetch(`/api/uploads/doc-model?path=docs-tiviai`, {
-        method: "POST",
-        body: formData,
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        alert("Erro ao enviar o arquivo.")
-        console.error(result)
+      if (ext === 'pdf') {
+  
+        alert("⚠️ Aviso: pdf-lib não extrai texto nativamente. Prefira arquivos .txt ou .docx para melhor resultado.")
+      } else if (ext === 'txt') {
+        text = await file.text()
+      } else if (ext === 'docx') {
+        const arrayBuffer = await file.arrayBuffer()
+        const result = await mammoth.extractRawText({ arrayBuffer })
+        text = result.value
+      } else {
+        alert("Formato não suportado. Use PDF, TXT ou DOCX.")
         return
       }
 
-      setModelos(prev => [
-        ...prev,
-        {
-          id: result.id,
-          name: result.name,
-          url: result.url,
-          psicologoId: result.psicologoId
-        }
-      ])
-      alert("Arquivo enviado com sucesso!")
-      setDocName("")
+      setCustomPrompt(text)
     } catch (err) {
-      console.error(err)
-      alert("Erro inesperado.")
-    } finally {
-      setUploading(false)
-      if (fileInputRef.current) fileInputRef.current.value = ""
+      console.error("Erro ao ler arquivo:", err)
+      alert("Erro ao ler o conteúdo do arquivo.")
     }
   }
 
+  const handleSavePrompt = async () => {
+    if (!docName.trim()) return alert("Dê um nome ao documento.")
+    if (!customPrompt.trim()) return alert("O conteúdo do prompt está vazio.")
+    if (!id) return alert("ID do psicólogo não encontrado.")
 
-  //get modelos
-  useEffect(() => {
-    const fetchMaterials = async () => {
-      try {
-        const response = await fetch(`/api/uploads/my-models?psicologoId=${id}`)
-        const data = await response.json()
-        setModelos(data)
-      } catch (err) {
-        console.error("Erro ao buscar modelos:", err)
-      }
+    setSavingPrompt(true)
+    try {
+      const response = await fetch('/api/uploads/doc-model', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: docName.trim(),
+          psicologoId: id,
+          prompt: customPrompt.trim()
+        })
+      })
+
+      if (!response.ok) throw new Error("Erro ao salvar documento")
+      alert("Documento salvo com sucesso!")
+      setDocName("")
+      setCustomPrompt("")
+    } catch (err) {
+      console.error(err)
+      alert("Erro ao salvar documento.")
+    } finally {
+      setSavingPrompt(false)
     }
-    if (id) {
-      fetchMaterials()
-    }
-  }, [id])
+  }
 
   return (
     <>
@@ -110,136 +107,36 @@ const BaseCientifica = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-4">
-            <h3 className="text-lg font-semibold mb-3 text-gray-700">Seu Prompt Personalizado</h3>
+          <div className="bg-white rounded-xl shadow p-4 space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700">Adicionar novo conhecimento</h3>
+            <input
+              type="text"
+              value={docName}
+              onChange={(e) => setDocName(e.target.value)}
+              placeholder="Nome do documento"
+              className="border p-2 rounded w-full"
+            />
+            <input
+              type="file"
+              accept=".pdf,.txt,.docx"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="border p-2 rounded w-full"
+            />
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="Descreva seu prompt..."
-              className="w-full border rounded p-3 min-h-[120px] text-sm text-gray-700"
+              placeholder="Conteúdo extraído do documento..."
+              className="w-full border rounded p-3 min-h-[200px] text-sm text-gray-700"
             />
             <button
-              onClick={() => alert("salvar prompt ainda não implementado")}
-              className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+              onClick={handleSavePrompt}
+              disabled={savingPrompt}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50"
             >
-              Salvar Prompt
+              {savingPrompt ? "Salvando..." : "Salvar documento"}
             </button>
           </div>
-
-
-
-          {/* base de conhecimento */}
-          <div className="bg-white rounded-xl shadow p-4">
-          <h3 className="text-lg font-semibold mb-3 text-gray-700">Base de Conhecimento</h3>
-            <ul className="space-y-2">
-              {docs.map((file, index) => (
-                <li key={index} className="flex items-center justify-between bg-gray-100 p-3 rounded">
-                  <div className="flex items-center gap-3">
-                    <FaFileAlt className="text-blue-500" />
-                    <div>
-                      <p className="font-medium text-gray-800">{file.name}</p>
-                      <a href={file.url} target="_blank" className="text-xs text-blue-600 underline">Visualizar</a>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-
-          <div className="bg-white rounded-xl shadow p-4">
-          <h3 className="text-lg font-semibold mb-3 text-gray-700 flex items-center gap-2">
-             Adcionar novo arquivo à base
-              <FiInfo
-                title="Você pode subir arquivos que você estuda artigos científicos,livros ou outros!"
-                className="text-blue-500 cursor-help"
-                size={18}
-              />
-            </h3>
-            <div className="space-y-2">
-              <input
-                type="text"
-                value={docName}
-                onChange={(e) => setDocName(e.target.value)}
-                placeholder="Nome do documento"
-                className="border p-2 rounded w-full"
-              />
-              <div className="flex items-center gap-4">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="border p-2 rounded w-full"
-                />
-                <button
-                  onClick={handleUpload}
-                  disabled={uploading}
-                  className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition disabled:opacity-50"
-                >
-                  <FaUpload /> {uploading ? "Enviando..." : "Enviar"}
-                </button>
-              </div>
-            </div>
-          </div>
-
-
-      {/*     //meus modelos: */}
-  
-          {/* modelos */}
-          <div className="bg-white rounded-xl shadow p-4">
-            <h3 className="text-lg font-semibold mb-3 text-gray-700">Modelos cadastrados</h3>
-            <ul className="space-y-2">
-              {modelos.map((file, index) => (
-                <li key={index} className="flex items-center justify-between bg-gray-100 p-3 rounded">
-                  <div className="flex items-center gap-3">
-                    <FaFileAlt className="text-blue-500" />
-                    <div>
-                      <p className="font-medium text-gray-800">{file.name}</p>
-                      <a href={file.url} target="_blank" className="text-xs text-blue-600 underline">Visualizar</a>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-white rounded-xl shadow p-4">
-          <h3 className="text-lg font-semibold mb-3 text-gray-700 flex items-center gap-2">
-              Adicionar novo modelo
-              <FiInfo
-                title="Você pode colocar aqui os modelos de documentos que você deseja gerar automaticante nas suas sessões"
-                className="text-blue-500 cursor-help"
-                size={18}
-              />
-            </h3>
-            <div className="space-y-2">
-              <input
-                type="text"
-                value={docName}
-                onChange={(e) => setDocName(e.target.value)}
-                placeholder="Nome do documento"
-                className="border p-2 rounded w-full"
-              />
-              <div className="flex items-center gap-4">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="border p-2 rounded w-full"
-                />
-                <button
-                  onClick={handleUpload}
-                  disabled={uploading}
-                  className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition disabled:opacity-50"
-                >
-                  <FaUpload /> {uploading ? "Enviando..." : "Enviar"}
-                </button>
-              </div>
-            </div>
-          </div>
-
-
-
-
-
         </div>
       )}
     </>
