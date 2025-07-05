@@ -194,4 +194,13 @@ model model_doc {
   prompt        String
   }
 
+
+model base_cientific {
+  id       String   @id @default(uuid())
+  name     String
+  autor    String
+  url_capa String?
+  resumo   String
+
+}
   

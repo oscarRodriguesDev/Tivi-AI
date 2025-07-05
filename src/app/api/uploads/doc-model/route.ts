@@ -54,3 +54,27 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 })
   }
 }
+
+//delete
+export async function DELETE(req: Request) {
+  try {
+    const url = new URL(req.url)
+    const docId = url.searchParams.get('docId')
+
+    if (!docId) {
+      return NextResponse.json(
+        { error: 'Campo obrigatório: docId' },
+        { status: 400 }
+      )
+    }
+
+    const deletedDoc = await prisma.model_doc.delete({
+      where: { id: docId },
+    })
+
+    return NextResponse.json({ message: 'Documento deletado com sucesso' }, { status: 200 })
+  } catch (error: any) {
+    console.error('Erro ao deletar documento:', error)
+    return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 })
+  }
+}

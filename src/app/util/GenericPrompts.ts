@@ -4,7 +4,8 @@ export function generate(mensagem: string, model: string): string {
 
 🔹 *Objetivo Geral:*  
 O ChatGPT deve seguir *rigorosamente* o modelo de documento abaixo, respeitando sua estrutura, linguagem, campos e formatação, com base única e exclusivamente na transcrição da consulta fornecida.
-
+Tente reconhecer os titulos, subtitulos, e paragrafos dando enfase diferenciada pros itens que precisam, com objetivo de formatar o texto 
+de forma clara e objetiva
 ---
 
 ## 📍 1. MODELO A SER UTILIZADO
