@@ -3,10 +3,14 @@ import { useAccessControl } from "@/app/context/AcessControl";
 import { FaUserMd, FaCalendarAlt, FaUsers, FaEnvelope, FaLightbulb } from "react-icons/fa";
 import HeadPage from "@/app/(private-access)/components/headPage";
 import { useSession } from "next-auth/react";
+import { useHistory } from "@/app/context/historyContext";
+import { use, useEffect } from "react";
 
 const PaginaInicial = () => {
   const { role } = useAccessControl();
   const session = useSession();
+  const {logAction} = useHistory();
+  const id =  session.data?.user?.id;
 
   const dadosMock = {
     consultasHoje: 4,
@@ -15,6 +19,8 @@ const PaginaInicial = () => {
     dicaDoDia: "Lembre-se de registrar sempre suas séssoes com clareza e objetividade.",
   };
 
+
+ 
   return (
     <>
       <HeadPage title="Bem-vinda(o), Psicóloga(o)" icon={<FaUserMd size={20} />} />

@@ -9,11 +9,12 @@ import HeadPage from "@/app/(private-access)/components/headPage";
 import { FaVideo } from "react-icons/fa";
 import { FcVideoCall, FcEndCall } from "react-icons/fc";
 import { showErrorMessage } from "@/app/util/messages";
+import { useHistory } from "@/app/context/historyContext";
 
 export default function Home() {
 
    const [peerId, setPeerId] = useState<string>("");
-
+   const {logAction} =  useHistory();
 
    const [remoteId, setRemoteId] = useState<string>("")
    const [msg, setMsg] = useState<string>("Aguardando transcrição");
@@ -30,7 +31,7 @@ export default function Home() {
    const params = useParams();
    const searchParams = useSearchParams();
    const iddinamico = params.idpaciente;
-   const idpaciente = searchParams.get('iddinamico');
+   const idpaciente = searchParams.get('iddinamico');//
    const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
    const [transcription, setTranscription] = useState<string>("");
  
