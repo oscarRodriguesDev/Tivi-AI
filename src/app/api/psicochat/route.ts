@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 //import prompt from "@/app/util/prompt";
 import { generateTrasnctipionPrompt } from "@/app/util/prompt2";
 
-
+export const runtime = 'edge';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
