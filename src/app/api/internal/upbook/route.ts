@@ -61,3 +61,37 @@ export async function POST(req: Request) {
     }
   }
   
+
+  export async function DELETE(req: Request) {
+    try {
+      const { searchParams } = new URL(req.url);
+      const bookId = searchParams.get("bookId");
+
+      if (!bookId) {
+        return NextResponse.json(
+          { error: "Parâmetro 'bookId' é obrigatório" },
+          { status: 400 }
+        );
+      }
+
+      // Tenta deletar o livro pelo id
+      const deleted = await prisma.base_cientific.delete({
+        where: { id: bookId },
+      });
+
+      return NextResponse.json({ message: "Livro deletado com sucesso" }, { status: 200 });
+    } catch (error: any) {
+      // Se o livro não for encontrado, Prisma lança um erro
+      if (error.code === "P2025") {
+        return NextResponse.json(
+          { error: "Livro não encontrado" },
+          { status: 404 }
+        );
+      }
+      console.error("Erro ao deletar livro:", error);
+      return NextResponse.json(
+        { error: "Erro interno no servidor" },
+        { status: 500 }
+      );
+    }
+  }

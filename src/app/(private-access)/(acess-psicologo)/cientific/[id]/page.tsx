@@ -78,6 +78,7 @@ const BaseCientifica = () => {
   const [error, setError] = useState<string | null>(null);
 
 
+  //salva o arquivo de texto no banco de dados
   const handleFileChange = async () => {
     const file = fileInputRef.current?.files?.[0];
     if (!file) return;
@@ -106,6 +107,8 @@ const BaseCientifica = () => {
     }
   };
 
+
+  //faz o envio da capa do livro para o storage
   const enviarCapa = async (file: File): Promise<string | null> => {
     try {
       const formData = new FormData();
@@ -129,6 +132,8 @@ const BaseCientifica = () => {
     }
   };
 
+
+  //recupera  o resumo do livro no banco de dados
   const getResume = async (titulo: string, autor: string): Promise<string> => {
     const toastId = showPersistentLoadingMessage('Gerando resumo do livro...');
     try {
@@ -169,18 +174,12 @@ const BaseCientifica = () => {
 
 
 
-
+   //salva o livro no banco de dados
   const handleSaveBook = async (resume: string) => {
     if (!fileCapa || !titulo || !autor) {
       alert("Preencha todos os campos obrigatórios.");
       return;
     }
-
-    /*  if (!resumo || resumo === "") {
-       showErrorMessage("Falha ao gerar o resumo.");
-       return;
-     } */
-
     const capaUrl = await enviarCapa(fileCapa);
     if (!capaUrl) {
       showErrorMessage("Falha no upload da capa.");
@@ -208,8 +207,8 @@ const BaseCientifica = () => {
   };
 
 
-
-  const handleSavePrompt = async () => {
+  //salva os modelos de documentos no banco
+  const handleSavedocModel = async () => {
     if (!docName.trim() || !customPrompt.trim() || !id) {
       alert("Preencha todos os campos obrigatórios.");
       return;
@@ -239,7 +238,7 @@ const BaseCientifica = () => {
     }
   };
 
-
+  //faz uma busca no banco pelos documentos do psicoclogo
   const docSeek = async (): Promise<Docs[]> => {
     if (!id) {
       alert("ID do psicólogo não encontrado.");
@@ -256,10 +255,13 @@ const BaseCientifica = () => {
     }
   };
 
+  //recupera os  modelos de docuemtno do banco de dados
   useEffect(() => {
     docSeek().then(setDocs);
   }, []);
 
+
+  //deleta o modelo de documetno
   const handleDelete = async (docId: string) => {
     if (!confirm("Tem certeza que deseja deletar este documento?")) return;
 
@@ -275,8 +277,24 @@ const BaseCientifica = () => {
     }
   };
 
+  //deleta o livro
+  const handleDeleteBook = async (bookId: string) => {
+    if (!confirm("Tem certeza que deseja deletar este livro?")) return;
+
+    try {
+      const response = await fetch(`/api/internal/upbook?bookId=${bookId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error();
+      setDocs(prev => prev.filter(doc => doc.id !== bookId));
+    } catch (err) {
+      alert("Erro ao deletar livro.");
+    }
+  };
 
 
+//gera o resumo do livro
   const geraResumo = async (titulo: string, autor: string) => {
     setResumo(await getResume(titulo, autor));
   }
@@ -305,6 +323,8 @@ const BaseCientifica = () => {
     fetchLivros();
   }, [id]);
 
+
+  //corrige a url do livro
   const getFullUrl = (url?: string) => {
     if (!url) return "/placeholder.png";
 
@@ -327,7 +347,8 @@ const BaseCientifica = () => {
         </div>
       ) : (
 
-
+     
+       <>
         <div className="p-6 space-y-6">
           <div className="bg-blue-100 p-4 rounded-xl flex items-center gap-4">
             <FaRobot className="text-blue-500 text-3xl" />
@@ -362,7 +383,7 @@ const BaseCientifica = () => {
                     {livro.name}
                   </span>
                   <span
-                    onClick={() => alert('vai deletar o livro')}
+                    onClick={() => handleDeleteBook(livro.id)}
                     className="ml-auto text-red-600 text-sm cursor-pointer font-semibold px-2 py-1 rounded hover:bg-red-100 transition duration-200"
                     title="Deletar livro"
                   >
@@ -398,7 +419,7 @@ const BaseCientifica = () => {
             <h3 className="text-lg font-semibold text-gray-700">Adicionar novo Livro ou Artigo</h3>
             <input type="text" placeholder="Titulo" className="border p-2 rounded w-full" value={titulo} onChange={e => setTitulo(e.target.value)} />
             <input type="text" placeholder="Autor" className="border p-2 rounded w-full" value={autor} onChange={e => setAutor(e.target.value)} />
-            <input type="file" accept=".jpg,.png" className="border p-2 rounded w-full" onChange={e => {
+            <input type="file" accept=".jpg,.png,.jpeg" className="border p-2 rounded w-full" onChange={e => {
               const file = e.target.files?.[0];
               if (file) {
                 setFileCapa(file);
@@ -406,6 +427,9 @@ const BaseCientifica = () => {
               }
             }} />
             {capaPreview && <img src={capaPreview} alt="Preview da capa" className="w-32 h-auto rounded border" />}
+            <div className=" flex flex-row justify-between w-[25%]">
+
+
             <button
               onClick={() => geraResumo(titulo, autor)}
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -418,23 +442,11 @@ const BaseCientifica = () => {
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
               Salvar Livro
             </button>
+            </div>
           </div>
 
 
-
-
-
-
-          <div className="bg-white rounded-xl shadow p-4 space-y-3">
-            <h3 className="text-lg font-semibold text-gray-700">Adicionar novo Modelo de Documento</h3>
-            <input type="text" value={docName} onChange={e => setDocName(e.target.value)} placeholder="Nome do documento" className="border p-2 rounded w-full" />
-            <input type="file" accept=".pdf,.txt,.docx" ref={fileInputRef} onChange={handleFileChange} className="border p-2 rounded w-full" />
-            <textarea value={customPrompt} onChange={e => setCustomPrompt(e.target.value)} placeholder="Conteúdo extraído do documento..." className="w-full border rounded p-3 min-h-[200px] text-sm text-gray-700" />
-            <button onClick={handleSavePrompt} disabled={savingPrompt} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50">
-              {savingPrompt ? "Salvando..." : "Salvar documento"}
-            </button>
-          </div>
-
+               {/* doc models adicionados */}
           <h3>Modelos de documentos adicionados</h3>
           <div className="w-full border border-cyan-950 p-4 flex flex-wrap gap-2">
             {docs.map((doc) => (
@@ -447,7 +459,42 @@ const BaseCientifica = () => {
               </div>
             ))}
           </div>
+          <div className="bg-white rounded-xl shadow p-4 space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700">Adicionar novo Modelo de Documento</h3>
+            <input type="text" 
+            value={docName} 
+            onChange={e => setDocName(e.target.value)}
+             placeholder="Nome do documento" 
+             className="border p-2 rounded w-full" 
+             />
+
+            <input type="file"
+             accept=".pdf,.txt,.docx"
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+            className="border p-2 rounded w-full"
+             />
+
+          {/*   <textarea 
+            value={customPrompt}
+             onChange={e => setCustomPrompt(e.target.value)}
+              placeholder="Conteúdo extraído do documento..."
+               className="w-full border rounded p-3 min-h-[200px] text-sm text-gray-700"
+                /> */}
+
+            <button
+             onClick={handleSavedocModel}
+              disabled={savingPrompt} 
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50">
+              {savingPrompt ? "Salvando..." : "Salvar documento"}
+            </button>
+          </div>
+
+        
         </div>
+       
+       </>
+      
       )}
     </>
   );
