@@ -131,10 +131,11 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contato</h3>
             <address className="not-italic text-gray-600">
-              <p>Av. Paulista, 1000 - Bela Vista</p>
-              <p>São Paulo - SP, 01310-100</p>
-              <p className="mt-2">contato@tiviai.com.br</p>
-              <p>(11) 4002-8922</p>
+              <p>Av. Eldes Scherrer Souza, 975 - Parque</p>
+              <p>Res. Laranjeiras</p>
+              <p>Serra - ES, 29167-080</p>
+              <p className="mt-2">admin@tiviai.com.br</p>
+              <p>(27) 98872-8025</p>
             </address>
           </div>
         </div>

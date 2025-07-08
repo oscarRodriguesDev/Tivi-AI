@@ -159,8 +159,7 @@ export default function ContatoSection() {
                 <Mail className="h-6 w-6 text-tivi-primary mr-3 mt-1" />
                 <div>
                   <h3 className="font-medium">E-mail</h3>
-                  <p className="text-gray-600">contato@tiviai.com.br</p>
-                  <p className="text-gray-600">suporte@tiviai.com.br</p>
+                  <p className="text-gray-600">admin@tiviai.com.br</p>
                 </div>
               </div>
 
@@ -168,7 +167,7 @@ export default function ContatoSection() {
                 <Phone className="h-6 w-6 text-tivi-primary mr-3 mt-1" />
                 <div>
                   <h3 className="font-medium">Telefone</h3>
-                  <p className="text-gray-600">(11) 4002-8922</p>
+                  <p className="text-gray-600">(27) 98872-8025</p>
                   <p className="text-gray-600">Segunda a Sexta, 9h às 18h</p>
                 </div>
               </div>
@@ -177,8 +176,8 @@ export default function ContatoSection() {
                 <MapPin className="h-6 w-6 text-tivi-primary mr-3 mt-1" />
                 <div>
                   <h3 className="font-medium">Endereço</h3>
-                  <p className="text-gray-600">Av. Paulista, 1000 - Bela Vista</p>
-                  <p className="text-gray-600">São Paulo - SP, 01310-100</p>
+                  <p className="text-gray-600">Av. Eldes Scherrer Souza, 975 - Parque Res.Laranjeiras </p>
+                  <p className="text-gray-600">Serra - Es,29167-080</p>
                 </div>
               </div>
             </div>
