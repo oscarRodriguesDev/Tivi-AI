@@ -16,7 +16,7 @@ import { HiDocumentMagnifyingGlass } from "react-icons/hi2";
 
 import { RiPlayList2Fill } from "react-icons/ri";
 import TranscriptionModal from "./modalTranscription"; ;
-import { showErrorMessage, showInfoMessage, showLoadingMessage, showPersistentLoadingMessage,updateToastMessage, } from "../../../../util/messages";
+import { showErrorMessage, showPersistentLoadingMessage,updateToastMessage, } from "../../../../util/messages";
 import { DocumentoModal } from "./modaldoc";
 import { useAccessControl } from "@/app/context/AcessControl";
 

@@ -188,6 +188,8 @@ enum UserRole {
   PSYCHOLOGIST
   COMMON
 }
+
+//modelos de documentos
 model model_doc {
   id           String   @id @default(uuid())
   name         String
@@ -196,13 +198,14 @@ model model_doc {
   prompt        String
   }
 
-
+//livros
 model base_cientific {
-  id       String   @id @default(uuid())
-  name     String
-  autor    String
-  url_capa String?
-  resumo   String
+  id           String   @id @default(uuid())
+  psicologoId  String
+  name         String
+  autor        String
+  url_capa     String?
+  resumo       String
 
 }
 

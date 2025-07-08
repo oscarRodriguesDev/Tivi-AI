@@ -6,16 +6,20 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'qfpygaqyldmthqakmisq.supabase.co',
-        pathname: '/storage/v1/object/public/tiviai-images/**',
+        pathname: "/storage/v1/object/public/tiviai-images/**",
       },
+   
     ],
   },
-  // Caso queira aumentar o limite de upload, adicione isso no arquivo
   experimental: {
     serverActions: {
-      bodySizeLimit: '10mb',  // Ajusta o limite para 10MB ou conforme sua necessidade
+      bodySizeLimit: '10mb',
     },
   },
 };
 
 export default nextConfig;
+
+
+//https://qfpygaqyldmthqakmisq.supabase.co/storage/v1/object/public/tiviai-images/capa-livro/1751847364797-ChatGPT-Image-29-de-jun.-de-2025-143421.png
+//https://         dmthqakmisq.supabase.co/storage/v1/object/public/capas/capa-livro/1751847364797-ChatGPT-Image-29-de-jun.-de-2025-143421.png

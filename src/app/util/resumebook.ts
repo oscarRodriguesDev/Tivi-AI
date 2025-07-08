@@ -1,9 +1,4 @@
-
-
-
-
-
-const ResumoBook = (titulo: string, autor: string) => {
+export const resumeBook = (titulo: string, autor: string) => {
     return `
     Você é uma IA especialista em análise de obras psicológicas e comportamentais. Ao receber o seguinte título de um livro: ${titulo} e o seguinte nome do autor: ${autor},
      sua tarefa é gerar um **resumo analítico e estruturado** da obra, voltado para aplicação por
