@@ -80,8 +80,9 @@ export default function LoginPage() {
                 className="w-10 h-10 mr-8" />
             </span>Login</h1>
           <div className="space-y-6">
+         
             <input
-              type="text"
+              type='email'
               required
               placeholder="E-mail"
               name='email'
