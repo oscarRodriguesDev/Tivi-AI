@@ -97,6 +97,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, meet }) => {
   if (!isOpen) return null;
 
   return (
+
+    <>
+    
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
     <div className="relative bg-white rounded-lg w-full max-w-[787px] h-full max-h-[90vh] p-6 overflow-y-auto">
       {/* Header */}
@@ -250,6 +253,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, meet }) => {
       </form>
     </div>
   </div>
+    </>
   
   );
 };

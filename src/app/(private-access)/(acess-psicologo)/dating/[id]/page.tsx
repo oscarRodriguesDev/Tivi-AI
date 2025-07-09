@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, use, useRef } from 'react';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { redirect } from 'next/navigation';
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
 import { FaCalendarAlt } from 'react-icons/fa';
@@ -53,6 +53,7 @@ export default function AgendamentoPage() {
   const [buscando, setBuscando] = useState<boolean>(true);
   const [agendamentosDoDia, setAgendamentosDoDia] = useState<Agendamento[]>([]);
   const [modalAberto, setModalAberto] = useState(false);
+  const [mesOpen, setMesOpen] = useState<boolean>(false)
   const emProcesso = useRef<Set<string>>(new Set());
 
 
@@ -67,7 +68,10 @@ export default function AgendamentoPage() {
     if (!modalAberto) {
       setBuscando(true)
       buscarAgendamentos()
+    }else{
+      setBuscando(true)
     }
+
   };
 
 
@@ -147,7 +151,7 @@ export default function AgendamentoPage() {
 
   //quando o usuario clica no dia do mes
   const handleDayClick = (dia: number) => {
-    showInfoMessage(`Abrindo consultas para o dia ${dia}`);
+    //showInfoMessage(`Abrindo consultas para o dia ${dia}`);
     // Filtrar agendamentos do dia selecionado
     const filtrados = agendamentos.filter((agendamento) => {
       const dataAgendamento = new Date(agendamento.data); // Ajuste conforme formato da data
@@ -423,6 +427,7 @@ export default function AgendamentoPage() {
               <ViewMes
                 agendamentos={agendamentos}
                 onDayClick={handleDayClick}
+               
               />
 
 
@@ -430,10 +435,12 @@ export default function AgendamentoPage() {
 
             <ViewDay
               isOpen={modalAberto}
-              onClose={() => setModalAberto(false)}
+              onClose={() => setModalAberto(false)
+                
+              }
               agendamentos={agendamentos}
-              onEdit={(agendamentos) => { handleDeletar(agendamentos.id) }}
-              onDelete={(agendamentos) => { handleEditar(agendamentos.id) }}
+              onEdit={(agendamentos) => { handleEditar(agendamentos.id) }}
+              onDelete={(agendamentos) => { handleDeletar(agendamentos.id) }}
             />
 
 
@@ -455,12 +462,22 @@ export default function AgendamentoPage() {
 
           </div>
           {/* Modal para edição */}
+
+          <>
+          
+          </>
           {agendamentoSelecionado && (
+            <>
+            
             <ModalMeetEdit
               isOpen={modalAberto}
-              onClose={() => setModalAberto(false)}
               meet={agendamentoSelecionado}
+              onClose={() => {
+                setModalAberto(false)
+                location.reload()
+              }}
             />
+            </>
           )}
 
         </div>
