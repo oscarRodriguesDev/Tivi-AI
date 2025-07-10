@@ -380,7 +380,7 @@ export default function PublicCallPage() {
       </div>
 
       {/* Transcription Area */}
-      <div className="mt-4 bg-gray-800 rounded-lg p-4 h-[150px] overflow-y-auto">
+      <div className="mt-4 bg-gray-800 rounded-lg p-4 h-[150px] overflow-y-auto ">
         <LiveTranscription
           usuario={'Paciente'}
           mensagem={transcription}

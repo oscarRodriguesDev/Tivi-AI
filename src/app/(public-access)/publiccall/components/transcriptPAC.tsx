@@ -452,7 +452,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
 
         <div className="  flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
           {transcription ? (
-            <p className="whitespace-pre-wrap">{transcription}</p>
+            <p className="whitespace-pre-wrap hidden">{transcription}</p>
           ) : (
             <p className="text-gray-800 text-center">{'Aguardando transcrição...'}</p>
           )}
