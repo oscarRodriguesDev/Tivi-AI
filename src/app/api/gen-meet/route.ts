@@ -112,17 +112,55 @@ export async function POST(req: Request) {
  *   ...
  * ]
  */
-
-export async function GET() {
-
-
+export async function GET(req: Request) {
   try {
-    const consultas = await prisma.consulta.findMany();
+    const { searchParams } = new URL(req.url);
+    const idPsicologo = searchParams.get("id");
+
+    if (!idPsicologo) {
+      return NextResponse.json(
+        { error: "ID do psicólogo é obrigatório" },
+        { status: 400 }
+      );
+    }
+
+    const consultas = await prisma.consulta.findMany({
+      where: {
+        psicologoId: idPsicologo,
+      },
+    });
+
+    if (consultas.length === 0) {
+      const fakeConsulta = {
+        id: "fake-id",
+        pacienteId: null,
+        fantasy_name: "Este agendamento é apenas um exemplo",
+        name: "Consulta Demonstrativa",
+        titulo: "Sessão de Demonstração",
+        psicologoId: idPsicologo,
+        data: new Date().toISOString().split("T")[0], // data atual
+        hora: "10:00",
+        tipo_consulta: "online",
+        observacao: "Esta é uma consulta fictícia para fins de exibição.",
+        recorrencia: null,
+        code: "fake-code",
+        duracao: "50min",
+      };
+
+      return NextResponse.json([fakeConsulta], { status: 200 });
+    }
+
     return NextResponse.json(consultas, { status: 200 });
+
   } catch (error) {
-    return NextResponse.json({ error: "Erro ao buscar reuniões" }, { status: 500 });
+    console.error("Erro no GET /gen-meet", error);
+    return NextResponse.json(
+      { error: "Erro ao buscar reuniões" },
+      { status: 500 }
+    );
   }
 }
+
 
 
 

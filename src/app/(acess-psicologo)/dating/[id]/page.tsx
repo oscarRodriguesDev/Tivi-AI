@@ -22,7 +22,7 @@
  * @requires FaWhatsapp - Ícone do WhatsApp, normalmente usado para ações de compartilhamento ou comunicação via app.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { format } from 'date-fns';
 import { redirect } from 'next/navigation';
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
@@ -31,8 +31,10 @@ import Modal from '@/app/protected-components/modalAgendamentos';
 import HeadPage from '@/app/protected-components/headPage';
 import ViewMes from '@/app/protected-components/viewMes';
 import { FaTrash, FaEdit, FaWhatsapp } from 'react-icons/fa';
-import { Agendamento } from '../../../../types/agendamentos';
+import { Agendamento } from '../../../../../types/agendamentos';
 import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
+import { useParams } from 'next/navigation';
+import { showInfoMessage } from '@/app/util/messages';
 
 
 
@@ -69,6 +71,10 @@ import ModalMeetEdit from '@/app/protected-components/modal-meet-edit';
  */
 
 export default function AgendamentoPage() {
+
+  const psicologo = useParams().id;//recupera o id do psicologo, será usado para buscar as reunioes agendadas por ele
+
+
 
   /**
   * Controla a visibilidade do modal principal.
@@ -123,6 +129,7 @@ export default function AgendamentoPage() {
     tipo_consulta: '',
     observacao: '',
     recorrencia: '',
+    duracao: '',
     code: '',
   });
 
@@ -163,14 +170,22 @@ export default function AgendamentoPage() {
 
   const [modalAberto, setModalAberto] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
+  //status da reunião
+
+  const [expirada, setExpirada] = useState<string>("");
 
 
 
   //função para editar o agendamento
   const handleEditar = (agendamento: any) => {
-    setAgendamentoSelecionado(agendamento);
-    setModalAberto(true);
+    if (agendamento.id === 'fake-id') {
+      alert("impossivel editar demonstração");
+    } else {
 
+
+      setAgendamentoSelecionado(agendamento);
+      setModalAberto(true);
+    }
   };
 
 
@@ -185,7 +200,7 @@ export default function AgendamentoPage() {
   const buscarAgendamentos = async () => {
 
     try {
-      const response = await fetch("/api/gen-meet");
+      const response = await fetch(`/api/gen-meet/?id=${psicologo}`);
       if (response.ok) {
         const data = await response.json();
         console.log("Dados recebidos:", data); // Verifique os dados aqui
@@ -199,6 +214,7 @@ export default function AgendamentoPage() {
       console.error("Erro de conexão", error);
     }
   };
+
 
   /**
  * Executa a função `buscarAgendamentos` uma única vez ao montar o componente.
@@ -214,7 +230,7 @@ export default function AgendamentoPage() {
 
     //limpar o intervalo ao desmontar o componente
     return () => clearInterval(intervalId);
-  }, [agendamentos]);
+  }, []);
 
 
   /**
@@ -260,7 +276,7 @@ export default function AgendamentoPage() {
 
         }
       });
-    }, 3000);
+    }, 1000);
 
     // Limpeza do intervalo ao desmontar o componente
     return () => clearInterval(intervalId);
@@ -286,59 +302,94 @@ export default function AgendamentoPage() {
  * Exibe feedback visual por 1 segundo indicando que o link foi copiado com sucesso.
  */
   const handleCopy = (id: string) => {
-    const link = `${window.location.origin}/publiccall/${id}`;
-    navigator.clipboard.writeText(link).then(() => {
-      setCopiedLinks((prev) => ({ ...prev, [id]: true }));
-      setTimeout(() => {
-        setCopiedLinks((prev) => ({ ...prev, [id]: false }));
-      }, 1500);
-    });
+    if (id === "fake-id") {
+      alert("O link de demonstração não pode ser copiado!");
+    } else {
+      const link = `${window.location.origin}/publiccall/${id}`;
+      navigator.clipboard.writeText(link).then(() => {
+        setCopiedLinks((prev) => ({ ...prev, [id]: true }));
+        setTimeout(() => {
+          setCopiedLinks((prev) => ({ ...prev, [id]: false }));
+        }, 1500);
+      });
+    }
   };
 
 
   const copiarLinkParaWhatsApp = (idReuniao: string, data: string, hora: string) => {
-    const linkReuniao = `/publiccall/${idReuniao}`;
-    const mensagem = `Olá! Aqui está o link para acessar sua reunião agendada:
-  
-  Data: ${data}
-  Hora: ${hora}
-  
-  Clique no link para acessar a reunião: ${window.location.origin}${linkReuniao}`;
-
-
-
-    /**
-  * Gera uma mensagem com data, hora e link de reunião, copia para a área de transferência
-  * e abre o WhatsApp Web com a mensagem preenchida.
-  * 
-  * @param {string} idReuniao - ID da reunião para compor o link de acesso.
-  * @param {string} data - Data da reunião (formato legível).
-  * @param {string} hora - Hora da reunião.
-  * 
-  * Exibe um alerta informando que a mensagem foi copiada e abre o WhatsApp Web em nova aba.
-  */
-    navigator.clipboard.writeText(mensagem).then(() => {
-      alert('Mensagem copiada! Agora, abra o WhatsApp e cole a mensagem.');
-      const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-      window.open(url, '_blank');
-    }).catch(err => {
-      console.error('Erro ao copiar a mensagem: ', err);
-    });
+    if (idReuniao === "fake-id") {
+      alert("O link de demonstração não pode ser copiado!");
+    } else {
+      const linkReuniao = `/publiccall/${idReuniao}`;
+      const mensagem = `Olá! Aqui está o link para acessar sua reunião agendada:
+      Data: ${data}
+      Hora: ${hora}
+      Clique no link para acessar a reunião: ${window.location.origin}${linkReuniao}`;
+      navigator.clipboard.writeText(mensagem).then(() => {
+        alert('Mensagem copiada! Agora, abra o WhatsApp e cole a mensagem.');
+        const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+        window.open(url, '_blank');
+      }).catch(err => {
+        console.error('Erro ao copiar a mensagem: ', err);
+      });
+    }
   };
 
 
+  //criar doc do delete
   const handleDeletar = async (id: string) => {
-    const response = await fetch(`/api/gen-meet`, {
-      method: 'DELETE',
-      body: JSON.stringify({ id }),
-    });
-    if (response.ok) {
-      alert("Agendamento deletado com sucesso");
-      buscarAgendamentos();
+    if (id === "fake-id") {
+      alert('Impossivel deletar a demonstração')
     } else {
-      alert("Erro ao deletar agendamento");
-    };
+      const response = await fetch(`/api/gen-meet`, {
+        method: 'DELETE',
+        body: JSON.stringify({ id }),
+      });
+      if (response.ok) {
+        alert("Agendamento deletado com sucesso");
+        buscarAgendamentos();
+      } else {
+
+      };
+    }
   }
+
+
+
+  const verifica = (ag: Agendamento) => {
+    const agora = new Date().getTime();
+  
+    // Cria a data completa com hora no formato ISO, considerando o fuso -03:00 (Brasil)
+    const dataHoraStr = `${ag.data}T${ag.hora}:00-03:00`;
+    const agendamentoTimestamp = new Date(dataHoraStr).getTime();
+  
+    if (isNaN(agendamentoTimestamp)) {
+      console.warn(`Data/hora inválida no agendamento ${ag.id}: ${ag.data} ${ag.hora}`);
+      return false;
+    }
+  
+    // Converte a duração (em minutos) para milissegundos e soma ao timestamp do início da reunião
+    const duracaoMs = (Number(ag.duracao) || 1) * 60 * 1000; // default: 60 min se não houver valor
+    console.log(duracaoMs)
+    const fimAgendamento = agendamentoTimestamp + duracaoMs;
+  
+    // Verifica se o momento atual já ultrapassou o fim da reunião
+    if (fimAgendamento <= agora && ag.id !== 'fake-id') {
+      console.log(`Agendamento expirado: ${ag.id}`);
+      return true;
+    } else {
+      return false;
+    }
+  };
+  
+
+
+
+
+
+
+
+
 
 
 
@@ -401,66 +452,88 @@ export default function AgendamentoPage() {
                 <ul>
                   {agendamentos.map((meet) => (
                     /* melhorar esse layout */
-                
-                  <li key={meet.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
-                    <div className="text-xl w-full font-semibold text-white text-center bg-slate-600">
-                      Consulta Online com {meet.name}
-                    </div>
-                    <div className="text-lg font-medium text-blue-800">
-                      Nick name {meet.fantasy_name}
-                    </div>
-                    <div className="text-base text-blue-800">
-                      Data da reunião: <span className="font-medium">{meet.data}</span>
-                    </div>
-                    <div className="text-sm text-blue-700">
-                      Horário: {meet.hora}
-                    </div>
-                    <div className="text-sm text-blue-600">
-                      {meet.observacao}
-                    </div>
-                    <div className="text-sm text-blue-400">
-                      {peerIds[meet.id] ? (
-                        <button
-                          onClick={() => redirect(`/call/${meet.id}/?iddinamico=${idUser}`)}
-                          className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
-                        >
-                          Iniciar Reunião com {meet.name}
-                        </button>
-                      ) : (
-                        <div>
-                          Link:
-                          <div
-                            className="text-black cursor-pointer w-full"
-                            onClick={() => { handleCopy(meet.id) }}
+
+                    <li key={meet.id} className="p-3 bg-white rounded-lg mb-3 shadow-md">
+                      <div className="text-xl w-full font-semibold text-white text-center bg-slate-600">
+                        Consulta Online com: {meet.name}
+
+                      </div>
+                      <div className="text-lg font-medium text-blue-800">
+                        Nick name: {meet.fantasy_name}
+                      </div>
+                      <div className="text-base text-blue-800">
+                        Data da reunião: <span className="font-medium">{meet.data} | duração: {meet.duracao} minutos</span>
+                      </div>
+                      <div className="text-sm text-blue-700">
+                        Horário: {meet.hora} 
+                      </div>
+                      <div className="text-sm text-blue-600">
+                        {meet.observacao}
+                      </div>
+                      <div className="text-sm text-blue-400">
+                        {peerIds[meet.id] ? (
+                          <button
+                            onClick={() => redirect(`/call/${meet.id}/?iddinamico=${idUser}`)}
+                            className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2"
                           >
-                            /publiccall/{meet.id}
+                            Iniciar Reunião com {meet.name}
+                          </button>
+                        ) : (
+                          <div>
+                            {verifica(meet) ? (
+                              <div className='text-red-600 text-sm'>Reunião vencida</div>
+                            ) : (
+
+                              <div className='text-red-600 text-sm'>
+
+                                Link:
+                                <div
+                                  className="text-black cursor-pointer w-full"
+                                  onClick={() => { handleCopy(meet.id) }}
+                                >
+                                  /publiccall/{meet.id}
+                                </div>
+                              </div>
+
+                            )
+
+                            }
+
+
+                            {copiedLinks[meet.id] && <span className="text-green-500 text-sm">Link copiado!</span>}
                           </div>
-                          {copiedLinks[meet.id] && <span className="text-green-500 text-sm">Link copiado!</span>}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex space-x-2 pt-5">
-                      <button 
-                        className="text-blue-500 hover:text-blue-700"
-                        onClick={() => handleEditar(meet)}
-                      >
-                        <FaEdit size={20} />
-                      </button>
-                      <button 
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDeletar(meet.id)}
-                      >
-                        <FaTrash size={20} />
-                      </button>
-                      <button 
-                        className="text-green-600 hover:text-green-400"
-                        onClick={() => { copiarLinkParaWhatsApp(meet.id, meet.data, meet.hora) }}
-                      >
-                        <FaWhatsapp size={20} />
-                      </button>
-                    </div>
-                  </li>
-                   
+                        )}
+                      </div>
+                      <div className="flex space-x-2 pt-5">
+                        <button
+                          className="text-blue-500 hover:text-blue-700"
+                          onClick={() => handleEditar(meet)}
+                        >
+                          <FaEdit size={20} />
+                        </button>
+                        <button
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => handleDeletar(meet.id)}
+                        >
+                          <FaTrash size={20} />
+                        </button>
+                        <button
+                          className="text-green-600 hover:text-green-400"
+                          onClick={() => { copiarLinkParaWhatsApp(meet.id, meet.data, meet.hora) }}
+                        >
+                          {verifica(meet) ? (
+                            <></>
+                          ) : (
+                            <FaWhatsapp size={20} />
+                          )
+                          }
+
+                        </button>
+                      </div>
+
+
+                    </li>
+
                   ))}
                 </ul>
 
@@ -545,3 +618,6 @@ export default function AgendamentoPage() {
 
   );
 }
+
+
+//amanha definir no prisma o status da reunião para controlar por la se ela está ou não vencida e ai decidir se delta ou mantam
