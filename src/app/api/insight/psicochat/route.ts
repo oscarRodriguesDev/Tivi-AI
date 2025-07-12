@@ -1,15 +1,9 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-//import prompt from "@/app/util/prompt";
-<<<<<<< HEAD:src/app/api/psicochat/route.ts
-import { generateTrasnctipionPrompt } from "@/app/util/prompt2";
-
 export const runtime = 'edge';
-=======
 import { generateTrasnctipionPrompt } from "@/app/util/prompt3";
->>>>>>> a757c2c38632be7af4a47d4d6456be2cadb03c58:src/app/api/insight/psicochat/route.ts
 
-export const runtime = 'edge';
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
@@ -32,49 +26,7 @@ export async function GET(req: Request) {
         }, { status: 500 });
     }
 }
-/* 
-export async function POST(req: Request) {
-   const { message } = await req.json();
-   const prompt = generateTrasnctipionPrompt(
-    'Andre',
-    '15',
-    '2024-01-01',
-    'Adolescente',
-    'irmão',
-    'Tatiane de Souza Pontes Correa',
-    '16/10466',
-    message
-   )
-    try {
-        // Lendo o corpo da requisição
 
-        if (!message) {
-            return NextResponse.json({ error: "Mensagem não fornecida." }, { status: 400 });
-        }
-
-        // Combinando o prompt com a mensagem do paciente
-        const promptMessage = `${prompt} ${message}`;
-        NextResponse.json({ error: "aguardando resposta do modelo" }, { status: 404 });
-
-        // Chamando a API da OpenAI com o prompt combinado e a mensagem recebida
-        const completion = await openai.chat.completions.create({
-            //usar o 3.5 turbo  
-            model: "gpt-4-turbo", //tive que alterar o modelo
-            messages: [{ role: "user", content: promptMessage }],
-        });
-
-        return NextResponse.json({ response: completion.choices[0].message.content });
-
-    } catch (error) {
-        console.error("Erro ao chamar OpenAI:", error);
-        return NextResponse.json({ error: "Erro interno no servidor." }, { status: 500 });
-    }
-}
-<<<<<<< HEAD:src/app/api/psicochat/route.ts
-=======
-
-
- */
 
 
 export async function POST(req: Request) {
@@ -113,4 +65,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Erro ao gerar resposta do modelo." }, { status: 500 });
   }
 }
->>>>>>> a757c2c38632be7af4a47d4d6456be2cadb03c58:src/app/api/insight/psicochat/route.ts
+
