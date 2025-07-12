@@ -140,7 +140,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} TiviAi. Todos os direitos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} TiviAi. Todos os direitos reservados. <span className="text-sm-[1px]">version: 1.5.0</span></p>
         </div>
       </div>
     </footer>
