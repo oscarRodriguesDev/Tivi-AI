@@ -57,7 +57,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(user); //aqui retorna o usuario
   } catch (error) {
-    console.error("Erro ao buscar usuário:", error);
     return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 });
   }
 }
@@ -85,7 +84,6 @@ export async function GET(req: Request) {
 export async function PUT(req:Request) {
   try {
       const { id, ...updates } = await req.json();
-      console.log(updates)
 
       if (!id) {
           return NextResponse.json({ error: "ID do usuário é obrigatório." }, { status: 400 });
@@ -105,7 +103,6 @@ export async function PUT(req:Request) {
 
       return NextResponse.json(updatedUser, { status: 200 });
   } catch (error) {
-      console.error("Erro ao atualizar usuário:", error);
       return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 });
   }
 }

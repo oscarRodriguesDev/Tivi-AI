@@ -49,7 +49,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ transcript: fullTranscription }, { status: 200 });
 
   } catch (error) {
-    console.error('Erro no GET:', error);
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
   }
 }
@@ -93,7 +92,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Transcrição salva com sucesso.', transcript }, { status: 201 });
 
   } catch (error) {
-    console.error('Erro no POST:', error);
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
   }
 }

@@ -119,8 +119,19 @@ interface Psicologo {
      */
     first_acess?: boolean;
 
+
+    /**
+     * marca a pontuação do psicologo.
+     * @type {[] | undefined}
+     */
+    pontuacao?: number;
+
+
+
+
   
 }
+    
 
 /**
  * Reexporta a interface Psicologo.

@@ -1,7 +1,8 @@
 'use client'
-import { useEffect, useState } from "react"; // Importando useEffect
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Home from "./landing/page";
+import Home from "./(public-access)/landing/page";
+import HeygenAvatar from "./components/heygen/heigen";
 
 export default function LandingPage() {
     const [isClient, setIsClient] = useState(false); // Controlar a renderização do cliente
@@ -19,6 +20,7 @@ export default function LandingPage() {
     return (
       <>
           <Home/>
+          <HeygenAvatar/>
       </>
       
       

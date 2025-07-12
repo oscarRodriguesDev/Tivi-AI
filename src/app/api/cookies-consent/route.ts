@@ -9,11 +9,10 @@ export async function GET(req: Request) {
     const forwardedFor = req.headers.get('x-forwarded-for');
     const ipNumber = forwardedFor ? forwardedFor.split(',')[0] : 'unknown';
     
-    // Busca o consentimento no banco de dados
-    const consent = await prisma.cookies_consent.findUnique({
+    const consent = await prisma.cookies_consent.findFirst({
       where: {
-        ipNumber: ipNumber
-      }
+        ipNumber: ipNumber,
+      },
     });
 
     // Se não encontrar o consentimento, retorna 404
@@ -45,7 +44,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(consent);
   } catch (error) {
-    console.error('Erro ao buscar consentimento:', error);
     return NextResponse.json(
       { error: 'Erro ao buscar consentimento' },
       { status: 500 }
@@ -67,7 +65,7 @@ export async function DELETE(req: Request) {
     const ipNumber = forwardedFor ? forwardedFor.split(',')[0] : 'unknown';
     
     // Deleta o consentimento do banco de dados
-    await prisma.cookies_consent.delete({
+    await prisma.cookies_consent.deleteMany({
       where: {
         ipNumber: ipNumber
       }
@@ -75,7 +73,6 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erro ao deletar consentimento:', error);
     return NextResponse.json(
       { error: 'Erro ao deletar consentimento' },
       { status: 500 }
@@ -110,7 +107,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erro ao salvar consentimento:', error);
     return NextResponse.json(
       { error: 'Erro ao salvar consentimento' },
       { status: 500 }

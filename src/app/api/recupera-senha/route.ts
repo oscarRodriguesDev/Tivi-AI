@@ -38,7 +38,7 @@ async function notificar(email: string, nome: string, email_system: string, senh
   });
 
   const mailOptions = {
-    from: 'oskharm12@gmail.com',
+    from: 'noreply.tiviai@gmail.com',
     to: email,
     subject: 'Recuperação de Senha',
     text: `Olá ${nome},\n\n
@@ -57,7 +57,6 @@ async function notificar(email: string, nome: string, email_system: string, senh
   try {
     const info = await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Erro ao enviar e-mail:', error);
   }
 }
 

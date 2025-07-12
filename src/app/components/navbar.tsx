@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Menu, X } from 'lucide-react'
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import Image from "next/image"
+import logo from '../../../public/marca/logo.png'
 
 export default function Navbar() {
-  const [isClient, setIsClient] = useState(false); // Controlar a renderização do cliente
-    const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("home")
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -61,16 +60,20 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <a
-            href="#home"
-            onClick={(e) => {
-              e.preventDefault()
-              scrollToSection("home")
-            }}
-            className="text-xl font-bold text-tivi-primary"
-          >
-            TiviAi
-          </a>
+          <div className="flex items-center justify-center gap-2">
+            <Image src={logo} alt="logo da marca" className="w-8 h-auto" />
+            <a
+              href="#home"
+              onClick={(e) => {
+                e.preventDefault()
+                scrollToSection("home")
+              }}
+              className="text-xl font-bold text-tivi-primary"
+            >
+              TiviAi
+            </a>
+          </div>
+
 
           <nav className="hidden md:flex space-x-8">
             <a
@@ -79,9 +82,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("home")
               }}
-              className={`transition-colors ${
-                activeSection === "home" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
-              }`}
+              className={`transition-colors ${activeSection === "home" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
+                }`}
             >
               Home
             </a>
@@ -91,9 +93,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("sobre")
               }}
-              className={`transition-colors ${
-                activeSection === "sobre" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
-              }`}
+              className={`transition-colors ${activeSection === "sobre" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
+                }`}
             >
               Sobre
             </a>
@@ -103,9 +104,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("comoFunciona")
               }}
-              className={`transition-colors ${
-                activeSection === "comoFunciona" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
-              }`}
+              className={`transition-colors ${activeSection === "comoFunciona" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
+                }`}
             >
               Como Funciona
             </a>
@@ -115,9 +115,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("equipe")
               }}
-              className={`transition-colors ${
-                activeSection === "equipe" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
-              }`}
+              className={`transition-colors ${activeSection === "equipe" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
+                }`}
             >
               Equipe
             </a>
@@ -127,9 +126,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("contato")
               }}
-              className={`transition-colors ${
-                activeSection === "contato" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
-              }`}
+              className={`transition-colors ${activeSection === "contato" ? "text-tivi-primary" : "text-gray-700 hover:text-tivi-primary"
+                }`}
             >
               Contato
             </a>
@@ -174,9 +172,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("home")
               }}
-              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${
-                activeSection === "home" ? "text-tivi-primary" : "text-gray-700"
-              }`}
+              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${activeSection === "home" ? "text-tivi-primary" : "text-gray-700"
+                }`}
             >
               Home
             </a>
@@ -186,9 +183,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("sobre")
               }}
-              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${
-                activeSection === "sobre" ? "text-tivi-primary" : "text-gray-700"
-              }`}
+              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${activeSection === "sobre" ? "text-tivi-primary" : "text-gray-700"
+                }`}
             >
               Sobre
             </a>
@@ -198,9 +194,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("comoFunciona")
               }}
-              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${
-                activeSection === "comoFunciona" ? "text-tivi-primary" : "text-gray-700"
-              }`}
+              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${activeSection === "comoFunciona" ? "text-tivi-primary" : "text-gray-700"
+                }`}
             >
               Como Funciona
             </a>
@@ -210,9 +205,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("equipe")
               }}
-              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${
-                activeSection === "equipe" ? "text-tivi-primary" : "text-gray-700"
-              }`}
+              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${activeSection === "equipe" ? "text-tivi-primary" : "text-gray-700"
+                }`}
             >
               Equipe
             </a>
@@ -222,9 +216,8 @@ export default function Navbar() {
                 e.preventDefault()
                 scrollToSection("contato")
               }}
-              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${
-                activeSection === "contato" ? "text-tivi-primary" : "text-gray-700"
-              }`}
+              className={`px-4 py-2 hover:bg-tivi-light transition-colors ${activeSection === "contato" ? "text-tivi-primary" : "text-gray-700"
+                }`}
             >
               Contato
             </a>

@@ -1,6 +1,8 @@
 "use client"
 
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, } from "react-icons/fa"
+import Image from "next/image"
+import logo from '../../../public/marca/logo.png'
 
 export default function Footer() {
   const scrollToSection = (sectionId: string) => {
@@ -18,20 +20,21 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">TiviAi</h3>
-            <p className="text-gray-600 mb-4">A plataforma inteligente que transforma suas consultas em resultados.</p>
+            <div className="flex items-center gap-2">
+              <Image src={logo} alt="logo da marca" className="w-8 h-auto" />
+              <h3 className="text-lg font-semibold text-tivi-primary">TiviAi</h3>
+            </div>
+
+            <p className="text-gray-600 mb-4">Inteligencia que transforma vidas!</p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
-                <Facebook className="h-5 w-5" />
+            {/*   <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
+                <FaFacebook className="h-5 w-5" />
+              </a> */}
+              <a href="https://www.instagram.com/tiviai.ia/" className="text-gray-400 hover:text-tivi-primary transition-colors">
+                <FaInstagram className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
-                <Linkedin className="h-5 w-5" />
+              <a href="https://www.linkedin.com/company/tiviai/?viewAsMember=true" className="text-gray-400 hover:text-tivi-primary transition-colors">
+                <FaLinkedin className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -106,22 +109,22 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-600 hover:text-tivi-primary transition-colors">
+                <a href="/terms-policies" className="text-gray-600 hover:text-tivi-primary transition-colors">
                   Termos de Uso
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-tivi-primary transition-colors">
+                <a href="/terms-policies" className="text-gray-600 hover:text-tivi-primary transition-colors">
                   Política de Privacidade
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-tivi-primary transition-colors">
+                <a href="/terms-policies" className="text-gray-600 hover:text-tivi-primary transition-colors">
                   Conformidade LGPD
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-tivi-primary transition-colors">
+                <a href="cookies-policies" className="text-gray-600 hover:text-tivi-primary transition-colors">
                   Cookies
                 </a>
               </li>
@@ -129,12 +132,13 @@ export default function Footer() {
           </div>
 
           <div>
+   
             <h3 className="text-lg font-semibold mb-4">Contato</h3>
             <address className="not-italic text-gray-600">
-              <p>Av. Paulista, 1000 - Bela Vista</p>
-              <p>São Paulo - SP, 01310-100</p>
-              <p className="mt-2">contato@tiviai.com.br</p>
-              <p>(11) 4002-8922</p>
+              <p>Av. Eldes Scherrer Souza, 975 - Parque Res. Laranjeiras</p>
+              <p>Serra - ES, 29167-080</p>
+              <p className="mt-2">admin@tiviai.com.br</p>
+              <p>(27) 98872-8025</p>
             </address>
           </div>
         </div>

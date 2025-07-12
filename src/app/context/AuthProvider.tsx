@@ -69,7 +69,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
-  const publicRoutes = ["/", "/login", "/recupera", "/pre-cadastro","/publiccall"];
+  const publicRoutes = ["/", "/login", "/recupera", "/pre-cadastro","/publiccall","/amnp"];
   const dynamicPublicPrefixes = ["/publiccall/"];
 
 

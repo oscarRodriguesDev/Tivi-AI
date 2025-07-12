@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { Mail, Phone, MapPin, Send } from "lucide-react"
 
@@ -23,17 +21,30 @@ export default function ContatoSection() {
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setSubmitStatus(null)
 
-    // Simulação de envio de formulário
+    const formDataToSend = new FormData()
+    formDataToSend.append("entry.2004429461", formData.nome)
+    formDataToSend.append("entry.1330354678", formData.email)
+    formDataToSend.append("entry.1613584884", formData.mensagem)
+
     try {
-      // Aqui seria a chamada para uma API real
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await fetch(
+        "https://docs.google.com/forms/d/e/1FAIpQLSe8anTM5IuH41_VpkFGROKAX4pz47XAAilMahYGHyUkYaSsAA/formResponse",
+        {
+          method: "POST",
+          mode: "no-cors",
+          body: formDataToSend,
+        }
+      )
+
       setSubmitStatus("success")
       setFormData({ nome: "", email: "", mensagem: "" })
     } catch (error) {
+      console.error("Erro ao enviar formulário:", error)
       setSubmitStatus("error")
     } finally {
       setIsSubmitting(false)
@@ -48,7 +59,6 @@ export default function ContatoSection() {
         <div className="grid md:grid-cols-2 gap-12">
           <div>
             <h2 className="text-2xl font-semibold mb-6">Envie uma mensagem</h2>
-
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">
@@ -102,7 +112,9 @@ export default function ContatoSection() {
                 type="submit"
                 disabled={isSubmitting}
                 className={`w-full py-3 px-4 flex items-center justify-center rounded-lg text-white font-medium transition-colors ${
-                  isSubmitting ? "bg-tivi-secondary cursor-not-allowed" : "bg-tivi-primary hover:bg-opacity-90"
+                  isSubmitting
+                    ? "bg-tivi-secondary cursor-not-allowed"
+                    : "bg-tivi-primary hover:bg-opacity-90"
                 }`}
               >
                 {isSubmitting ? (
@@ -159,8 +171,7 @@ export default function ContatoSection() {
                 <Mail className="h-6 w-6 text-tivi-primary mr-3 mt-1" />
                 <div>
                   <h3 className="font-medium">E-mail</h3>
-                  <p className="text-gray-600">contato@tiviai.com.br</p>
-                  <p className="text-gray-600">suporte@tiviai.com.br</p>
+                  <p className="text-gray-600">admin@tiviai.com.br</p>
                 </div>
               </div>
 
@@ -168,7 +179,7 @@ export default function ContatoSection() {
                 <Phone className="h-6 w-6 text-tivi-primary mr-3 mt-1" />
                 <div>
                   <h3 className="font-medium">Telefone</h3>
-                  <p className="text-gray-600">(11) 4002-8922</p>
+                  <p className="text-gray-600">(27) 98872-8025</p>
                   <p className="text-gray-600">Segunda a Sexta, 9h às 18h</p>
                 </div>
               </div>
@@ -177,8 +188,9 @@ export default function ContatoSection() {
                 <MapPin className="h-6 w-6 text-tivi-primary mr-3 mt-1" />
                 <div>
                   <h3 className="font-medium">Endereço</h3>
-                  <p className="text-gray-600">Av. Paulista, 1000 - Bela Vista</p>
-                  <p className="text-gray-600">São Paulo - SP, 01310-100</p>
+                
+                  <p className="text-gray-600">Av. Eldes Scherrer Souza, 975 - Parque Res. Laranjeiras</p>
+                  <p className="text-gray-600">Serra - ES, 29167-080</p>
                 </div>
               </div>
             </div>

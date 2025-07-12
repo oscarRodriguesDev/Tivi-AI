@@ -23,13 +23,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient, UserRole } from "@prisma/client";
 import { compare } from "bcryptjs";
-import { redirect } from "next/dist/server/api-utils";
-
-
 
 const prisma = new PrismaClient();
-
-
 /**
  * Configuração principal do NextAuth para autenticação na aplicação.
  * 

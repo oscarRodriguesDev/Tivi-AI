@@ -1,13 +1,24 @@
-<<<<<<< HEAD
-testando as regras de controle de versões e proteção de branchs
+preciso salvar o psicologo id dentro do prepaciente
+para que eu consiga efetivar ele como paciente do psicologo
+o precadastro deve ser limpo a cada x dias para evitar dados incertos e desnecessarios
+mostrar uma lista de prepacientes na mesma lista de pacientes com um botão habilitar
+criar uma rotina de agendamento de reuniçoes com pacientes cadastrados, não impedindo de marcar com avulsos
 
-vamos continuar testando
+tem que mudar o prisma para que prepaciente aceite o id do psicologo
 
-resolvendo problema da versçao do prisma
+verificar a possibilidade de associações das tabelas do banco de dados
+
+a pagina pacient-transform vai receber o id do psicologo e tambem o id do paciente  que vai ser efetivado,
+ ai os dados vão ser auto completados na pagina de cadastro
+
+ criar autocomplete na tela de pacient-transform
+ salvar os dados do paciente
+ adptar novos dados para o modelo de paciente
+ apagar o pré paciente
+ tambem preciso garantir que os links expirados sejam apagados
+
+git add *
+git commit -m 'commit for correction'
+git push origin oscar
 
 
-deletei a branch oscar que estava com problema
-modificação de teste
-=======
-subindo versão com a landing para a homologação
->>>>>>> 558c4577505a0965102027b6bbbb80dd942f3eb8

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Importante!
 import './globals.css'
-import CookiesAlert from "./components/cookies-alert";
+import CookiesAlert from "./(general-policies)/components/cookies-alert";
 
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   keywords:
     `inteligência artificial, reuniões, transcrição automática,
      agendamento inteligente, produtividade, assistente virtual,psicologia,psicologos,
-     nr1,saudeocupacional, saúde emocional,chat gpt, agente de ia, `,
+     nr1,saudeocupacional, saúde emocional,chat gpt, agente de ia `,
   robots: "index, follow",
   openGraph: {
     title: "Tivi AI - Revolucione Suas Reuniões",
@@ -45,6 +45,4 @@ export default function RootLayout({
   );
 }
 
-//homologação
-//testes
-//produção
+
