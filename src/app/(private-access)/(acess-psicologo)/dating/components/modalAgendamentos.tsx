@@ -1,10 +1,11 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect, ReactEventHandler } from "react";
 import { FaCalendar, FaCalendarAlt, FaClock, FaPhoneAlt, FaPen, FaUserFriends, FaUserClock } from "react-icons/fa";
 import { MdNotes } from "react-icons/md";
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from "next-auth/react";
 import { showErrorMessage, showInfoMessage, showSuccessMessage } from "../../../../util/messages";
-
+import { useHistory } from "@/app/context/historyContext";
+ 
 interface Agendamento {
   id: string;
   psicologoId: string;
@@ -23,15 +24,26 @@ type ModalProps = {
   onClose: () => void;
 };
 
+function gerarCodigoAleatorio(tamanho: number = 8): string {
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let codigo = '';
+  for (let i = 0; i < tamanho; i++) {
+    const randomIndex = Math.floor(Math.random() * caracteres.length);
+    codigo += caracteres[randomIndex];
+  }
+  return codigo;
+}
+
+
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const { data: session, status } = useSession(); // Obtém os dados da sessão
-
+  const { logAction } = useHistory();
   const psicologo = session?.user.id
 
   const [novoAgendamento, setNovoAgendamento] = useState<Agendamento>({
     id: '',
     psicologoId: String(psicologo),
-    fantasy_name: '',
+    fantasy_name: gerarCodigoAleatorio(),
     name: '',
     data: '',
     hora: '',
@@ -41,6 +53,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     duracao: '30'
   });
 
+  const [pacientes, setPacientes] = useState<any[]>([]);
+  const [loadingPacientes, setLoadingPacientes] = useState(false);
 
 
 
@@ -50,6 +64,42 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     setNovoAgendamento((prev) => ({ ...prev, [name]: value }));
   };
 
+
+
+  // Função para buscar todos os pacientes do psicologo
+  const buscarPacientes = async () => {
+    if (!psicologo) return;
+    
+    setLoadingPacientes(true);
+    try {
+      const response = await fetch(`/api/internal/register_pacientes?psicologoId=${psicologo}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPacientes(data);
+      } else {
+        console.error('Erro ao buscar pacientes');
+        showErrorMessage('Erro ao carregar lista de pacientes');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar pacientes:', error);
+      showErrorMessage('Erro ao carregar lista de pacientes');
+    } finally {
+      setLoadingPacientes(false);
+    }
+  };
+
+  // Buscar pacientes quando o componente montar
+  useEffect(() => {
+    if (psicologo) {
+      buscarPacientes();
+    }
+  }, [psicologo]);
 
 
 
@@ -134,6 +184,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   
       if (falhas === 0) {
         showSuccessMessage(`Agendamento${agendamentos.length > 1 ? 's recorrentes' : ''} criado${agendamentos.length > 1 ? 's' : ''} com sucesso!`);
+        logAction(`Você agendou uma reunião com ${novoAgendamento.name} para o dia ${novoAgendamento.data} as 
+          ${novoAgendamento.hora} horas com duração de ${novoAgendamento.duracao} `, psicologo);
         setNovoAgendamento({
           id: '',
           psicologoId: '',
@@ -231,37 +283,35 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         {/* Form */}
         <form onSubmit={(e) => handleSubmit(e)}>
           <div className="space-y-4">
-
-            {/* Apelido */}
-            <div className="flex-col justify-between gap-4">
-              <label className="block text-sm font-medium text-gray-800">Precisamos de um nick name para seu paciente</label>
-              <div className="flex items-center gap-3">
-                <FaPen size={20} className="text-gray-600" />
-                <input
-                  type="text"
-                  name="fantasy_name"
-                  value={novoAgendamento.fantasy_name}
-                  onChange={handleChange}
-                  placeholder="Digite o apelido do seu paciente"
-                  className="border border-gray-300 text-black rounded-md px-4 py-2 w-full"
-                />
-              </div>
-            </div>
-
+  
+         
             {/* Nome do Paciente */}
             <div className="flex-col justify-between gap-4">
-              <label className="block text-sm font-medium text-gray-800">Nome real do Paciente</label>
+              <label className="block text-sm font-medium text-gray-800">Selecionar Paciente (Opcional)</label>
               <div className="flex items-center gap-3">
                 <FaUserFriends size={20} className="text-gray-600" />
-                <input
-                  type="text"
+                <select
                   name="name"
                   value={novoAgendamento.name}
                   onChange={handleChange}
                   className="border text-black border-gray-300 rounded-md px-4 py-2 w-full"
-                />
+                >
+                  <option value="">Consulta Avulsa</option>
+                  {loadingPacientes ? (
+                    <option value="" disabled>Carregando pacientes...</option>
+                  ) : (
+                    pacientes.map((paciente) => (
+                      <option key={paciente.id} value={paciente.name}>
+                      {paciente.nome}
+                      </option>
+                    ))
+                  )}
+                </select>
               </div>
             </div>
+
+
+
 
             {/* Data da Reunião */}
             <div className="flex-col justify-between gap-4">

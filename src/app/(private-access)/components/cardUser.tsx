@@ -18,7 +18,7 @@ const CardUser = () => {
   useEffect(() => {
     const fetchFotoPerfil = async () => {
       try {
-        const response = await fetch(`/api/uploads?userId=${session?.user?.id}`);
+        const response = await fetch(`/api/uploads/profile/?userId=${session?.user?.id}`);
         const data = await response.json();
         setFotoPerfil(data.url);
         // Passa apenas a parte relativa para o estado

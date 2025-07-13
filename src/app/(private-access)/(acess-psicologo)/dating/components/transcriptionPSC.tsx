@@ -16,8 +16,9 @@ import { HiDocumentMagnifyingGlass } from "react-icons/hi2";
 
 import { RiPlayList2Fill } from "react-icons/ri";
 import TranscriptionModal from "./modalTranscription"; ;
-import { showErrorMessage, showInfoMessage, showLoadingMessage, showPersistentLoadingMessage,updateToastMessage, } from "../../../../util/messages";
+import { showErrorMessage, showPersistentLoadingMessage,updateToastMessage, } from "../../../../util/messages";
 import { DocumentoModal } from "./modaldoc";
+import { useAccessControl } from "@/app/context/AcessControl";
 
 
 
@@ -38,6 +39,15 @@ interface LiveTranscriptionProps {
   usuario: string;
   sala: string
 }
+
+
+interface Docs {
+  id: string
+  name: string
+  psicologoId: string
+  prompt: string
+}
+
 
 
 /**
@@ -93,12 +103,11 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const [tipoSelecionado, setTipoSelecionado] = useState<string>();
+  const [prompt, setPrompt] = useState<string>('me de uma visão geral do paciente');
+  const { userID } = useAccessControl();
 
 
-  const handleSelectTipo = (tipo: string) => {
-    setTipoSelecionado(tipo);
-    console.log('Tipo selecionado:', tipo);
-  };
+ 
 
   const handleGenerate = () => {
     if (tipoSelecionado) {
@@ -388,7 +397,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 120000); //120 segundos
     try {
-      const response = await fetch(`/api/internal/insight/psicochat/?tipo=${tipoSelecionado}`, {
+      const response = await fetch(`/api/internal/insight/psicochat/?tipo=${tipoSelecionado}&&prompt=${prompt}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -419,6 +428,36 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
 
 
 
+const fetchDocumentos = async (tipo: string) => {
+  try {
+    const response = await fetch(`/api/uploads/doc-model/?psicologoId=${userID}`)
+    if (!response.ok) throw new Error("Erro ao buscar documentos")
+
+    const data: Docs[] = await response.json()
+
+    const documentoSelecionado = data.find(doc => doc.name === tipo)
+
+    if (documentoSelecionado) {
+      const prompt = documentoSelecionado.prompt
+      setPrompt(prompt || "")
+    }
+
+  } catch (error) {
+    console.error("Erro ao buscar documentos:", error)
+  }
+}
+
+
+
+
+  const handleSelectTipo = (tipo: string) => {
+    setTipoSelecionado(tipo);
+    fetchDocumentos(tipo);
+   
+  };
+
+
+
   return (
 
     <>
@@ -430,6 +469,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
           onGenerate={handleGenerate}
           onSelectTipo={handleSelectTipo}
           tipoSelecionado={tipoSelecionado}
+          prompt={prompt}
         />
       )}
     </div>

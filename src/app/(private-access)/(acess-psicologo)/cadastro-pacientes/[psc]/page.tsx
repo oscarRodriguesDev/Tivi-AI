@@ -1,12 +1,13 @@
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"; // Importa o hook do contexto
-import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone, FaExclamationTriangle } from 'react-icons/fa';
+import { FaCalendarAlt, FaInfoCircle, FaHome, FaPhone } from 'react-icons/fa';
 import { useState } from "react";
-import { redirect, useParams } from "next/navigation";
+import { redirect, useParams,useRouter } from "next/navigation";
 import { Endereco } from "../../../../../../types/adress";
 import HeadPage from "@/app/(private-access)/components/headPage";
 import { FaBookMedical } from "react-icons/fa";
-import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
+import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
+import { useHistory } from "@/app/context/historyContext";
 
 
 const Pacientes = () => {
@@ -32,6 +33,9 @@ const Pacientes = () => {
     const [email, setEmail] = useState<string>('')
     const [rg, setRg] = useState<string>(String(''))
     const { role, hasRole } = useAccessControl(); // Obtém o papel e a função de verificação do contexto
+    const router=  useRouter()
+
+    const {logAction} =  useHistory()
 
    
     const resetForm = () => {
@@ -61,7 +65,7 @@ const Pacientes = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        const payload = {
+        const novoPaciente = {
             nome,
             fantasy_name: nick,
             idade,
@@ -81,6 +85,7 @@ const Pacientes = () => {
             rg,
             cpf,
             psicologoId: userId,
+            resumo_anmp: 'sem dados'
         };
 
         try {
@@ -89,15 +94,16 @@ const Pacientes = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(novoPaciente),
             });
 
             const data = await response.json();
 
             if (response.ok) {
                 showSuccessMessage("Paciente cadastrado com sucesso!");
+                logAction(`Você cadastrou ${novoPaciente.nome} em sua base de paciente `, novoPaciente.psicologoId);
                 resetForm();
-                redirect(`/meus-pacientes/${psc}`)
+                router.push(`/meus-pacientes/${psc}`);
             } else {
                 showErrorMessage(data.error || "Erro ao cadastrar paciente.");
             }
@@ -193,6 +199,8 @@ const Pacientes = () => {
         }
     };
 
+
+    
 
 
     return (

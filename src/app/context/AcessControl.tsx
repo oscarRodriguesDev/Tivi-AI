@@ -10,6 +10,7 @@ type Role = 'ADMIN' | 'PSYCHOLOGIST' | 'COMMON';
 interface AccessControlContextProps {
   role: Role | null;
   hasRole: (role: Role) => boolean;
+  userID:string | null;
 }
 
 const AccessControlContext = createContext<AccessControlContextProps | undefined>(undefined);
@@ -18,11 +19,14 @@ const AccessControlContext = createContext<AccessControlContextProps | undefined
 export const AccessControlProvider = ({ children }: { children: ReactNode }) => {
   const { data: session } = useSession(); // Somente pegamos o dado da sessão (não fazemos a verificação de autenticação aqui)
   const [role, setRole] = useState<Role | null>(null);
+ const [userID,setUserID] = useState<string>('')// Pegamos o ID do usuário da sessão, se disponível
 
   useEffect(() => {
     // Agora apenas setamos o papel do usuário se ele estiver logado
     if (session?.user?.role) {
       setRole(session.user.role as Role);
+      setUserID(session.user.id || ''); // Pegamos o ID do usuário da sessão, se disponível
+      
     }
   }, [session]);
 
@@ -32,7 +36,7 @@ export const AccessControlProvider = ({ children }: { children: ReactNode }) => 
   };
 
   return (
-    <AccessControlContext.Provider value={{ role, hasRole }}>
+    <AccessControlContext.Provider value={{ role, hasRole, userID }}>
       {children}
     </AccessControlContext.Provider>
   );

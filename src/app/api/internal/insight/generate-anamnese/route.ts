@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { generateAnamnese } from "@/app/util/Anamnese";
 
 
-//export const runtime = 'edge';
-export const runtime = 'nodejs';
+export const runtime = 'edge';
+//export const runtime = 'nodejs';
 
 
 const openai = new OpenAI({
