@@ -211,18 +211,13 @@ const toggleVideo = () => {
   };
 
 
-
-
-
   useEffect(() => {
     if (!hasShownAlert) {
       showInfoMessage('Por favor, aguarde o psicólogo entrar na sala. Não saia desta página ou você poderá perder a conexão.');
       setHasShownAlert(true);
     }
   }, [hasShownAlert]);
-
-
-  
+ 
   useEffect(() => {
     const handleUnload = () => {
       if (currentCall.current) {
@@ -241,9 +236,6 @@ const toggleVideo = () => {
       window.removeEventListener("unload", handleUnload);
     };
   }, []);
-
-
-
 
   return (
     <div className="min-h-screen bg-black text-white p-4 relative">
