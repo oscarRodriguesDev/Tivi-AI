@@ -55,84 +55,21 @@ import { showErrorMessage, showInfoMessage, showSuccessMessage } from "../../uti
 
 const Cadastro = () => {
 
-    // Estados utilizados para armazenar os dados inseridos no formulário de cadastro:
 
-    /**
-     * @state cpf
-     * @description Armazena o CPF informado pelo psicólogo. Validação e formatação são aplicadas antes do envio.
-     */
     const [cpf, setCPF] = useState<string>('')
-
-    /**
-     * @state cfp
-     * @description Espelho do CRP, enviado para análise como referência cruzada. Serve para padronização ou envio a outro endpoint.
-     */
     const [cfp, setCFP] = useState<string>('')
-
-    /**
-     * @state rg
-     * @description Armazena o RG do psicólogo. Campo obrigatório para identificação.
-     */
     const [rg, setRG] = useState<string>('')
-
-    /**
-     * @state nasc
-     * @description Data de nascimento usada para calcular idade e validar se o usuário é maior de idade.
-     */
     const [nasc, setNasc] = useState<string>('')
-
-    /**
-     * @state email
-     * @description E-mail do profissional, utilizado para comunicação e validação de cadastro.
-     */
     const [email, setEmail] = useState<string>('')
-
-    /**
-     * @state telefone
-     * @description Telefone fixo ou número principal, concatenado com DDI antes do envio.
-     */
     const [telefone, setTelefone] = useState<string>('')
-
-    /**
-     * @state celular
-     * @description Celular alternativo ou secundário, concatenado com DDI2.
-     */
     const [celular, setCelular] = useState<string>('')
-
-    /**
-     * @state nome
-     * @description Nome completo do psicólogo, usado para identificação e exibição em futuras etapas.
-     */
     const [nome, setNome] = useState<string>('')
-
-    /**
-     * @state nome
-     * @description Last name do psicólogo, usamos para criar o email dele.
-     */
     const [lastName, setLastName] = useState<string>('')
-
-    /**
-     * @state crp
-     * @description Registro profissional no Conselho Regional de Psicologia (CRP), obrigatório para validação da atuação profissional.
-     */
     const [crp, setCRP] = useState<string>('')
-
-    /**
-     * @state ddi
-     * @description Código do país (DDI) para o telefone principal. Padrão inicial é Brasil (+55).
-     */
     const [ddi, setDDI] = useState<string>('+55')
-
-    /**
-     * @state ddi2
-     * @description Código do país (DDI) para o celular alternativo. Também padrão Brasil (+55).
-     */
     const [ddi2, setDDI2] = useState<string>('+55')
-
     const [dados, setDados] = useState({})
-
     const [invalid, setInvalid] = useState<string>('')
-
     const router = useRouter()
 
 
