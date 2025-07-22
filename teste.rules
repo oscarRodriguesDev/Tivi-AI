@@ -186,3 +186,7 @@ CREATE TABLE public.cookies_consent (
   id text NOT NULL,
   CONSTRAINT cookies_consent_pkey PRIMARY KEY (id)
 );
+
+
+//git revert -m 1 <hash-do-merge>
+//bdfc8294d17070396a8246105c606a3b686238c0
