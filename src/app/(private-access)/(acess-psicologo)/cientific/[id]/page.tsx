@@ -14,6 +14,7 @@ import book_bournout from '@../../../public/books/book-bournout.png';
 import book_autoconheciemto from '@../../../public/books/bookautoconhecimanto.png';
 import book_tdah from '@../../../public/books/booktdah.png';
 
+
 import mammoth from "mammoth";
 import { showErrorMessage, showPersistentLoadingMessage, showSuccessMessage, updateToastMessage } from "@/app/util/messages";
 
@@ -23,6 +24,7 @@ interface Docs {
   psicologoId: string;
   prompt: string;
 }
+
 
 interface Livro {
   id: string;
@@ -67,7 +69,6 @@ const BaseCientifica = () => {
   const [docName, setDocName] = useState("");
   const [customPrompt, setCustomPrompt] = useState("");
   const [savingPrompt, setSavingPrompt] = useState(false);
-  const [docs, setDocs] = useState<Docs[]>([]);
   const [titulo, setTitulo] = useState("");
   const [autor, setAutor] = useState("");
   const [fileCapa, setFileCapa] = useState<File | null>(null);
@@ -76,6 +77,9 @@ const BaseCientifica = () => {
   const [livros, setLivros] = useState<Livro[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [docs, setDocs] = useState<Docs[]>([]);
+  
+  
 
 
   //salva o arquivo de texto no banco de dados

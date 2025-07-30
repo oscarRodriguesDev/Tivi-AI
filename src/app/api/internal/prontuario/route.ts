@@ -47,6 +47,7 @@ export async function POST(req: Request) {
       queixaPrincipal,
       historico,
       conduta,
+      transcription,
       evolucao,
     } = body;
 
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
         queixaPrincipal,
         historico,
         conduta,
+        transcription,
         evolucao,
       },
     });
@@ -81,6 +83,63 @@ export async function POST(req: Request) {
     console.error("Erro ao criar prontuário:", error);
     return NextResponse.json(
       { error: "Erro interno ao criar prontuário", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+//put de pronturario
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+
+    const {
+      pacienteId,
+      queixaPrincipal,
+      historico,
+      conduta,
+      transcription,
+      evolucao,
+    } = body;
+
+    if (!pacienteId) {
+      return NextResponse.json({ error: "ID do paciente é obrigatório" }, { status: 400 });
+    }
+
+    const prontuarioExistente = await prisma.prontuario.findUnique({
+      where: { pacienteId },
+    });
+
+    if (!prontuarioExistente) {
+      return NextResponse.json(
+        { error: "Prontuário não encontrado para o paciente" },
+        { status: 404 }
+      );
+    }
+
+    const camposAtualizados: any = {
+      queixaPrincipal: queixaPrincipal ?? prontuarioExistente.queixaPrincipal,
+      historico: historico ?? prontuarioExistente.historico,
+      conduta: conduta ?? prontuarioExistente.conduta,
+      evolucao: evolucao
+        ? (prontuarioExistente.evolucao || '')  + evolucao
+        : prontuarioExistente.evolucao,
+      transcription: transcription ?? prontuarioExistente.transcription
+    };
+
+    const prontuarioAtualizado = await prisma.prontuario.update({
+      where: { pacienteId },
+      data: camposAtualizados,
+    });
+
+    return NextResponse.json(prontuarioAtualizado, { status: 200 });
+
+  } catch (error: any) {
+    console.error("Erro ao atualizar prontuário:", error);
+    return NextResponse.json(
+      { error: "Erro interno ao atualizar prontuário", details: error.message },
       { status: 500 }
     );
   }

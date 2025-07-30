@@ -22,6 +22,9 @@ import { useAccessControl } from "@/app/context/AcessControl";
 
 
 
+
+
+
 /**
  * Interface para as propriedades do componente de transcrição ao vivo.
  *
@@ -460,96 +463,85 @@ const fetchDocumentos = async (tipo: string) => {
 
   return (
 
-    <>
+  <>
+  {/* Modal para geração de documento */}
+  {showModal && (
+    <DocumentoModal
+      onClose={() => setShowModal(false)}
+      onGenerate={handleGenerate}
+      onSelectTipo={handleSelectTipo}
+      tipoSelecionado={tipoSelecionado}
+      prompt={prompt}
+    />
+  )}
 
-<div>
-      {showModal && (
-        <DocumentoModal
-          onClose={() => setShowModal(false)}
-          onGenerate={handleGenerate}
-          onSelectTipo={handleSelectTipo}
-          tipoSelecionado={tipoSelecionado}
-          prompt={prompt}
-        />
+  {/* Modal com transcrição completa */}
+  <TranscriptionModal isOpen={isOpen} onClose={() => setIsOpen(false)} transcription={analise} />
+
+  {/* Contêiner fixo no canto inferior direito */}
+  <div className="fixed bottom-6 right-6 w-[300px] max-h-[65vh] bg-black bg-opacity-60 backdrop-blur-sm text-white rounded-lg shadow-xl flex flex-col p-4 z-50">
+
+    {/* Título */}
+    <h1 className="text-md font-semibold text-center mb-2">{titulo}</h1>
+
+    {/* Erro, se houver */}
+    {error && <p className="text-red-400 text-center text-sm mb-2">{error}</p>}
+
+    {/* Área de transcrição */}
+    <div className="flex-1 overflow-y-auto p-2 text-sm border border-white/20 rounded max-h-[40vh]">
+      {transcription ? (
+        <p className="whitespace-pre-wrap">{transcription}</p>
+      ) : (
+        <p className="text-gray-300 text-center italic">Aguardando transcrição...</p>
       )}
     </div>
 
-      <TranscriptionModal isOpen={isOpen} onClose={() => setIsOpen(false)} transcription={analise} />
+    {/* Botões de ação */}
+    <div className="grid grid-cols-3 gap-2 mt-4">
+      <button
+        onClick={() => setIsOpen(true)}
+        className="bg-blue-500 hover:bg-blue-600 transition p-2 rounded-md flex items-center justify-center"
+        title="Ver Transcrição"
+      >
+        <HiDocumentMagnifyingGlass size={16} />
+      </button>
 
-      <h1 className="text-lg font-semibold text-center mb-2 text-white">{titulo}</h1>
+      <button
+        onClick={handleClearTranscription}
+        className="bg-blue-500 hover:bg-blue-600 transition p-2 rounded-md flex items-center justify-center"
+        title="Limpar Transcrição"
+      >
+        <FaEraser size={16} />
+      </button>
 
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      <button
+        onClick={() => setShowModal(true)}
+        className="bg-yellow-500 hover:bg-yellow-600 transition p-2 rounded-md flex items-center justify-center"
+        title="Análise"
+      >
+        <FaBrain size={16} />
+      </button>
 
-
-
-      <div className="flex-1 overflow-y-auto p-2 rounded-md text-sm text-white  max-h-[60vh]">
-        {transcription ? (
-          <p className="whitespace-pre-wrap">{transcription}</p>
-        ) : (
-          <p className="text-gray-800 text-center">{'Aguardando transcrição...'}</p>
-        )}
-      </div>
-
-
-
-      <div className="fixed left-[90%] grid grid-cols-2  justify-center gap-2">
+      {!listening ? (
         <button
-          /*  onClick={handleClearTranscription} */
-          onClick={() => setIsOpen(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-          title="Ver Transcrição"
+          onClick={handleStartListening}
+          className="col-span-3 bg-red-600 hover:bg-red-500 transition p-2 rounded-md flex items-center justify-center"
+          title="Iniciar Transcrição"
         >
-
-          <HiDocumentMagnifyingGlass size={14} />
+          <RiPlayList2Fill size={16} />
         </button>
-
+      ) : (
         <button
-          onClick={handleClearTranscription}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-          title="Limpar Transcrição"
+          onClick={handleStopListening}
+          className="col-span-3 bg-red-600 hover:bg-red-500 transition p-2 rounded-md flex items-center justify-center"
+          title="Parar Transcrição"
         >
-          <FaEraser size={14} />
+          <FaStop size={16} />
         </button>
-        {/* <button
-          onClick={handleSavePDF}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
-          title="Salvar PDF"
-        >
-          <FaFilePdf size={14} />
-        </button> */}
-        <button
-         onClick={() =>    setShowModal(true) /* handleGetInsights(transcription) */}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
-          title="Análise"
-        >
-          <FaBrain size={14} />
-        </button>
+      )}
+    </div>
+  </div>
+</>
 
-
-
-
-
-        {!listening ? (
-          <button
-            onClick={handleStartListening}
-            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition"
-            title="Iniciar Transcrição"
-          >
-            <RiPlayList2Fill size={14} />
-          </button>
-        ) : (
-          <button
-            onClick={handleStopListening}
-            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition"
-            title="Parar Transcrição"
-          >
-            <FaStop size={14} />
-
-          </button>
-        )}
-
-
-      </div>
-    </>
   );
 }

@@ -189,8 +189,7 @@ CREATE TABLE public.cookies_consent (
 
 
 //git revert -m 1 <hash-do-merge>
-//bdfc8294d17070396a8246105c606a3b686238c0
 
 
 
-key do dayle: 2f4b68b919c7f6bfd17d6daf1b5b3bd7a8b138bcef61a5e839764669bc59d499
+
