@@ -2,17 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import Prontuario from '../../../../../../../types/prontuario';
 
-interface Prontuario {
-  id: string;
-  pacienteId: string;
-  queixaPrincipal?: string;
-  historico?: string;
-  conduta?: string;
-  evolucao?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface Props {
   pacienteId: string;
@@ -69,6 +60,7 @@ export default function ProntuarioModal({ pacienteId, open, onClose }: Props) {
               <Info label="Histórico" value={prontuario.historico} />
               <Info label="Conduta" value={prontuario.conduta} />
               <Info label="Evolução" />
+              <Info label="Transcrições" value={prontuario.transcription} />
 
               <div className="max-h-60 overflow-y-auto bg-gray-50 rounded-md p-3 border border-gray-200 whitespace-pre-line text-sm text-gray-800">
                 {prontuario.evolucao}

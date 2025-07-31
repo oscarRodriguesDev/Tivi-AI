@@ -2,6 +2,10 @@
 import { useState, useEffect } from 'react'
 import { showErrorMessage, showSuccessMessage } from "@/app/util/messages"
 import { FaArrowUp } from 'react-icons/fa'
+import Prontuario from '../../../../../../../types/prontuario'
+
+
+
 interface ModalPacientesProps {
   isOpen: boolean
   onClose: () => void
@@ -30,7 +34,11 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
     cpf: ''
   })
 
-  const[evolucao, setEvolucao] = useState<string>('')
+  const [evolucao, setEvolucao] = useState<string>('')
+  const [prompt, setPrompt] = useState<string>('')
+  const [prontuario, setProntuario] = useState<Prontuario>()
+  const [resposta, setResposta] = useState<string>('')
+  const [isResponse, setIsResponse] = useState<boolean>(false)
 
   useEffect(() => {
     if (paciente) {
@@ -93,42 +101,101 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
   }
 
 
+  //registrar evolução
   const handleEvolution = async () => {
-  const date = new Date();
+    const date = new Date();
 
-  const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear().toString().slice(-2)}`;
- 
+    const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear().toString().slice(-2)}`;
 
-  
-  try {
-    const response = await fetch('/api/internal/prontuario', {
-      method: 'PUT',
+
+
+    try {
+      const response = await fetch('/api/internal/prontuario', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pacienteId: paciente.id,
+          evolucao: `${formattedDate}: ${evolucao}\n`
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro ao enviar evolução:', errorData);
+        showErrorMessage('Ocorreu um erro ao tentar registrar a evolução. Tente novamente mais tarde.');
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Evolução salva com sucesso:', data);
+      showSuccessMessage('Evolução registrada com sucesso!');
+      setEvolucao('');
+
+    } catch (error) {
+      console.error('Erro inesperado ao enviar evolução:', error);
+      showErrorMessage('Erro ao enviar evolução. Tente novamente mais tarde.');
+    }
+  };
+
+
+  //recuperar prontuario
+  async function recuperarProntuario() {
+    try {
+      const response = await fetch(`/api/internal/prontuario?pacienteId=${paciente.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProntuario(data);
+        console.log('Prontuario recuperado com sucesso:', data);
+        showSuccessMessage('Prontuario recuperado com sucesso!');
+      } else {
+        const errorData = await response.json();
+        console.error('Erro ao recuperar prontuario:', errorData);
+        showErrorMessage('Ocorreu um erro ao tentar recuperar o prontuario. Tente novamente mais tarde.');
+      }
+    } catch (error) {
+      console.error('Erro inesperado ao recuperar prontuario:', error);
+      showErrorMessage('Erro ao recuperar prontuario. Tente novamente mais tarde.');
+    }
+  }
+
+
+
+  //analisar prontuario
+  async function analisarProntuario() {
+    await recuperarProntuario();
+    const evolucao = prontuario?.evolucao || '';
+    const transcricao = prontuario?.transcription || '';
+
+
+    setPrompt(`${prompt}\n\n${evolucao}\n\n${transcricao}`);
+    const response = await fetch("/api/internal/prontuario/analise-paciente", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        pacienteId: paciente.id,
-        evolucao: `${formattedDate}: ${evolucao}\n`
+        prompt: prompt, //aqui vamos colocar tudo que queremos enviar para analise
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Erro ao enviar evolução:', errorData);
-      showErrorMessage('Ocorreu um erro ao tentar registrar a evolução. Tente novamente mais tarde.');
-      return;
+    const data = await response.json();
+
+    if (response.ok) {
+      setIsResponse(true)
+      setResposta(data.result)
+    } else {
+      console.error("Erro:", data.error);
     }
 
-    const data = await response.json();
-    console.log('Evolução salva com sucesso:', data);
-    showSuccessMessage('Evolução registrada com sucesso!');
-    setEvolucao('');
-
-  } catch (error) {
-    console.error('Erro inesperado ao enviar evolução:', error);
-    showErrorMessage('Erro ao enviar evolução. Tente novamente mais tarde.');
   }
-};
 
 
 
@@ -329,51 +396,58 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
               </div>
             </div>
 
+
             {/* evolução do paciente */}
-            <div className="relative w-full">
-              <textarea
+            <div className="flex flex-row w-full">
+              <input
+                type='text'
                 id="evolucao"
                 name="evolucao"
                 value={evolucao}
-                onChange={(e)=>setEvolucao(e.target.value)}
+                onChange={(e) => setEvolucao(e.target.value)}
                 placeholder="Digite aqui a evolução observada do paciente..."
-                            className="
-                  resize-y
-                  min-h-[50px]
-                  w-full
-                  rounded-xl
-                  border-2 border-[#117F43]
-                  bg-[#fff]
-                  p-5 pr-14 pb-14
-                  text-[#000]
-                  shadow-lg
-                  focus:border-[#117F43]
-                  focus:ring-2 focus:ring-[#117F43]
-                  transition duration-300
-                  font-medium
-                  placeholder:text-[#117F43]/70
-                  sm:text-base
-                "
+                className="w-full h-10 rounded-sm border-2 border-[#979897]"
               />
 
               {/* Botão enviar no canto inferior direito */}
               <button
                 type="button"
                 className="
-                  absolute bottom-4 right-4
                   bg-[#117F43] hover:bg-[#0f6e3c]
-                  text-white p-2 rounded-full
+                  text-white p-2 rounded-sm
                   shadow-md transition duration-300
                   focus:outline-none focus:ring-2 focus:ring-[#117F43]
                 "
                 title="Enviar"
-                onClick={()=>{
+                onClick={() => {
                   handleEvolution();
                 }}
               >
-               Registrar
+                Registrar
               </button>
             </div>
+
+            {isResponse && (
+              <>
+                {/* resposta do modelo */}
+                <div className="mt-4">
+                  <label htmlFor="resposta" className="block text-sm font-medium text-gray-700 mb-1">
+                    Resposta do modelo
+                  </label>
+                  <textarea
+                    name="resposta"
+                    id="resposta"
+                    value={resposta}
+                    onChange={(e) => setResposta(e.target.value)}
+                    readOnly
+                    rows={10}
+                    className="w-[98%] ml-2  p-4 rounded-xl border border-gray-300 bg-gray-50 shadow-inner resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium"
+                  />
+                </div>
+              </>
+            )}
+
+
 
             {/* prompt direto */}
             <div className="relative w-full mt-6">
@@ -398,11 +472,13 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
                   placeholder:text-[#117F43]/70
                   sm:text-base
                 "
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
               />
 
               {/* Botão enviar no canto inferior direito */}
               <button
-                type="submit"
+                type="button"
                 className="
                   absolute bottom-4 right-4
                   bg-[#117F43] hover:bg-[#0f6e3c]
@@ -411,6 +487,9 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
                   focus:outline-none focus:ring-2 focus:ring-[#117F43]
                 "
                 title="Enviar"
+                onClick={() => {
+                  analisarProntuario();
+                }}
               >
                 <FaArrowUp className="text-lg" />
               </button>
