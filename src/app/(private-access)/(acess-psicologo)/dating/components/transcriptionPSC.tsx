@@ -1,48 +1,25 @@
 "use client";
 
-/**
- * Importações necessárias para o componente de transcrição e geração de PDF.
- *
- * - `useState`, `useEffect`: Hooks do React para gerenciamento de estado e efeitos colaterais.
- * - `jsPDF`: Biblioteca para criação de arquivos PDF no frontend.
- * - Ícones: Importação de ícones usados na interface do usuário para ações como gerar PDF, apagar, iniciar/pausar ações.
- * - `TranscriptionModal`: Componente de modal utilizado para exibir ou editar transcrições em uma interface modal.
- */
 
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
-import { FaBrain, FaDochub, FaEraser, FaFilePdf, FaStop, FaWalking } from "react-icons/fa";
+import { FaBrain, FaDochub, FaEraser, FaFilePdf, FaStop, FaWalking, FaSave } from "react-icons/fa";
 import { HiDocumentMagnifyingGlass } from "react-icons/hi2";
 
 import { RiPlayList2Fill } from "react-icons/ri";
-import TranscriptionModal from "./modalTranscription"; ;
-import { showErrorMessage, showPersistentLoadingMessage,updateToastMessage, } from "../../../../util/messages";
+import TranscriptionModal from "./modalTranscription";;
+import { showErrorMessage, showPersistentLoadingMessage, showSuccessMessage, updateToastMessage, } from "../../../../util/messages";
 import { DocumentoModal } from "./modaldoc";
 import { useAccessControl } from "@/app/context/AcessControl";
 
 
 
-
-
-
-/**
- * Interface para as propriedades do componente de transcrição ao vivo.
- *
- * - `mensagem`: String contendo a transcrição atual.
- * - `usuario`: String identificando o usuário que está falando.
- * - `sala`: String identificando a sala de reunião.
- * 
- * @interface LiveTranscriptionProps
- * @property {string} mensagem - Transcrição atual.
- * @property {string} usuario - Usuário que está falando.
- * @property {string} sala - Sala de reunião.
- */
+//interfaces
 interface LiveTranscriptionProps {
   mensagem: string;
   usuario: string;
   sala: string
 }
-
 
 interface Docs {
   id: string
@@ -51,51 +28,16 @@ interface Docs {
   prompt: string
 }
 
+//interface Paciente
+interface Paciente {
+  id: string
+  nome: string
+}
 
-
-/**
- * Componente `LiveTranscription`
- *
- * Este componente é responsável por realizar a transcrição de voz em tempo real durante sessões de atendimento 
- * entre psicólogo e paciente. Ele utiliza a API de Reconhecimento de Fala do navegador para capturar e transcrever 
- * as falas dos participantes, salvando cada trecho no backend por sala identificada.
- *
- * Funcionalidades principais:
- * - Iniciar/parar gravação de voz via reconhecimento de fala.
- * - Exibir transcrição em tempo real no painel.
- * - Salvar transcrições no servidor associadas a uma "sala".
- * - Recuperar transcrições salvas previamente.
- * - Gerar insights automáticos com IA (via API do ChatGPT) com base nas transcrições.
- * - Exportar a transcrição e análise em formato PDF.
- * - Modal para exibir análise detalhada ao psicólogo.
- *
- * Props:
- * @param {string} usuario - Identifica o papel de quem está falando (ex: "Psicólogo" ou "Paciente").
- * @param {string} mensagem - Texto inicial da transcrição (caso exista).
- * @param {string} sala - ID único da sala onde está ocorrendo a conversa.
- *
- * Observações:
- * - O sistema usa `useState` e `useEffect` para controlar o fluxo da transcrição.
- * - Há um botão de análise que envia todo o conteúdo transcrito para a API `/api/psicochat`.
- * - Os dados são salvos no backend via chamadas à API `/api/message`.
- * - O sistema também gera arquivos PDF com o conteúdo da conversa e análise gerada.
- */
 
 
 export default function LiveTranscription({ usuario, mensagem, sala }: LiveTranscriptionProps) {
 
-  /**
- * Estados principais do componente LiveTranscription:
- * 
- * @state {string} transcription - Armazena a transcrição atual em tempo real da conversa.
- * @state {any} recognition - Instância da API de reconhecimento de voz do navegador.
- * @state {boolean} listening - Indica se o sistema está escutando o microfone no momento.
- * @state {string} error - Mensagem de erro exibida ao usuário em caso de falhas.
- * @state {string} titulo - Título exibido na interface (pode ser definido dinamicamente).
- * @state {string} analise - Armazena a resposta/insight retornada pelo GPT após análise da transcrição.
- * @state {boolean} ligado - Variável de controle que pode ser usada para ativar/desativar a transcrição automática.
- * @state {boolean} isOpen - Controla a exibição do modal de análise da transcrição.
- */
   const [transcription, setTranscription] = useState<string>("");
   const [recognition, setRecognition] = useState<any>(null);
   const [listening, setListening] = useState<boolean>(false);
@@ -108,10 +50,12 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   const [tipoSelecionado, setTipoSelecionado] = useState<string>();
   const [prompt, setPrompt] = useState<string>('me de uma visão geral do paciente');
   const { userID } = useAccessControl();
+  const [paciente, setPaciente] = useState<Paciente[]>([])
+  const [selecionado, setSelecionado] = useState<string>('');
+  const [idpaciente, setIdPaciente] = useState<string>('');
 
 
- 
-
+  //gera os insights
   const handleGenerate = () => {
     if (tipoSelecionado) {
       console.log('Gerar documento do tipo:', tipoSelecionado);
@@ -124,28 +68,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   };
 
 
-
-
-
-
-  /**
- * Efeito que inicializa o reconhecimento de voz usando a API nativa do navegador.
- *
- * - Verifica se a API `SpeechRecognition` está disponível no navegador.
- * - Cria uma instância de reconhecimento contínuo com idioma em "PT-BR".
- * - Escuta eventos de resultado (`onresult`) e extrai transcrições finais.
- * - Para cada transcrição final, atualiza o estado local e salva na API.
- * - Escuta erros de reconhecimento e atualiza o estado `error`.
- * - Salva a instância de reconhecimento no estado `recognition`.
- * - Configura uma verificação periódica (ainda que o `setInterval` esteja vazio por enquanto).
- * 
- * @returns {void} - Limpa a instância e o intervalo ao desmontar o componente.
- * 
- * ⚠️ Observações:
- * - A lógica atual remove `prev` ao atualizar a transcrição para evitar repetições.
- * - Pode ser estendida para processar resultados parciais ou multiusuários no futuro.
- */
-
+  //verifica reconhecimento de voz
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -199,21 +122,8 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
 
 
 
-  /**
-  * Função responsável por buscar a transcrição mais recente da sala via API.
-  *
-  * - Realiza uma requisição GET para o endpoint `/api/message?sala={sala}`.
-  * - Se houver um `transcript` na resposta, atualiza o estado `transcription`,
-  *   apenas se for diferente do texto atual para evitar sobrescrita desnecessária.
-  * - Em caso de erro na requisição ou falha no JSON, atualiza o estado `error`.
-  *
-  * @async
-  * @function fetchMessages
-  * @returns {Promise<void>}
-  *
-  * @throws {Error} - Lança erro caso a requisição falhe ou a resposta não seja ok.
-  */
 
+  //busca e atualiza as mensagens
   const fetchMessages = async () => {
     try {
       const response = await fetch(`/api/message?sala=${sala}`, { method: 'GET' });
@@ -238,22 +148,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   };
 
 
-
-  /**
-   * Salva uma nova transcrição no backend e atualiza a lista de mensagens.
-   *
-   * - Envia uma requisição POST para o endpoint `/api/message` com os dados da sala e transcrição.
-   * - Após salvar com sucesso, limpa a transcrição atual e busca as mensagens atualizadas.
-   * - Em caso de falha, define o erro no estado.
-   *
-   * @async
-   * @function saveMessage
-   * @param {string} transcript - Texto da transcrição que será salvo no backend.
-   * @returns {Promise<void>}
-   *
-   * @throws {Error} - Lança erro se a requisição falhar ou a resposta não for satisfatória.
-   */
-
+  //savar as mensagens no server
   const saveMessage = async (transcript: string) => {
     try {
       const response = await fetch('/api/message', {
@@ -277,20 +172,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   };
 
 
-
-
-
-  /**
-  * Inicia o processo de reconhecimento de voz.
-  *
-  * - Verifica se a instância de `recognition` está disponível.
-  * - Se estiver, ativa o estado de escuta (`listening`) e começa a capturar a voz do usuário.
-  * - Caso contrário, exibe um erro.
-  *
-  * @function handleStartListening
-  * @returns {void}
-  */
-
+  //iniciar o reconheciemtno de fala
   const handleStartListening = () => {
     if (!recognition) {
       showErrorMessage("Reconhecimento de voz não foi inicializado corretamente.");
@@ -301,42 +183,20 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   };
 
 
-  /**
- * Para o processo de reconhecimento de voz.
- *
- * - Verifica se a instância de `recognition` está disponível.
- * - Se estiver, desativa o estado de escuta (`listening`) e para a captura da voz do usuário.
- *
- * @function handleStopListening
- * @returns {void}
- */
+  //para o reconheciemtno de fala
   const handleStopListening = () => {
     if (!recognition) return;
     setListening(false);
     recognition.stop();
   };
 
-
-  /**
- * Limpa a transcrição atual.
- *
- * - Define o estado `transcription` como uma string vazia.
- *
- * @function handleClearTranscription
- * @returns {void}
- */
+  //limpa a transcrição
   const handleClearTranscription = () => {
     setTranscription("");
   };
 
 
-  /**
- * Função para salvar o PDF de forma responsiva.
- *
- * - Cria um novo documento PDF com orientação vertical, tamanho A4.
- * - Define margens e espaçamento entre linhas.
- * - Utiliza a função `wrapText` para dividir o texto em linhas de acordo com a largura máxima.
-  /* Função para salvar o pdf de forma responsiva */
+  //gera o pdf
   function handleSavePDF(): void {
     const doc = new jsPDF({
       orientation: "portrait",
@@ -382,19 +242,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   }
 
 
-
-  /**
- * Função para buscar insights da conversa usando a API do ChatGPT.
- *
- * - Cria um controlador de aborto para evitar que a requisição dure mais de 2 minutos.
- * - Realiza uma requisição POST para o endpoint `/api/psicochat` com a mensagem a ser analisada.
- * - Se a resposta não for ok, lança um erro.
- *
- * @async
- * @function handleGetInsights
- * @param {string} mensagem - Mensagem a ser analisada.
- * @returns {Promise<string>} - Resposta do ChatGPT.
- */
+  //gera a análise
   const handleGetInsights = async (mensagem: string) => {
     const toastId = showPersistentLoadingMessage('Gerando documentação da consulta...');
     const controller = new AbortController();
@@ -409,7 +257,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
         signal: controller.signal,
       });
 
-      
+
       clearTimeout(timeoutId);
 
       if (!response.ok) {
@@ -420,128 +268,218 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
       updateToastMessage(toastId, 'Relatório gerado com sucesso!', 'success');
       const respostaGPT = data.response || "Nenhuma resposta gerada.";
       setAnalise(respostaGPT);
-    
+
       return respostaGPT;
 
     } catch (error) {
-     showErrorMessage("Erro ao buscar insights: "+ error);
+      showErrorMessage("Erro ao buscar insights: " + error);
       return "Erro ao obter resposta.";
     }
   };
 
 
+  //busca os documentos para gerar as transcrições
+  const fetchDocumentos = async (tipo: string) => {
+    try {
+      const response = await fetch(`/api/uploads/doc-model/?psicologoId=${userID}`)
+      if (!response.ok) throw new Error("Erro ao buscar documentos")
 
-const fetchDocumentos = async (tipo: string) => {
-  try {
-    const response = await fetch(`/api/uploads/doc-model/?psicologoId=${userID}`)
-    if (!response.ok) throw new Error("Erro ao buscar documentos")
+      const data: Docs[] = await response.json()
 
-    const data: Docs[] = await response.json()
+      const documentoSelecionado = data.find(doc => doc.name === tipo)
 
-    const documentoSelecionado = data.find(doc => doc.name === tipo)
+      if (documentoSelecionado) {
+        const prompt = documentoSelecionado.prompt
+        setPrompt(prompt || "")
+      }
 
-    if (documentoSelecionado) {
-      const prompt = documentoSelecionado.prompt
-      setPrompt(prompt || "")
+    } catch (error) {
+      console.error("Erro ao buscar documentos:", error)
+    }
+  }
+
+
+  //buscar pacientes
+  useEffect(() => {
+    const fetchPacientes = async () => {
+      try {
+        const response = await fetch(`/api/internal/register_pacientes?psicologoId=${userID}`)
+        if (!response.ok) throw new Error('Erro ao buscar pacientes')
+        const data = await response.json()
+        setPaciente(data)
+      } catch (error) {
+        console.error('Erro ao buscar paciente:', error)
+      }
     }
 
-  } catch (error) {
-    console.error("Erro ao buscar documentos:", error)
+    fetchPacientes()
+  },[userID] )
+
+
+
+  //salva a trancrição no banco de dados
+  async function saveTranscription(id: string) {
+    const formattedTranscription = `*--${new Date().toLocaleString()}\n${transcription.trim()}--*\n`;
+
+    try {
+      const response = await fetch('/api/internal/prontuario/save-transcription', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pacienteId: id,
+          transcription: formattedTranscription, // <-- agora está correto
+        }),
+      });
+
+      if (!response.ok) {
+        showErrorMessage('Erro ao salvar transcrição');
+      } else {
+        showSuccessMessage('Transcrição salva com sucesso!');
+      }
+
+      const data = await response.json();
+      console.log('Transcrição salva com sucesso:', data);
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao salvar transcrição:', error);
+      showErrorMessage('Erro ao salvar transcrição');
+      throw error;
+    }
+
   }
-}
+
+  
 
 
-
-
+  //seleciona o tipo de documento que vai gerar a analise
   const handleSelectTipo = (tipo: string) => {
     setTipoSelecionado(tipo);
     fetchDocumentos(tipo);
-   
+
   };
 
 
 
   return (
 
-  <>
-  {/* Modal para geração de documento */}
-  {showModal && (
-    <DocumentoModal
-      onClose={() => setShowModal(false)}
-      onGenerate={handleGenerate}
-      onSelectTipo={handleSelectTipo}
-      tipoSelecionado={tipoSelecionado}
-      prompt={prompt}
-    />
-  )}
-
-  {/* Modal com transcrição completa */}
-  <TranscriptionModal isOpen={isOpen} onClose={() => setIsOpen(false)} transcription={analise} />
-
-  {/* Contêiner fixo no canto inferior direito */}
-  <div className="fixed bottom-6 right-6 w-[300px] max-h-[65vh] bg-black bg-opacity-60 backdrop-blur-sm text-white rounded-lg shadow-xl flex flex-col p-4 z-50">
-
-    {/* Título */}
-    <h1 className="text-md font-semibold text-center mb-2">{titulo}</h1>
-
-    {/* Erro, se houver */}
-    {error && <p className="text-red-400 text-center text-sm mb-2">{error}</p>}
-
-    {/* Área de transcrição */}
-    <div className="flex-1 overflow-y-auto p-2 text-sm border border-white/20 rounded max-h-[40vh]">
-      {transcription ? (
-        <p className="whitespace-pre-wrap">{transcription}</p>
-      ) : (
-        <p className="text-gray-300 text-center italic">Aguardando transcrição...</p>
+    <>
+      {/* Modal para geração de documento */}
+      {showModal && (
+        <DocumentoModal
+          onClose={() => setShowModal(false)}
+          onGenerate={handleGenerate}
+          onSelectTipo={handleSelectTipo}
+          tipoSelecionado={tipoSelecionado}
+          prompt={prompt}
+        />
       )}
-    </div>
 
-    {/* Botões de ação */}
-    <div className="grid grid-cols-3 gap-2 mt-4">
-      <button
-        onClick={() => setIsOpen(true)}
-        className="bg-blue-500 hover:bg-blue-600 transition p-2 rounded-md flex items-center justify-center"
-        title="Ver Transcrição"
-      >
-        <HiDocumentMagnifyingGlass size={16} />
-      </button>
 
-      <button
-        onClick={handleClearTranscription}
-        className="bg-blue-500 hover:bg-blue-600 transition p-2 rounded-md flex items-center justify-center"
-        title="Limpar Transcrição"
-      >
-        <FaEraser size={16} />
-      </button>
 
-      <button
-        onClick={() => setShowModal(true)}
-        className="bg-yellow-500 hover:bg-yellow-600 transition p-2 rounded-md flex items-center justify-center"
-        title="Análise"
-      >
-        <FaBrain size={16} />
-      </button>
+      {/* Modal com transcrição completa */}
+      <TranscriptionModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        transcription={analise}
+      />
 
-      {!listening ? (
-        <button
-          onClick={handleStartListening}
-          className="col-span-3 bg-red-600 hover:bg-red-500 transition p-2 rounded-md flex items-center justify-center"
-          title="Iniciar Transcrição"
+      {/* Contêiner fixo no canto inferior direito */}
+      <div className="fixed bottom-6 right-6 w-[300px] max-h-[65vh] bg-black bg-opacity-60 backdrop-blur-sm text-white rounded-lg shadow-xl flex flex-col p-4 z-50">
+
+        {/* Título */}
+        <h1 className="text-md font-semibold text-center mb-2">{titulo}</h1>
+
+        {/* Erro, se houver */}
+        {error && (
+          <p className="text-red-400 text-center text-sm mb-2">{error}</p>
+        )}
+
+        {/* Área de transcrição */}
+        <div className="flex-1 overflow-y-auto p-2 text-sm border border-white/20 rounded max-h-[40vh]">
+          {transcription ? (
+            <p className="whitespace-pre-wrap">{transcription}</p>
+          ) : (
+            <p className="text-gray-300 text-center italic">Aguardando transcrição...</p>
+          )}
+        </div>
+
+        {/* Select estilizado */}
+        <>
+        
+        <select
+          className="mt-3 bg-white text-black text-sm rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          value={selecionado}
+          onChange={(e) => { setSelecionado(e.target.value); setIdPaciente(e.target.value); }}
         >
-          <RiPlayList2Fill size={16} />
-        </button>
-      ) : (
-        <button
-          onClick={handleStopListening}
-          className="col-span-3 bg-red-600 hover:bg-red-500 transition p-2 rounded-md flex items-center justify-center"
-          title="Parar Transcrição"
-        >
-          <FaStop size={16} />
-        </button>
-      )}
-    </div>
-  </div>
-</>
+          <option value="">Selecione o paciente</option>
+          {paciente.map((paciente) => (
+            <option key={paciente.id} value={paciente.id}
+
+            >
+              {paciente.nome}
+            </option>
+          ))}
+        </select>
+        </>
+
+        {/* Botões de ação */}
+        <div className="grid grid-cols-4 gap-2 mt-4">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="bg-blue-500 hover:bg-blue-600 transition p-2 rounded-md flex items-center justify-center"
+            title="Ver Transcrição"
+          >
+            <HiDocumentMagnifyingGlass size={16} />
+          </button>
+
+          <button
+            onClick={handleClearTranscription}
+            className="bg-blue-500 hover:bg-blue-600 transition p-2 rounded-md flex items-center justify-center"
+            title="Limpar Transcrição"
+          >
+            <FaEraser size={16} />
+          </button>
+
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-yellow-500 hover:bg-yellow-600 transition p-2 rounded-md flex items-center justify-center"
+            title="Análise"
+          >
+            <FaBrain size={16} />
+          </button>
+
+          <button
+            className="bg-green-500 hover:bg-green-600 transition p-2 rounded-md flex items-center justify-center"
+            title="Salvar Transcrição"
+          onClick={() => saveTranscription(idpaciente)}
+          >
+            <FaSave size={16} />
+          </button>
+
+          {!listening ? (
+            <button
+              onClick={handleStartListening}
+              className="col-span-4 bg-red-600 hover:bg-red-500 transition p-2 rounded-md flex items-center justify-center"
+              title="Iniciar Transcrição"
+            >
+              <RiPlayList2Fill size={16} />
+            </button>
+          ) : (
+            <button
+              onClick={handleStopListening}
+              className="col-span-4 bg-red-600 hover:bg-red-500 transition p-2 rounded-md flex items-center justify-center"
+              title="Parar Transcrição"
+            >
+              <FaStop size={16} />
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+
 
   );
 }

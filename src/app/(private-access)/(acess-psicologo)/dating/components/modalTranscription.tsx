@@ -23,7 +23,7 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
   const [aberto, setAberto] = useState<boolean>(false);
   const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [selecionado, setSelecionado] = useState<string>('');
-  const [idpaciente,setIdPaciente] = useState<string>('');
+  const [idpaciente, setIdPaciente] = useState<string>('');
 
   useEffect(() => {
     if (transcription) {
@@ -304,45 +304,42 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
   }
 
 
-
+//save transcription
   async function saveTranscription(id: string) {
-   const formattedTranscription = `*--${new Date().toLocaleString()}\n${htmlContent.trim()}--*\n`;
+    const formattedTranscription = `*--${new Date().toLocaleString()}\n${htmlContent.trim()}--*\n`;
 
-try {
-  const response = await fetch('/api/internal/prontuario/save-transcription', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      pacienteId: id,
-      transcription: formattedTranscription, // <-- agora está correto
-    }),
-  });
+    try {
+      const response = await fetch('/api/internal/prontuario/save-transcription', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pacienteId: id,
+          transcription: formattedTranscription, // <-- agora está correto
+        }),
+      });
 
-  if (!response.ok) {
-    showErrorMessage('Erro ao salvar transcrição');
-  } else {
-    showSuccessMessage('Transcrição salva com sucesso!');
-  }
+      if (!response.ok) {
+        showErrorMessage('Erro ao salvar transcrição');
+      } else {
+        showSuccessMessage('Transcrição salva com sucesso!');
+      }
 
-  const data = await response.json();
-  console.log('Transcrição salva com sucesso:', data);
+      const data = await response.json();
+      console.log('Transcrição salva com sucesso:', data);
 
-  return data;
-} catch (error) {
-  console.error('Erro ao salvar transcrição:', error);
-  showErrorMessage('Erro ao salvar transcrição');
-  throw error;
-}
+      return data;
+    } catch (error) {
+      console.error('Erro ao salvar transcrição:', error);
+      showErrorMessage('Erro ao salvar transcrição');
+      throw error;
+    }
 
   }
 
 
   //buscar pacientes
-
-
-
   useEffect(() => {
     const fetchPacientes = async () => {
       try {
@@ -401,13 +398,13 @@ try {
               <select
                 className="mt-2 border p-2 rounded"
                 value={selecionado}
-                onChange={(e) => {setSelecionado(e.target.value); setAberto(!aberto); setIdPaciente(e.target.value);}}
+                onChange={(e) => { setSelecionado(e.target.value); setAberto(!aberto); setIdPaciente(e.target.value); }}
 
               >
                 <option value="">Selecione</option>
                 {pacientes.map((paciente) => (
                   <option key={paciente.id} value={paciente.id}
-               
+
                   >
                     {paciente.nome}
                   </option>
@@ -418,9 +415,9 @@ try {
           </>
 
           <button
-           className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
-           onClick={() => saveTranscription(idpaciente )}
-           >
+            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+            onClick={() => saveTranscription(idpaciente)}
+          >
             Salvar transcrição
           </button>
 

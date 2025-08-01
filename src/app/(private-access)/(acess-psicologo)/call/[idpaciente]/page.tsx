@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from "../../dating/components/transcriptionPSC";
+import LiveTranscription from "../../dating/components/transcriptionPSC";;
 import HeadPage from "@/app/(private-access)/components/headPage";
 import { FaVideo } from "react-icons/fa";
 import { FcVideoCall, FcEndCall } from "react-icons/fc";
@@ -38,6 +38,7 @@ export default function Home() {
   const [transcription, setTranscription] = useState<string>("");
   const { userID } = useAccessControl(); // id do psccologo logado
 
+ // Monitora o volume do microfone
   const monitorMicrophone = (stream: MediaStream) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
@@ -69,6 +70,8 @@ export default function Home() {
   };
 
 
+
+  // Inicia a chamada
   useEffect(() => {
     if (!iddinamico) {
       return;
@@ -124,19 +127,8 @@ export default function Home() {
   }, [iddinamico]);
 
 
-  /**
-   * Inicia uma chamada de vídeo com o peer remoto utilizando PeerJS.
-   *
-   * - Define a mensagem de status como "Transcrevendo Chamada...".
-   * - Define o `remoteId` com base no ID do paciente extraído da URL.
-   * - Solicita permissão para acessar o microfone e a câmera do dispositivo.
-   * - Configura o stream local no `videoRef`.
-   * - Realiza a chamada ao peer remoto utilizando o `remoteId` e envia o stream.
-   * - Ao receber o stream remoto, define no `remoteVideoRef`.
-   * testar
-   *
-   * ⚠️ Se `remoteId` ou `peerRef` não estiverem definidos, a função retorna sem executar.
-   */
+
+  //estabelece a conexão
   const callPeer = () => {
     setMsg('Transcrevendo Chamada...');
     setRemoteId(idpaciente as string);
@@ -160,6 +152,9 @@ export default function Home() {
     });
   };
 
+
+
+  //finaliza a chamada
   const endCall = () => {
     setMsg('');
 
@@ -180,36 +175,13 @@ export default function Home() {
 
 
 
-  /**
-   * Atualiza o estado de transcrição com a fala do interlocutor atual.
-   *
-   * @param text - Texto da fala transcrita.
-   * @param isPsychologist - Indica se quem falou foi o psicólogo (`true`) ou o paciente (`false`).
-   *
-   * A transcrição é armazenada de forma contínua, com prefixo identificando o interlocutor.
-   */
 
+//realiza a transcrição
   const handleTranscription = (text: string, isPsychologist: boolean) => {
     const speaker = isPsychologist ? 'psicologo' : 'paciente';
     setTranscription(prevTranscription => prevTranscription + `\n${speaker}: ${text}`);
   };
 
-  /**
-   * Componente de interface da sala de reunião por vídeo.
-   *
-   * Exibe dois vídeos: um principal para o paciente e um menor sobreposto para o psicólogo.
-   * Contém botões para iniciar e encerrar chamadas, além de uma área para transcrição ao vivo da conversa.
-   *
-   * @returns JSX.Element - Estrutura visual da sala de reunião.
-   *
-   * Elementos:
-   * - `<video ref={remoteVideoRef}>`: Vídeo do paciente (ocupando tela cheia).
-   * - `<video ref={videoRef}>`: Vídeo do psicólogo (em tamanho reduzido, sobreposto).
-   * - Botões:
-   *   - `callPeer`: Inicia a chamada.
-   *   - `endCall`: Encerra a chamada.
-   * - `LiveTranscription`: Componente de transcrição em tempo real unificada da conversa.
-   */
 
 
   return (

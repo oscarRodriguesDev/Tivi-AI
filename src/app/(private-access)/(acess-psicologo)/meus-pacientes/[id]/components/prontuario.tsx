@@ -60,11 +60,26 @@ export default function ProntuarioModal({ pacienteId, open, onClose }: Props) {
               <Info label="Histórico" value={prontuario.historico} />
               <Info label="Conduta" value={prontuario.conduta} />
               <Info label="Evolução" />
-              <Info label="Transcrições" value={prontuario.transcription} />
-
               <div className="max-h-60 overflow-y-auto bg-gray-50 rounded-md p-3 border border-gray-200 whitespace-pre-line text-sm text-gray-800">
                 {prontuario.evolucao}
               </div>
+              <div
+                className="max-h-[9rem] overflow-y-auto space-y-1 
+             bg-gray-100 rounded-md shadow-md p-3 border border-gray-300"
+              >
+                {(prontuario.transcription || '')
+                  .match(/\*--\d{2}\/\d{2}\/\d{4}/g)
+                  ?.map((entry, index) => {
+                    const date = entry.replace("*--", "").trim();
+                    return (
+                      <div key={index} className="text-sm text-black  pb-1">
+                        transcrição encontrada: {date}
+                      </div>
+                    );
+                  })}
+              </div>
+
+
 
               <p className="text-xs text-gray-500 mt-4">
                 Última atualização: {new Date(prontuario.updatedAt).toLocaleString()}

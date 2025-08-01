@@ -40,6 +40,8 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
   const [resposta, setResposta] = useState<string>('')
   const [isResponse, setIsResponse] = useState<boolean>(false)
 
+
+  //leitura dos pacientes
   useEffect(() => {
     if (paciente) {
       setFormData({
@@ -65,6 +67,8 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
     }
   }, [paciente])
 
+
+  //pegar o valor dos campos
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -73,6 +77,7 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
     }))
   }
 
+  //acredito que edição de pacientes
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -454,23 +459,13 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
               <textarea
                 id="promptDireto"
                 name="promptDireto"
-                placeholder="Digite aqui o prompt para a IA analisar o prontuário do paciente..."
+                placeholder="Digite seu prompt..."
                 className="
                   resize-y
                   min-h-[50px]
                   w-full
-                  rounded-xl
-                  border-2 border-[#117F43]
-                  bg-[#fff]
-                  p-5 pr-14 pb-14
-                  text-[#000]
-                  shadow-lg
-                  focus:border-[#117F43]
-                  focus:ring-2 focus:ring-[#117F43]
-                  transition duration-300
-                  font-medium
-                  placeholder:text-[#117F43]/70
-                  sm:text-base
+                  rounded-md
+                  border-2 border-[#979897]
                 "
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
