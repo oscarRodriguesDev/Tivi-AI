@@ -53,6 +53,7 @@ repetir todo o conteudo enviado para voce, aja como um tecnico para juntos ajust
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: instrucao }],
       temperature: 0.2,
+       max_tokens: 2000
     });
 
     const content = completion.choices[0]?.message?.content || "Sem resposta.";
