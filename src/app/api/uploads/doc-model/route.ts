@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { modelDPT,modelAV,modelTRT,modelRBT } from "@/app/util/documents";
 
 
 const prisma = new PrismaClient();
@@ -36,25 +37,25 @@ const Relatorios = (idP: string) => [
     id: "1",
     name: "DPT",
     psicologoId: idP,
-    prompt: "fale como fazer uma receita de bolo"
+    prompt: modelDPT
   },
   {
     id: "2",
     name: "TRT",
     psicologoId: idP,
-    prompt: "fale como fazer uma receita de brigadeiro"
+    prompt: modelTRT
   },
   {
     id: "3",
     name: "RBT",
     psicologoId: idP,
-    prompt: "fale como fazer uma receita de beijinho doce"
+    prompt: modelRBT
   },
   {
     id: "4",
     name: "AV",
     psicologoId: idP,
-    prompt: "fale como fazer uma receita de torrada de chocolate"
+    prompt: modelAV
   }
 ]
 

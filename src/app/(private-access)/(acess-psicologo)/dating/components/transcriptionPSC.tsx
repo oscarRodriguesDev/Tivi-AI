@@ -44,7 +44,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   const [error, setError] = useState<string>("");
   const [titulo, setTitulo] = useState<string>("");
   const [analise, setAnalise] = useState<string>('nenhuma analise')
-  const [ligado, setLigado] = useState<boolean>(false) //usar essa variavel pra controlar quando vai transcrever
+  //const [ligado, setLigado] = useState<boolean>(false) //usar essa variavel pra controlar quando vai transcrever
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const [tipoSelecionado, setTipoSelecionado] = useState<string>();

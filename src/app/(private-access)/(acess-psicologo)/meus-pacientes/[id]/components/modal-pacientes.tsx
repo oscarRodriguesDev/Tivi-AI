@@ -171,23 +171,26 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
     }
   }
 
-
+   async function recData(){
+     await recuperarProntuario();
+    const evolucao = prontuario?.evolucao || '';
+    const transcricao = prontuario?.transcription || '';
+   const instruction = `${prompt}${evolucao}${transcricao}`
+   return instruction
+   }
 
   //analisar prontuario
   async function analisarProntuario() {
-    await recuperarProntuario();
-    const evolucao = prontuario?.evolucao || '';
-    const transcricao = prontuario?.transcription || '';
 
-
-    setPrompt(`${prompt}\n\n${evolucao}\n\n${transcricao}`);
+  const instruction = await recData()
+   
     const response = await fetch("/api/internal/prontuario/analise-paciente", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        prompt: prompt, //aqui vamos colocar tudo que queremos enviar para analise
+        prompt: instruction, //aqui vamos colocar tudo que queremos enviar para analise
       }),
     });
 
@@ -196,6 +199,7 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
     if (response.ok) {
       setIsResponse(true)
       setResposta(data.result)
+      setPrompt('')
     } else {
       console.error("Erro:", data.error);
     }
