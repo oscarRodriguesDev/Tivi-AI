@@ -4,6 +4,7 @@ import "../globals.css"
 
 
 
+
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",
   description:
@@ -32,6 +33,7 @@ export default function RootLayout({
   return (
     <>
       <main className="min-h-screen pt-16">{children}</main>
+     
     </>
 
   )
