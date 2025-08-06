@@ -13,7 +13,7 @@ export function useAutoLogout(inactivityMs: number = 10 * 60 * 1000) {
   const setExpiry = () => {
     const expiry = Date.now() + inactivityMs;
     localStorage.setItem(localStorageKey, expiry.toString());
-    console.log(`[AutoLogout] Novo expiry setado: ${new Date(expiry).toLocaleTimeString()}`);
+   
   };
 
   // Reseta o timer de logout (usado após interação)
@@ -31,13 +31,12 @@ export function useAutoLogout(inactivityMs: number = 10 * 60 * 1000) {
 
     // Se tempo já passou, desloga imediatamente
     if (msLeft <= 0) {
-      console.log("[AutoLogout] Tempo expirado no reset, deslogando");
       localStorage.removeItem(localStorageKey);
       signOut({ callbackUrl: "/login" });
       return;
     }
 
-    console.log(`[AutoLogout] Reset timer: faltam ${Math.round(msLeft / 1000)} segundos`);
+   
 
     timerRef.current = setTimeout(() => {
       console.log("[AutoLogout] Tempo esgotado, deslogando...");
@@ -63,12 +62,12 @@ export function useAutoLogout(inactivityMs: number = 10 * 60 * 1000) {
       const expiry = Number(localStorage.getItem(localStorageKey));
       const now = Date.now();
       if (now >= expiry) {
-        console.log("[AutoLogout] Sessão expirou ao carregar, deslogando...");
+      
         localStorage.removeItem(localStorageKey);
         signOut({ callbackUrl: "/login" });
         return;
       } else {
-        console.log(`[AutoLogout] Sessão válida, expirará em ${Math.round((expiry - now)/1000)} segundos`);
+      
       }
     }
 
@@ -83,20 +82,7 @@ export function useAutoLogout(inactivityMs: number = 10 * 60 * 1000) {
 
     activityEvents.forEach((event) => window.addEventListener(event, activityHandler));
 
-    // Intervalo para imprimir tempo restante a cada segundo
-    intervalRef.current = setInterval(() => {
-      const expiry = Number(localStorage.getItem(localStorageKey));
-      const now = Date.now();
-      const diff = expiry - now;
-      if (diff <= 0) {
-        console.log("[AutoLogout] Tempo acabou (intervalo), deslogando...");
-        localStorage.removeItem(localStorageKey);
-        signOut({ callbackUrl: "/login" });
-        if (intervalRef.current) clearInterval(intervalRef.current);
-      } else {
-        console.log(`[AutoLogout] Tempo restante: ${Math.round(diff / 1000)} segundos`);
-      }
-    }, 1000);
+
 
     return () => {
       activityEvents.forEach((event) => window.removeEventListener(event, activityHandler));

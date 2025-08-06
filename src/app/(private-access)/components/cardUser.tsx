@@ -58,7 +58,7 @@ const CardUser = () => {
     await signOut({ callbackUrl: "/login" });
   };
 
-  useAutoLogout(60*60*1000);// 15 minutos de inatividade
+ /*  useAutoLogout(15*60*1000);// 15 minutos de inatividade */
 
   return (
     <div
