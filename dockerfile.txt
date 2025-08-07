@@ -18,7 +18,7 @@ COPY . .
 # Gerar client Prisma e build Next.js
 RUN npx prisma generate
 
-COPY .env.prod .env
+COPY .env.production .env
 RUN npm run build
 
 # Stage 2: Produção

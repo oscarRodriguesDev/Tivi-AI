@@ -159,7 +159,7 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
         const data = await response.json();
         setProntuario(data);
         console.log('Prontuario recuperado com sucesso:', data);
-        showSuccessMessage('Prontuario recuperado com sucesso!');
+       
       } else {
         const errorData = await response.json();
         console.error('Erro ao recuperar prontuario:', errorData);
@@ -178,6 +178,13 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
    const instruction = `${prompt}${evolucao}${transcricao}`
    return instruction
    }
+  
+
+   useEffect(() => {
+    if (isOpen) {
+      recData();
+    }
+  }, [isOpen]);
 
   //analisar prontuario
   async function analisarProntuario() {
