@@ -24,7 +24,7 @@ RUN npm run build
 # Stage 2: Produção
 FROM node:18-alpine AS runner
 
-WORKDIR /app
+WORKDIR /app 
 
 # Instalar dependências de produção apenas
 COPY package.json package-lock.json* yarn.lock* ./

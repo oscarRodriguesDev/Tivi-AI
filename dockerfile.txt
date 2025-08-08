@@ -42,3 +42,4 @@ EXPOSE 3000
 
 # Rodar o servidor Next.js em modo produção
 CMD ["npm", "start"]
+ 

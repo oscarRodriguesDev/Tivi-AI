@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { showErrorMessage, showSuccessMessage } from "@/app/util/messages"
 import { FaArrowUp } from 'react-icons/fa'
 import Prontuario from '../../../../../../../types/prontuario'
+/* import { encoding_for_model } from "@dqbd/tiktoken"; */
+
 
 
 
@@ -202,10 +204,10 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
     });
 
     const data = await response.json();
-
     if (response.ok) {
       setIsResponse(true)
       setResposta(data.result)
+    /*  console.log(countTokens(data.result)) */
       setPrompt('')
     } else {
       console.error("Erro:", data.error);
@@ -213,7 +215,16 @@ export const ModalPacientes = ({ isOpen, onClose, paciente }: ModalPacientesProp
 
   }
 
-
+//contar tokens
+/* 
+ async function countTokens(text: string): Promise<number> {
+  const enc = encoding_for_model("gpt-4");
+  const tokens = enc.encode(text);
+  const tokenCount = tokens.length;
+  enc.free(); // libera memória WASM
+  return tokenCount;
+}
+ */
 
   if (!isOpen) return null
 
