@@ -4,37 +4,68 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
-import LiveTranscription from "../../dating/components/transcriptionPSC";
+import LiveTranscription from "../../dating/components/transcriptionPSC";;
 import HeadPage from "@/app/(private-access)/components/headPage";
 import { FaVideo } from "react-icons/fa";
 import { FcVideoCall, FcEndCall } from "react-icons/fc";
 import { showErrorMessage } from "@/app/util/messages";
 import { useHistory } from "@/app/context/historyContext";
+import { useAccessControl } from "@/app/context/AcessControl";
+import { example1, example2, example3 } from '@/app/util/books';
+
+interface Livro {
+  id: string
+  resumo: string
+}
+
+
+const livromock = [
+  {
+    id: "1",
+    resumo: example1
+  },
+  {
+    id: "2",
+    resumo: example2
+  },
+  {
+    id: "3",
+    resumo: example3
+  }
+];
+
+
+
 
 export default function Home() {
 
-   const [peerId, setPeerId] = useState<string>("");
-   const {logAction} =  useHistory();
+  const [peerId, setPeerId] = useState<string>("");
+  const { logAction } = useHistory();
+  const [remoteId, setRemoteId] = useState<string>("")
+  const [msg, setMsg] = useState<string>("Aguardando transcrição");
+  const [callActive, setCallActive] = useState<boolean>(false);
+  const peerRef = useRef<Peer | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const currentCall = useRef<MediaConnection | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const iddinamico = params.idpaciente;
+  const idpaciente = searchParams.get('iddinamico');//
+  const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
+  const [transcription, setTranscription] = useState<string>("");
+  const { userID } = useAccessControl(); // id do psccologo logado
 
-   const [remoteId, setRemoteId] = useState<string>("")
-   const [msg, setMsg] = useState<string>("Aguardando transcrição");
-   const [callActive, setCallActive] = useState<boolean>(false);
-   const peerRef = useRef<Peer | null>(null);
-   const videoRef = useRef<HTMLVideoElement | null>(null);
- 
-   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
-   const currentCall = useRef<MediaConnection | null>(null);
-   const audioContextRef = useRef<AudioContext | null>(null);
-   const analyserRef = useRef<AnalyserNode | null>(null);
-   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
-   const params = useParams();
-   const searchParams = useSearchParams();
-   const iddinamico = params.idpaciente;
-   const idpaciente = searchParams.get('iddinamico');//
-   const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
-   const [transcription, setTranscription] = useState<string>("");
- 
+
+
+
+
+
+ // Monitora o volume do microfone
   const monitorMicrophone = (stream: MediaStream) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
@@ -55,9 +86,9 @@ export default function Home() {
       analyser.getByteFrequencyData(dataArray);
       const volume = dataArray.reduce((a, b) => a + b) / dataArray.length; // Calcula o volume médio
 
-     /*  if (remoteAudioRef.current) {
-        remoteAudioRef.current.muted = volume > 10; // Se estiver falando, muta o alto-falante
-      } */
+      /*  if (remoteAudioRef.current) {
+         remoteAudioRef.current.muted = volume > 10; // Se estiver falando, muta o alto-falante
+       } */
       handleTranscription('text', isPsychologist);
       requestAnimationFrame(checkVolume);
     };
@@ -66,6 +97,8 @@ export default function Home() {
   };
 
 
+
+  // Inicia a chamada
   useEffect(() => {
     if (!iddinamico) {
       return;
@@ -73,7 +106,7 @@ export default function Home() {
 
     const peer = new Peer(uuidv4());
     peerRef.current = peer;
-  
+
     peer.on("open", (id) => setPeerId(id));
     peer.on("call", (call) => {
       // Primeiro tenta com vídeo e áudio
@@ -86,17 +119,17 @@ export default function Home() {
           if (!stream) {
             throw new Error("Sem acesso ao microfone e câmera");
           }
-    
+
           if (videoRef.current && stream.getVideoTracks().length > 0) {
             videoRef.current.srcObject = stream;
           }
-    
+
           call.answer(stream);
           setCallActive(true);
           currentCall.current = call;
           monitorMicrophone(stream);
           setMsg('Transcrevendo Chamada...');
-    
+
           call.on("stream", (remoteStream) => {
             if (remoteVideoRef.current && remoteStream.getVideoTracks().length > 0) {
               remoteVideoRef.current.srcObject = remoteStream;
@@ -106,34 +139,23 @@ export default function Home() {
               remoteAudioRef.current.play();
             }
           });
-    
+
           call.on("close", () => endCall());
         })
         .catch((finalError) => {
           showErrorMessage("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
         });
     });
-    
+
 
     return () => {
       peer.destroy(); // Limpa instância ao desmontar
     };
   }, [iddinamico]);
-  
 
-/**
- * Inicia uma chamada de vídeo com o peer remoto utilizando PeerJS.
- *
- * - Define a mensagem de status como "Transcrevendo Chamada...".
- * - Define o `remoteId` com base no ID do paciente extraído da URL.
- * - Solicita permissão para acessar o microfone e a câmera do dispositivo.
- * - Configura o stream local no `videoRef`.
- * - Realiza a chamada ao peer remoto utilizando o `remoteId` e envia o stream.
- * - Ao receber o stream remoto, define no `remoteVideoRef`.
- * testar
- *
- * ⚠️ Se `remoteId` ou `peerRef` não estiverem definidos, a função retorna sem executar.
- */
+
+
+  //estabelece a conexão
   const callPeer = () => {
     setMsg('Transcrevendo Chamada...');
     setRemoteId(idpaciente as string);
@@ -157,6 +179,9 @@ export default function Home() {
     });
   };
 
+
+
+  //finaliza a chamada
   const endCall = () => {
     setMsg('');
 
@@ -172,105 +197,83 @@ export default function Home() {
       remoteVideoRef.current.srcObject = null;
     }
     setCallActive(false);
-   
+
   };
 
 
 
-/**
- * Atualiza o estado de transcrição com a fala do interlocutor atual.
- *
- * @param text - Texto da fala transcrita.
- * @param isPsychologist - Indica se quem falou foi o psicólogo (`true`) ou o paciente (`false`).
- *
- * A transcrição é armazenada de forma contínua, com prefixo identificando o interlocutor.
- */
 
+//realiza a transcrição
   const handleTranscription = (text: string, isPsychologist: boolean) => {
     const speaker = isPsychologist ? 'psicologo' : 'paciente';
     setTranscription(prevTranscription => prevTranscription + `\n${speaker}: ${text}`);
   };
 
-/**
- * Componente de interface da sala de reunião por vídeo.
- *
- * Exibe dois vídeos: um principal para o paciente e um menor sobreposto para o psicólogo.
- * Contém botões para iniciar e encerrar chamadas, além de uma área para transcrição ao vivo da conversa.
- *
- * @returns JSX.Element - Estrutura visual da sala de reunião.
- *
- * Elementos:
- * - `<video ref={remoteVideoRef}>`: Vídeo do paciente (ocupando tela cheia).
- * - `<video ref={videoRef}>`: Vídeo do psicólogo (em tamanho reduzido, sobreposto).
- * - Botões:
- *   - `callPeer`: Inicia a chamada.
- *   - `endCall`: Encerra a chamada.
- * - `LiveTranscription`: Componente de transcrição em tempo real unificada da conversa.
- */
 
 
   return (
 
     <>
+      <HeadPage title="Sala de Reunião" icon={<FaVideo size={20} />} />
 
-      <HeadPage title='Sala de Reunião' icon={<FaVideo size={20} />} />
+      <div className="relative flex flex-col items-center justify-center w-[98%] h-[83vh] bg-gradient-to-r from-blue-400 to-green-300 text-black rounded-xl overflow-hidden shadow-lg p-4">
 
-      <div className=" flex  flex-col items-center justify-center w-[98%] h-[83vh] -my-5 bg-gradient-to-r from-blue-400 to-green-300 text-black p-8">
-
-        <div className="relative w-full h-full">
-          {/* video do paciente */}
+        {/* Vídeo do paciente */}
+        <div className="relative w-full h-full rounded-lg overflow-hidden shadow-xl border-4 border-white">
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className="absolute inset-0 w-full h-full bg-gray-300 border-4 border-indigo-500 object-cover"
+            className="w-full h-full object-cover"
           />
-          <div className="absolute top-1 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm">
+          <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-md text-sm font-medium shadow-md">
             Paciente
           </div>
         </div>
 
-        {/* video pscologo */}
-        <div className="absolute top-[63%] left-[20%] w-60 h-60">
-          <video ref={videoRef}
+        {/* Vídeo do psicólogo em PiP */}
+        <div className="absolute bottom-6 left-6 w-52 h-52 rounded-lg overflow-hidden shadow-lg border-2 border-white">
+          <video
+            ref={videoRef}
             autoPlay
             playsInline
-            className="w-full h-full bg-gray-600 rounded-lg shadow-lg z-50"
-            muted={true}
+            muted
+            className="w-full h-full object-cover"
           />
-          <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md font-semibold text-sm z-50">Psicologo</div>
+          <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs font-semibold">
+            Psicólogo
+          </div>
         </div>
 
-
-        <div className="absolute top-[90%] left-[55%] flex justify-center pt-8 gap-6 mb-8">
+        {/* Botões de ação */}
+        <div className="absolute bottom-6 center-6 flex gap-4">
           <button
             onClick={callPeer}
-            className="bg-blue-200 rounded-full p-1"
+            className="bg-white hover:bg-blue-100 transition-colors p-3 rounded-full shadow-md"
           >
-            <FcVideoCall size={24} />
-
+            <FcVideoCall size={28} />
           </button>
 
           <button
             onClick={endCall}
-            className="bg-blue-200 rounded-full p-1"
+            className="bg-white hover:bg-red-100 transition-colors p-3 rounded-full shadow-md"
           >
-            <FcEndCall size={24} />
+            <FcEndCall size={28} />
           </button>
-
-
         </div>
 
-        {/* Transcrição unificada */}
-         <div className="absolute top-[20%] left-[70%] flex justify-center pt-8 gap-6 mb-8">
-        <LiveTranscription 
-         usuario={'Psicologo'}
-         mensagem={transcription} // A transcrição agora é unificada         
-         sala={iddinamico as string}
-        />
-      </div> 
+        {/* Transcrição ao lado superior direito */}
+        <div className="absolute top-6 right-6 w-[300px] max-h-[300px] bg-white bg-opacity-80 rounded-lg p-4 shadow-lg overflow-y-auto">
+          <h3 className="text-sm font-semibold mb-2 text-gray-800">Transcrição ao Vivo</h3>
+          <LiveTranscription
+            usuario="Psicologo"
+            mensagem={transcription}
+            sala={iddinamico as string}
+          />
+        </div>
       </div>
     </>
+
 
   );
 }

@@ -2,17 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import Prontuario from '../../../../../../../types/prontuario';
 
-interface Prontuario {
-  id: string;
-  pacienteId: string;
-  queixaPrincipal?: string;
-  historico?: string;
-  conduta?: string;
-  evolucao?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface Props {
   pacienteId: string;
@@ -50,32 +41,54 @@ export default function ProntuarioModal({ pacienteId, open, onClose }: Props) {
   return (
 
     <>
-    
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-red-500">
-          <X size={24} />
-        </button>
 
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Prontuário do Paciente</h2>
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 relative">
+          <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-red-500">
+            <X size={24} />
+          </button>
 
-        {loading ? (
-          <p>Carregando prontuário...</p>
-        ) : !prontuario ? (
-          <p>Nenhum prontuário encontrado.</p>
-        ) : (
-          <>
-            <Info label="Queixa Principal" value={prontuario.queixaPrincipal} />
-            <Info label="Histórico" value={prontuario.historico} />
-            <Info label="Conduta" value={prontuario.conduta} />
-            <Info label="Evolução" value={prontuario.evolucao} />
-            <p className="text-sm text-gray-500 mt-4">
-              Última atualização: {new Date(prontuario.updatedAt).toLocaleString()}
-            </p>
-          </>
-        )}
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">Prontuário do Paciente</h2>
+
+          {loading ? (
+            <p>Carregando prontuário...</p>
+          ) : !prontuario ? (
+            <p>Nenhum prontuário encontrado.</p>
+          ) : (
+            <>
+              <Info label="Queixa Principal" value={prontuario.queixaPrincipal} />
+              <Info label="Histórico" value={prontuario.historico} />
+              <Info label="Conduta" value={prontuario.conduta} />
+              <Info label="Evolução" />
+              <div className="max-h-60 overflow-y-auto bg-gray-50 rounded-md p-3 border border-gray-200 whitespace-pre-line text-sm text-gray-800">
+                {prontuario.evolucao}
+              </div>
+              <div
+                className="max-h-[9rem] overflow-y-auto space-y-1 
+             bg-gray-100 rounded-md shadow-md p-3 border border-gray-300"
+              >
+                {(prontuario.transcription || '')
+                  .match(/\*--\d{2}\/\d{2}\/\d{4}/g)
+                  ?.map((entry, index) => {
+                    const date = entry.replace("*--", "").trim();
+                    return (
+                      <div key={index} className="text-sm text-black  pb-1">
+                        transcrição encontrada: {date}
+                      </div>
+                    );
+                  })}
+              </div>
+
+
+
+              <p className="text-xs text-gray-500 mt-4">
+                Última atualização: {new Date(prontuario.updatedAt).toLocaleString()}
+              </p>
+            </>
+
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }
@@ -83,11 +96,11 @@ export default function ProntuarioModal({ pacienteId, open, onClose }: Props) {
 function Info({ label, value }: { label: string; value?: string }) {
   return (
     <>
-    
-    <div className="mb-3">
-      <label className="block font-medium text-gray-600">{label}:</label>
-      <p className="text-gray-800">{value || 'Não informado'}</p>
-    </div>
+
+      <div className="mb-3">
+        <label className="block font-medium text-gray-600">{label}:</label>
+        <p className="text-gray-800">{value || 'Não informado'}</p>
+      </div>
     </>
   );
 }

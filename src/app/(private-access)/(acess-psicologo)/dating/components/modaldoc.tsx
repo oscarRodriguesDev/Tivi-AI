@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAccessControl } from '@/app/context/AcessControl';
 
+
 type DocumentoModalProps = {
   onClose: () => void;
   onGenerate: () => void;
@@ -20,7 +21,6 @@ interface Docs {
 }
 
 
-
 export const DocumentoModal: React.FC<DocumentoModalProps> = ({
   onClose,
   onGenerate,
@@ -30,6 +30,7 @@ export const DocumentoModal: React.FC<DocumentoModalProps> = ({
 }) => {
   const { userID } = useAccessControl();
   const [documentos, setDocumentos] = useState<Docs[]>([])
+
 useEffect(() => {
   const fetchDocumentos = async () => {
     try {
@@ -56,7 +57,6 @@ useEffect(() => {
 
   if (userID) fetchDocumentos()
 }, [userID])
-
 
 
 

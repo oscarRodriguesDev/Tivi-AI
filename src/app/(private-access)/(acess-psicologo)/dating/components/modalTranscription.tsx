@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { marked } from 'marked';
 import jsPDF from 'jspdf';
-import { showInfoMessage } from '../../../../util/messages';
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from '../../../../util/messages';
+import { useAccessControl } from '@/app/context/AcessControl';
 
 type ModalProps = {
   isOpen: boolean;
@@ -9,8 +10,20 @@ type ModalProps = {
   transcription: string;
 };
 
+
+interface Paciente {
+  id: string
+  nome: string
+  // outros campos que precisar
+}
+
 export default function TranscriptionModal({ isOpen, onClose, transcription }: ModalProps) {
   const [htmlContent, setHtmlContent] = useState('');
+  const { userID } = useAccessControl();
+  const [aberto, setAberto] = useState<boolean>(false);
+  const [pacientes, setPacientes] = useState<Paciente[]>([])
+  const [selecionado, setSelecionado] = useState<string>('');
+  const [idpaciente, setIdPaciente] = useState<string>('');
 
   useEffect(() => {
     if (transcription) {
@@ -23,122 +36,9 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
     }
   }, [transcription]);
 
-  /*    function handleSavePDF(): void {
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-  
-      const marginLeft = 10;
-      const marginTop = 10;
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const lineHeight = 7; // Espaçamento entre linhas
-      const maxWidth = pageWidth - marginLeft * 2;
-  
-      let yPos = marginTop;
-  
-      const wrapText = (text: string): string[] => {
-        return doc.splitTextToSize(text, maxWidth);
-      };
-  
-      const addTextToPDF = (text: string): void => {
-        const lines = wrapText(text);
-        lines.forEach((line) => {
-          if (yPos + lineHeight > pageHeight - marginTop) {
-            doc.addPage();
-            yPos = marginTop;
-          }
-          doc.text(line, marginLeft, yPos);
-          yPos += lineHeight;
-        });
-      };
-  
-      addTextToPDF(transcription);
-      yPos += lineHeight * 2;
-  
-      addTextToPDF("Análise detalhada da conversa:\n");
-      yPos += lineHeight;
-  
-      addTextToPDF(transcription);
-  
-      doc.save("transcricao.pdf");
-  
-    }  */
-
-  /*     function handleSavePDF(): void {
-        const doc = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-        });
-      
-        const marginLeft = 10;
-        const marginTop = 10;
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const lineHeight = 7;
-        const maxWidth = pageWidth - marginLeft * 2;
-        let yPos = marginTop;
-      
-        // Aplica fonte monoespaçada (opcional)
-        doc.setFont("courier", "normal");
-        doc.setFontSize(12);
-      
-        const wrapText = (text: string): string[] => {
-          return doc.splitTextToSize(text, maxWidth);
-        };
-      
-        const addTextToPDF = (text: string): void => {
-          const paragraphs = text.split("\n\n"); // trata parágrafos separados
-          paragraphs.forEach((paragraph) => {
-            const lines = wrapText(paragraph);
-            lines.forEach((line) => {
-              if (yPos + lineHeight > pageHeight - marginTop) {
-                doc.addPage();
-                yPos = marginTop;
-              }
-              doc.text(line, marginLeft, yPos);
-              yPos += lineHeight;
-            });
-            yPos += lineHeight; // Espaço extra entre parágrafos
-          });
-        };
-      
-        const addSectionTitle = (title: string): void => {
-          doc.setFontSize(14);
-          doc.setFont("helvetica", "bold");
-          addTextToPDF(title);
-          yPos += lineHeight;
-          doc.setFontSize(12);
-          doc.setFont("courier", "normal");
-        };
-      
-        const addSeparator = (): void => {
-          if (yPos + 5 > pageHeight - marginTop) {
-            doc.addPage();
-            yPos = marginTop;
-          }
-          doc.line(marginLeft, yPos, pageWidth - marginLeft, yPos);
-          yPos += lineHeight;
-        };
-      
-        // Conteúdo
-        addSectionTitle("Transcrição da Sessão:");
-        addTextToPDF(transcription);
-        addSeparator();
-      
-        addSectionTitle("Análise detalhada da conversa:");
-        addTextToPDF(transcription); // Supondo que você tenha uma variável 'analysis'
-      
-        doc.save("transcricao.pdf");
-      }
-      
-   */
 
 
-
+  // Função para salvar o PDF de forma responsiva.
   function handleSavePDF(): void {
     const doc = new jsPDF({
       orientation: "portrait",
@@ -269,13 +169,15 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
 
   }
 
+
+
   function handleSavePDF2(): void {
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
-  
+
     const marginLeft = 10;
     const marginTop = 10;
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -283,18 +185,18 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
     const lineHeight = 7;
     const maxWidth = pageWidth - marginLeft * 2;
     let yPos = marginTop;
-  
+
     const wrapText = (text: string): string[] => {
       return doc.splitTextToSize(text, maxWidth);
     };
-  
+
     const safeAddPage = () => {
       if (yPos + lineHeight > pageHeight - marginTop) {
         doc.addPage();
         yPos = marginTop;
       }
     };
-  
+
     const cleanFormatting = (text: string): string => {
       return text
         .replace(/^#+\s*/, "") // remove ##, ### etc. no início da linha
@@ -302,10 +204,10 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
         .replace(/\*(.*?)\*/g, "$1")     // remove *itálico*
         .trim();
     };
-  
+
     const renderMarkdownLine = (line: string) => {
       safeAddPage();
-  
+
       // Subtítulos numerados (ex: "1. Seção", "2. Outra seção")
       if (/^\d+\.\s+/.test(line)) {
         doc.setFont("helvetica", "bold");
@@ -318,7 +220,7 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
         });
         return;
       }
-  
+
       // Títulos
       if (line.startsWith("### ")) {
         doc.setFont("helvetica", "bold");
@@ -333,7 +235,7 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
         doc.setFontSize(16);
         doc.text(cleanFormatting(line), marginLeft, yPos);
       }
-  
+
       // Listas
       else if (/^[-*] /.test(line)) {
         doc.setFont("helvetica", "normal");
@@ -346,7 +248,7 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
         });
         return;
       }
-  
+
       // Texto comum
       else {
         doc.setFont("helvetica", "normal");
@@ -359,16 +261,16 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
         });
         return;
       }
-  
+
       yPos += lineHeight;
     };
-  
+
     const renderMarkdownText = (markdown: string) => {
       const lines = markdown.split("\n");
-  
+
       lines.forEach((line, index) => {
         const isLastLine = index === lines.length - 1;
-  
+
         if (line.trim() === "") {
           const nextLine = lines[index + 1];
           if (nextLine && nextLine.trim() !== "") {
@@ -377,30 +279,82 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
         } else {
           renderMarkdownLine(line);
         }
-  
+
         if (isLastLine) {
           yPos += lineHeight;
         }
       });
     };
-  
+
     // Cabeçalho do PDF
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.text("Transcrição da Sessão", marginLeft, yPos);
     yPos += lineHeight * 1.5;
-  
+
     renderMarkdownText(transcription);
-  
+
     // Linha de separação
     if (yPos + lineHeight < pageHeight - marginTop) {
       doc.line(marginLeft, yPos, pageWidth - marginLeft, yPos);
       yPos += lineHeight;
     }
-  
+
     doc.save("DPT.pdf");
   }
-  
+
+
+//save transcription
+  async function saveTranscription(id: string) {
+    const formattedTranscription = `*--${new Date().toLocaleString()}\n${htmlContent.trim()}--*\n`;
+
+    try {
+      const response = await fetch('/api/internal/prontuario/save-transcription', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pacienteId: id,
+          transcription: formattedTranscription, // <-- agora está correto
+        }),
+      });
+
+      if (!response.ok) {
+        showErrorMessage('Erro ao salvar transcrição');
+      } else {
+        showSuccessMessage('Transcrição salva com sucesso!');
+      }
+
+      const data = await response.json();
+      console.log('Transcrição salva com sucesso:', data);
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao salvar transcrição:', error);
+      showErrorMessage('Erro ao salvar transcrição');
+      throw error;
+    }
+
+  }
+
+
+  //buscar pacientes
+  useEffect(() => {
+    const fetchPacientes = async () => {
+      try {
+        const response = await fetch(`/api/internal/register_pacientes?psicologoId=${userID}`)
+        if (!response.ok) throw new Error('Erro ao buscar pacientes')
+        const data = await response.json()
+        setPacientes(data)
+      } catch (error) {
+        console.error('Erro ao buscar paciente:', error)
+      }
+    }
+
+    fetchPacientes()
+  }, [userID])
+
 
 
 
@@ -432,12 +386,41 @@ export default function TranscriptionModal({ isOpen, onClose, transcription }: M
           >
             Baixar PDF
           </button>
+          <>
+            <button
+              onClick={() => setAberto(!aberto)}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+            >
+              Selecione seu paciente
+            </button>
+
+            {aberto && (
+              <select
+                className="mt-2 border p-2 rounded"
+                value={selecionado}
+                onChange={(e) => { setSelecionado(e.target.value); setAberto(!aberto); setIdPaciente(e.target.value); }}
+
+              >
+                <option value="">Selecione</option>
+                {pacientes.map((paciente) => (
+                  <option key={paciente.id} value={paciente.id}
+
+                  >
+                    {paciente.nome}
+                  </option>
+                ))}
+              </select>
+            )}
+
+          </>
+
           <button
-            onClick={() => showInfoMessage("Função de arquivamento futura.")}
             className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+            onClick={() => saveTranscription(idpaciente)}
           >
-            Arquivar
+            Salvar transcrição
           </button>
+
         </div>
       </div>
     </div>

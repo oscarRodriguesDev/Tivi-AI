@@ -10,7 +10,7 @@ import Image from "next/image";
 import Logo from '../../../../public/marca/logo.png'
 import Link from "next/link";
 import { KeyboardEvent } from 'react';
-import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
 
 
 
@@ -22,6 +22,11 @@ export default function LoginPage() {
   const session = useSession()
   const [showPassword, setShowPassword] = useState(false);
   const [aviso, setAviso] = useState('')
+
+
+
+  
+ 
 
 
   //função para logar

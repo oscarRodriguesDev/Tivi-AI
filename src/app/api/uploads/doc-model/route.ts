@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { modelDPT,modelAV,modelTRT,modelRBT } from "@/app/util/documents";
 
 
 const prisma = new PrismaClient();
@@ -30,7 +31,34 @@ export async function POST(req: Request) {
   }
 }
 
-// src/app/api/uploads/doc-model/route.ts
+// mock local (pode mover pra outro arquivo depois)
+const Relatorios = (idP: string) => [
+  {
+    id: "1",
+    name: "DPT",
+    psicologoId: idP,
+    prompt: modelDPT
+  },
+  {
+    id: "2",
+    name: "TRT",
+    psicologoId: idP,
+    prompt: modelTRT
+  },
+  {
+    id: "3",
+    name: "RBT",
+    psicologoId: idP,
+    prompt: modelRBT
+  },
+  {
+    id: "4",
+    name: "AV",
+    psicologoId: idP,
+    prompt: modelAV
+  }
+]
+
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url)
@@ -45,15 +73,26 @@ export async function GET(req: Request) {
 
     const docs = await prisma.model_doc.findMany({
       where: { psicologoId },
-     
     })
 
+    // Se não houver documentos, usa os mockados
+    if (!docs || docs.length === 0) {
+      const mockDocs = Relatorios(psicologoId)
+      return NextResponse.json(mockDocs, { status: 200 })
+    }
+
+    // Retorna os docs do banco normalmente
     return NextResponse.json(docs, { status: 200 })
+
   } catch (error: any) {
     console.error('Erro ao buscar documentos:', error)
-    return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Erro interno no servidor' },
+      { status: 500 }
+    )
   }
 }
+
 
 //delete
 export async function DELETE(req: Request) {

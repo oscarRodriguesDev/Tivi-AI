@@ -1,7 +1,7 @@
 
 
 
-import { supabase } from '@/lib/supabaseClient';
+import { getSupabaseClient } from '@/lib/supabaseClient';
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
@@ -14,7 +14,7 @@ import { PrismaClient } from "@prisma/client";
  */
 
 const prisma = new PrismaClient();
-
+const supabase = getSupabaseClient();
  
 /**
  * Função assíncrona para fazer upload de um arquivo no Supabase Storage.

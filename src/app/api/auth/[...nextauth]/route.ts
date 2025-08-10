@@ -1,21 +1,3 @@
-/**
- * Importações utilizadas para autenticação e gerenciamento de banco de dados:
- * 
- * - `NextAuth`: 
- *    Framework principal para autenticação no Next.js.
- * 
- * - `CredentialsProvider` (next-auth/providers/credentials):
- *    Provedor de autenticação que permite login com credenciais personalizadas.
- * 
- * - `PrismaAdapter` (@next-auth/prisma-adapter):
- *    Adaptador que conecta o NextAuth com o Prisma ORM.
- * 
- * - `PrismaClient`, `UserRole` (@prisma/client):
- *    Cliente do Prisma para interação com o banco de dados e enumeração de roles.
- * 
- * - `compare` (bcryptjs):
- *    Função para comparação segura de senhas hasheadas.
- */
 
 
 import NextAuth from "next-auth";
@@ -25,23 +7,7 @@ import { PrismaClient, UserRole } from "@prisma/client";
 import { compare } from "bcryptjs";
 
 const prisma = new PrismaClient();
-/**
- * Configuração principal do NextAuth para autenticação na aplicação.
- * 
- * Este handler configura:
- * - O adaptador Prisma para persistência de dados
- * - O provedor de credenciais para autenticação com email/senha
- * - Estratégia de sessão JWT
- * - Callbacks para personalização do token e sessão
- * 
- * @param {Object} config - Configuração do NextAuth
- * @param {PrismaAdapter} config.adapter - Adaptador Prisma para persistência
- * @param {Array} config.providers - Lista de provedores de autenticação
- * @param {Object} config.session - Configuração da sessão
- * @param {Object} config.callbacks - Funções de callback para personalização
- * 
- * @returns {Object} Handler do NextAuth configurado
- */
+
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
