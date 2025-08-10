@@ -9,16 +9,14 @@ const openai = new OpenAI({
 });
 
 
+
+// Rota para gerar resumo pelo gpt
 export async function POST(req: Request) {
  const { titulo, autor } = await req.json();
-
-
   if (!titulo || !autor) {
     return NextResponse.json({ error: "Título e autor são obrigatórios." }, { status: 400 });
   }
-
   const prompt = resumeBook(titulo, autor);
-
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -26,13 +24,12 @@ export async function POST(req: Request) {
       temperature: 0.2,
        max_tokens: 2000
     });
-
     const content = completion.choices[0]?.message?.content || "Sem resposta.";
-  
-   
     return NextResponse.json({ result: content });
 
   } catch (error: any) {
     return NextResponse.json({ error: "Erro ao gerar resposta do modelo." }, { status: 500 });
   } 
 }
+
+

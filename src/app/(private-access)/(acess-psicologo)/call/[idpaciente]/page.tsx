@@ -11,19 +11,41 @@ import { FcVideoCall, FcEndCall } from "react-icons/fc";
 import { showErrorMessage } from "@/app/util/messages";
 import { useHistory } from "@/app/context/historyContext";
 import { useAccessControl } from "@/app/context/AcessControl";
+import { example1, example2, example3 } from '@/app/util/books';
+
+interface Livro {
+  id: string
+  resumo: string
+}
+
+
+const livromock = [
+  {
+    id: "1",
+    resumo: example1
+  },
+  {
+    id: "2",
+    resumo: example2
+  },
+  {
+    id: "3",
+    resumo: example3
+  }
+];
+
+
 
 
 export default function Home() {
 
   const [peerId, setPeerId] = useState<string>("");
   const { logAction } = useHistory();
-
   const [remoteId, setRemoteId] = useState<string>("")
   const [msg, setMsg] = useState<string>("Aguardando transcrição");
   const [callActive, setCallActive] = useState<boolean>(false);
   const peerRef = useRef<Peer | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const currentCall = useRef<MediaConnection | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -37,6 +59,11 @@ export default function Home() {
   const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
   const [transcription, setTranscription] = useState<string>("");
   const { userID } = useAccessControl(); // id do psccologo logado
+
+
+
+
+
 
  // Monitora o volume do microfone
   const monitorMicrophone = (stream: MediaStream) => {

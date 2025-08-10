@@ -11,6 +11,7 @@ import TranscriptionModal from "./modalTranscription";;
 import { showErrorMessage, showPersistentLoadingMessage, showSuccessMessage, updateToastMessage, } from "../../../../util/messages";
 import { DocumentoModal } from "./modaldoc";
 import { useAccessControl } from "@/app/context/AcessControl";
+import { example1, example2, example3 } from '@/app/util/books';
 
 
 
@@ -34,6 +35,36 @@ interface Paciente {
   nome: string
 }
 
+//interface livro
+interface Livro {
+  id: string
+  name:string,
+  resumo: string
+}
+
+
+//livros mocados
+// livros mockados
+const livromock: Livro[] = [
+  {
+    id: "1",
+    name: "O mal estar da Civilização",
+    resumo: example1
+  },
+  {
+    id: "2",
+    name: "O Homem em Busca de Sentido",
+    resumo: example2
+  },
+  {
+    id: "3",
+    name: "Inteligência Emocional",
+    resumo: example3
+  }
+];
+
+
+
 
 
 export default function LiveTranscription({ usuario, mensagem, sala }: LiveTranscriptionProps) {
@@ -55,10 +86,62 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   const [idpaciente, setIdPaciente] = useState<string>('');
 
 
+
+ 
+  const [livros, setLivros] = useState<Livro[]>([]);
+//recuperar livros
+useEffect(() => {
+  if (!userID) return;
+
+  const fetchLivros = async () => {
+    try {
+      const response = await fetch(`/api/internal/upbook/?psicologoId=${userID}`);
+
+      if (!response.ok) {
+        setLivros(livromock);
+          console.log('livros',livros);
+        return;
+      }
+
+      const data: Livro[] = await response.json();
+
+      // Se não vier livros no array, usa o mock
+      if (!data || data.length === 0) {
+        setLivros(livromock);
+         console.log('livros',livros);
+        return;
+      }
+
+      setLivros(data);
+      console.log('livros', data);
+    } catch (err: any) {
+      // Se der erro na requisição, também usa mock
+      setLivros(livromock);
+      console.error('Erro ao buscar livros:', err);
+    }
+  };
+
+  fetchLivros();
+}, [userID]); 
+
+
+//percorrer e retornar todos os resumos numa unica string
+function getBasedBooks(livros: Livro[]) {
+  let nomes = "";
+  livros.forEach((livro) => {
+    nomes += livro.name +',';
+  });
+  console.log('nomes:', nomes)
+  return nomes;
+}
+
+
+
+
   //gera os insights
   const handleGenerate = () => {
     if (tipoSelecionado) {
-      console.log('Gerar documento do tipo:', tipoSelecionado);
+   
       // Chama a função que gera o insight/documento
       handleGetInsights(transcription);
       setShowModal(false);
@@ -190,6 +273,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
     recognition.stop();
   };
 
+
   //limpa a transcrição
   const handleClearTranscription = () => {
     setTranscription("");
@@ -278,6 +362,7 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
   };
 
 
+
   //busca os documentos para gerar as transcrições
   const fetchDocumentos = async (tipo: string) => {
     try {
@@ -289,8 +374,12 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
       const documentoSelecionado = data.find(doc => doc.name === tipo)
 
       if (documentoSelecionado) {
-        const prompt = documentoSelecionado.prompt
+         let base= getBasedBooks(livros);
+        const prompt = `${documentoSelecionado.prompt}\n\n -  para sua analise tente se basear nos 
+        resumos dos seguintes livros: ${base}` 
+        
         setPrompt(prompt || "")
+       
       }
 
     } catch (error) {

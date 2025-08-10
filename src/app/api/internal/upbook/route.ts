@@ -1,6 +1,16 @@
 import { PrismaClient } from "@prisma/client"
 import { NextResponse } from "next/server"
 
+
+
+interface Livro {
+  id: string
+  resumo: string
+}
+
+
+
+
 const prisma = new PrismaClient()
 
 export async function POST(req: Request) {
@@ -33,6 +43,7 @@ export async function POST(req: Request) {
   
 
   
+  //busca os livros de um psicologo
   export async function GET(req: Request) {
     try {
       // Extrai psicologoId da query string
@@ -53,11 +64,7 @@ export async function POST(req: Request) {
   
       return NextResponse.json(livros, { status: 200 });
     } catch (error) {
-      console.error("Erro ao buscar livros:", error);
-      return NextResponse.json(
-        { error: "Erro interno no servidor" },
-        { status: 500 }
-      );
+  return NextResponse.json('error', { status: 500 });
     }
   }
   

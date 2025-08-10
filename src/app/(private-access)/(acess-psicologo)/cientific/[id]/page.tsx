@@ -8,11 +8,13 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { HiDocumentCheck } from "react-icons/hi2";
 import Image from "next/image";
+import { example1, example2, example3 } from "@/app/util/books";
 
-import book_ansiedade from '@../../../public/books/book-ansiedade.png';
-import book_bournout from '@../../../public/books/book-bournout.png';
-import book_autoconheciemto from '@../../../public/books/bookautoconhecimanto.png';
-import book_tdah from '@../../../public/books/booktdah.png';
+
+import livro1 from '../../../../../assets/books/book1.jpeg';
+import livro2 from '../../../../../assets/books/book2.jpg';
+import livro3 from '../../../../../assets/books/book3.jpg';
+
 
 
 import mammoth from "mammoth";
@@ -29,36 +31,30 @@ interface Docs {
 interface Livro {
   id: string;
   name: string;
-  psicologoId: string;
-  autor: string;
-  url_capa?: string;
+  psicologoId?: string; // Tornar opcional se não existir sempre
+  autor?: string;
+  url_capa?: string
   resumo: string;
 }
 
 const livromock = [
   {
     id: "1a2b3c",
-    name: "Um book sobre ansiedade",
-    url_capa: book_ansiedade,
-    resumo: "Este artigo explora como o cérebro se adapta a novos estímulos e ambientes, com foco nos efeitos da aprendizagem ao longo da vida."
+    name: "O mal estar da Civilização",
+    url_capa: livro1,
+    resumo: example1
   },
   {
     id: "4d5e6f",
-    name: "Bournout compreensão e manejo",
-    url_capa: book_bournout,
-    resumo: "Um estudo sobre a integração de estratégias da psicologia positiva em intervenções cognitivas para aumento do bem-estar."
+    name: "Inteligencia Emocional",
+    url_capa: livro2,
+    resumo: example2
   },
   {
     id: "7g8h9i",
     name: "Procrastinação nunca mais",
-    url_capa: book_autoconheciemto,
-    resumo: "Análise dos mecanismos de regulação emocional durante a adolescência e seu impacto no desenvolvimento afetivo-social."
-  },
-  {
-    id: "0j1k2l",
-    name: "Um ebook sobre TDAH",
-    url_capa: book_tdah,
-    resumo: "Revisão científica sobre a relação entre qualidade do sono e transtornos mentais como ansiedade e depressão."
+    url_capa: livro3,
+    resumo: example3
   }
 ];
 
@@ -86,10 +82,8 @@ const BaseCientifica = () => {
   const handleFileChange = async () => {
     const file = fileInputRef.current?.files?.[0];
     if (!file) return;
-
     const ext = file.name.split(".").pop()?.toLowerCase();
     let text = "";
-
     try {
       if (ext === "pdf") {
         alert("⚠️ Aviso: pdf-lib não extrai texto nativamente. Prefira arquivos .txt ou .docx para melhor resultado.");
@@ -100,10 +94,9 @@ const BaseCientifica = () => {
         const result = await mammoth.extractRawText({ arrayBuffer });
         text = result.value;
       } else {
-        alert("Formato não suportado. Use PDF, TXT ou DOCX.");
+        alert("Formato não suportado, TXT ou DOCX.");
         return;
       }
-
       setCustomPrompt(text);
     } catch (err) {
       console.error("Erro ao ler arquivo:", err);
@@ -111,23 +104,19 @@ const BaseCientifica = () => {
     }
   };
 
-
   //faz o envio da capa do livro para o storage
   const enviarCapa = async (file: File): Promise<string | null> => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-
       const response = await fetch("/api/uploads/capa?path=capa-livro", {
         method: "POST",
         body: formData,
       });
-
       if (!response.ok) {
         console.error("Erro ao fazer upload:", await response.text());
         return null;
       }
-
       const { url } = await response.json();
       return url;
     } catch (error) {
@@ -137,7 +126,7 @@ const BaseCientifica = () => {
   };
 
 
-  //recupera  o resumo do livro no banco de dados
+  //gera o resumo do livro
   const getResume = async (titulo: string, autor: string): Promise<string> => {
     const toastId = showPersistentLoadingMessage('Gerando resumo do livro...');
     try {
@@ -159,6 +148,7 @@ const BaseCientifica = () => {
 
       if (response.ok) {
         updateToastMessage(toastId, 'Relatório gerado com sucesso!', 'success');
+         reloadLivros()
       }
 
       const data = await response.json();
@@ -205,8 +195,31 @@ const BaseCientifica = () => {
 
       if (!response.ok) throw new Error();
       showSuccessMessage("Livro salvo com sucesso!");
+      //buscar de novo
+       await reloadLivros()
+       limpaLivro()
+      
     } catch (error) {
       showErrorMessage("Erro ao salvar livro na base de dados");
+    }
+  };
+
+
+  //deleta o livro
+  const handleDeleteBook = async (bookId: string) => {
+    if (!confirm("Tem certeza que deseja deletar este livro?")) return;
+
+    try {
+      const response = await fetch(`/api/internal/upbook?bookId=${bookId}`, {
+        method: "DELETE",
+      });
+      await reloadLivros()
+      limpaLivro()
+
+      if (!response.ok) throw new Error();
+      setDocs(prev => prev.filter(doc => doc.id !== bookId));
+    } catch (err) {
+      alert("Erro ao deletar livro.");
     }
   };
 
@@ -242,7 +255,8 @@ const BaseCientifica = () => {
     }
   };
 
-  //faz uma busca no banco pelos documentos do psicoclogo
+
+  //faz uma busca no banco pelos modelos de documentos do psicologo
   const docSeek = async (): Promise<Docs[]> => {
     if (!id) {
       alert("ID do psicólogo não encontrado.");
@@ -281,21 +295,6 @@ const BaseCientifica = () => {
     }
   };
 
-  //deleta o livro
-  const handleDeleteBook = async (bookId: string) => {
-    if (!confirm("Tem certeza que deseja deletar este livro?")) return;
-
-    try {
-      const response = await fetch(`/api/internal/upbook?bookId=${bookId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error();
-      setDocs(prev => prev.filter(doc => doc.id !== bookId));
-    } catch (err) {
-      alert("Erro ao deletar livro.");
-    }
-  };
 
 
 //gera o resumo do livro
@@ -303,10 +302,40 @@ const BaseCientifica = () => {
     setResumo(await getResume(titulo, autor));
   }
 
+
+
+//buscar livros novamente:
+const reloadLivros = async () => {
+  if (!id) return;
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await fetch(`/api/internal/upbook/?psicologoId=${id}`);
+    if (!response.ok) throw new Error(`Erro: ${response.status}`);
+    const data: Livro[] = await response.json();
+    setLivros(data);
+  } catch (err: any) {
+    setError(err.message || "Erro ao carregar livros");
+  } finally {
+    setLoading(false);
+  }
+  limpaLivro
+};
+
+
+//limpar campos livro
+const limpaLivro = () => {
+ setCapaPreview(null);
+ setTitulo("");
+ setAutor("");
+
+}
+
+
+
   //recuperar livros:
   useEffect(() => {
     if (!id) return;
-
     const fetchLivros = async () => {
       setLoading(true);
       setError(null);
@@ -317,6 +346,7 @@ const BaseCientifica = () => {
         }
         const data: Livro[] = await response.json();
         setLivros(data);
+        console.log('livros', data);
       } catch (err: any) {
         setError(err.message || "Erro ao carregar livros");
       } finally {
@@ -331,12 +361,9 @@ const BaseCientifica = () => {
   //corrige a url do livro
   const getFullUrl = (url?: string) => {
     if (!url) return "/placeholder.png";
-
-    // Se já começa com http ou https, retorna direto
     if (url.startsWith("http://") || url.startsWith("https://")) {
       return url;
     }
-
     // Caso contrário, adiciona https://
     return `https://${url}`;
   };
@@ -368,12 +395,9 @@ const BaseCientifica = () => {
             {livros.length > 0 ? (
               livros.map((livro) => (
                 <div
-
                   key={livro.id}
                   className="flex flex-col items-center w-36 bg-white rounded-md shadow-sm p-3 text-center hover:shadow-md transition-shadow duration-300"
                 >
-
-
                   <Image
                     src={getFullUrl(livro.url_capa)}
                     alt={livro.name}
@@ -408,7 +432,13 @@ const BaseCientifica = () => {
                     height={120}
                     className="object-contain rounded"
                     unoptimized
+
+                    title={livro.resumo}
                   />
+
+                  <span className="mt-3 text-[10px] font-semibold text-gray-900 truncate" >
+                    {livro.name}
+                  </span>
 
 
                 </div>

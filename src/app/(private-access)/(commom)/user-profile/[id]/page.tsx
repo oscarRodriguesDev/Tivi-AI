@@ -80,7 +80,7 @@ const Perfil = () => {
             const fileData = new FormData();
             fileData.append("file", file);
     
-            const res = await fetch("/api/uploads/?path=profile-pictures", {
+            const res = await fetch("/api/uploads/profile/?path=profile-pictures", {
                 method: "POST",
                 body: fileData,
             });
@@ -110,7 +110,7 @@ const Perfil = () => {
             const fileData = new FormData();
             fileData.append("file", file);
     
-            const res = await fetch("/api/uploads/?path=banner", {
+            const res = await fetch("/api/uploads/profile/?path=banner", {
                 method: "POST",
                 body: fileData,
             });
