@@ -80,11 +80,11 @@ const Perfil = () => {
             const fileData = new FormData();
             fileData.append("file", file);
     
-            const res = await fetch("/api/uploads/profile/?path=profile-pictures", {
+            const res = await fetch(`/api/uploads/profile/?path=profile-pictures&id=${id}`, {
                 method: "POST",
                 body: fileData,
             });
-    
+    alert(id)
             if (!res.ok) {
                 const error = await res.json();
                 throw new Error(error.error || "Erro no upload");
@@ -109,8 +109,9 @@ const Perfil = () => {
         try {
             const fileData = new FormData();
             fileData.append("file", file);
+            alert(id)
     
-            const res = await fetch("/api/uploads/profile/?path=banner", {
+            const res = await fetch(`/api/uploads/profile/?path=banner&id=${id}`, {
                 method: "POST",
                 body: fileData,
             });

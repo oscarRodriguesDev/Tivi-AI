@@ -16,27 +16,23 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const supabase = getSupabaseClient();
  
-/**
- * Função assíncrona para fazer upload de um arquivo no Supabase Storage.
- *
- * @param {File} file - O arquivo a ser enviado.
- * @returns {Promise<string | null>} A URL pública do arquivo salvo ou null em caso de erro.
- */
-async function uploadFile(file: File, path: string) {
+
+/* async function uploadFile(file: File, path: string, id: string) {
   // Limpa o nome do arquivo: remove espaços, acentos e caracteres especiais
+  console.log('id', id)
   const sanitizedFileName = file.name
     .normalize("NFD") // Remove acentos
     .replace(/[\u0300-\u036f]/g, "") // Remove marcas de acento
     .replace(/\s+/g, '-') // Substitui espaços por hífen
     .replace(/[^a-zA-Z0-9.-]/g, ''); // Remove caracteres não permitidos (exceto ponto e hífen)
 
-  const fileName = `${Date.now()}-${sanitizedFileName}`; // Nome único e limpo
+  const fileName = `photoprofile${id}`; // Nome único e limpo
 
   const { data, error } = await supabase.storage
     .from('tiviai-images')
     .upload(`${path}/${fileName}`, file, {
       cacheControl: '3600',
-      upsert: false,
+      upsert: true,
     });
 
   if (error) {
@@ -50,13 +46,68 @@ async function uploadFile(file: File, path: string) {
     .getPublicUrl(`${path}/${fileName}`);
 
   return publicUrl?.publicUrl;
+} */
+
+
+
+async function uploadFile(file: File, path: string, id: string) {
+  const bucket = supabase.storage.from('tiviai-images');
+
+  // Extrai extensão
+  const ext = file.name.split('.').pop()?.toLowerCase() || '';
+
+  // Nome fixo para o usuário
+  const fileName = `image-${id}.${ext}`;
+
+  // Listar arquivos na pasta para esse usuário (assumindo que estão todos no mesmo path)
+  const { data: filesList, error: listError } = await bucket.list(path, {
+    search: `photoprofile${id}`,
+    limit: 100,
+  });
+
+  if (listError) {
+    console.error('Erro ao listar arquivos:', listError);
+    return null;
+  }
+
+  // Deletar arquivos antigos que não sejam o atual (diferente por extensão)
+  const filesToDelete = filesList?.filter(f => f.name !== fileName).map(f => f.name) || [];
+
+  if (filesToDelete.length > 0) {
+    const { error: deleteError } = await bucket.remove(
+      filesToDelete.map(name => `${path}/${name}`)
+    );
+
+    if (deleteError) {
+      console.error('Erro ao deletar arquivos antigos:', deleteError);
+      return null;
+    }
+  }
+
+  // Fazer upload com upsert true (sobrescreve o arquivo atual)
+  const { data, error } = await bucket.upload(`${path}/${fileName}`, file, {
+    cacheControl: '0',
+    upsert: true,
+  });
+
+  if (error) {
+    console.error('Erro no upload:', error);
+    return null;
+  }
+
+  const { data: publicUrl } = bucket.getPublicUrl(`${path}/${fileName}`);
+
+  return publicUrl?.publicUrl ? `${publicUrl.publicUrl}?t=${Date.now()}` : null;
 }
+
+
 
 
 
 // Função que recebe a requisição POST e chama `uploadFile`
 export async function POST(req: Request) {
     const path = new URL(req.url).searchParams.get('path');
+    const id = new URL(req.url).searchParams.get('id');
   try {
     // Obtém os dados da requisição
     const formData = await req.formData();
@@ -70,9 +121,9 @@ export async function POST(req: Request) {
     //testar se o path é profile-pictures ou banner 
     let fileUrl: string | null = null;
     if (path === 'profile-pictures') {
-      fileUrl = await uploadFile(file, 'profile-pictures');
+      fileUrl = await uploadFile(file, 'profile-pictures',id||'');
     } else if (path === 'banner') {
-      fileUrl = await uploadFile(file, 'banner');
+      fileUrl = await uploadFile(file, 'banner',id||"");
     }
     if (!fileUrl) {
       return NextResponse.json({ error: 'Erro ao salvar o arquivo' }, { status: 500 });
