@@ -25,12 +25,24 @@ export default function LoginPage() {
 
 
 
-  
- 
+
+
 
 
   //função para logar
   const handleLogin = async () => {
+    //veriicar se tem algo digitado em senha
+    if (!password.trim()) {
+     showErrorMessage("A senha não pode estar vazia");
+     setAviso("Senha Inválida");
+      return;
+    }
+    //verificar se email está vazio
+    if (!email.trim()) {
+      showErrorMessage("O e-mail não pode estar vazio");
+      setAviso("E-mail Inválido");
+      return;
+    }
     try {
       const result = await signIn("credentials", { email, password, callbackUrl: `/common-page`, redirect: false });
       if (result?.error) {
@@ -42,7 +54,7 @@ export default function LoginPage() {
         }
         throw new Error(result.error);
       } else {
-        showSuccessMessage('Seja bem vindo de volta')
+        showSuccessMessage('Bem vindo a TiviAI')
         /*  redirect('/common-page') */
         router.push('/common-page')
       }
@@ -83,14 +95,23 @@ export default function LoginPage() {
             Login
           </h1>
           <div className="space-y-6">
-         
+
             <input
-              type='email'
+              type="email"
               required
               placeholder="E-mail"
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              onBlur={() => {
+                // Checa se contém '@' e termina com '.com'
+                if (!email.includes('@') || !email.endsWith('.com')) {
+                  setAviso("Por favor, informe um e-mail válido contendo '@' e terminando com '.com'");
+                } else {
+                  setAviso("");
+                }
+              }}
               className="w-full p-3 sm:p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
             <div className="relative w-full">
@@ -104,7 +125,16 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 className="w-full p-3 sm:p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
                 onKeyDown={handleKeyDown}
+                onBlur={() => {
+                  if (!password.trim()) {
+                    setAviso("A senha não pode estar vazia");
+                  } else {
+                    setAviso("");
+                  }
+                }}
               />
+
+              
               <p className="absolute -mt-2 text-xs text-red-600 p-2 text-center">
                 {aviso}
               </p>
