@@ -82,7 +82,7 @@ export default function HistoricoPage() {
 
 
       <HeadPage
-        title={'Meus Pacientes'}
+        title={'Histórico'}
         icon={<FaList size={20} />}
       />
 <>

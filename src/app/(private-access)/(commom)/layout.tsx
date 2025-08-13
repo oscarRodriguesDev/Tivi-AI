@@ -5,6 +5,7 @@ import AuthProvider from "../../context/AuthProvider";
 import Menu from "@/app/(private-access)/components/menuLateral";
 import { AccessControlProvider, useAccessControl } from "../../context/AcessControl";
 import { HistoryProvider } from "@/app/context/historyContext";
+import AppProvider from "@/app/context/AppProvider";
 
 
 
@@ -40,10 +41,11 @@ export default function RootLayout({
         <AuthProvider>
             <AccessControlProvider>
           <Menu />
-          <div className="flex-1 ml-[300px] mt-2">{/* Todo conteúdo  */}
-           
-              {children} 
-          </div>
+         {/*  <div className="flex-1 ml-[300px] mt-2"> */}
+           <AppProvider>
+              {children}
+           </AppProvider>
+          {/* </div> */}
             </AccessControlProvider>
         </AuthProvider>
    </HistoryProvider>

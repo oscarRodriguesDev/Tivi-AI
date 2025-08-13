@@ -5,6 +5,7 @@ import AuthProvider from "../../context/AuthProvider";
 import Menu from "@/app/(private-access)/components/menuLateral";
 import { AccessControlProvider } from "../../context/AcessControl";
 import { HistoryProvider } from "@/app/context/historyContext";
+import AppProvider from "@/app/context/AppProvider";
 
 
 
@@ -25,8 +26,6 @@ export const metadata: Metadata = {
 
 };
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,11 +37,13 @@ export default function RootLayout({
 
           <AuthProvider>
               <AccessControlProvider>
-            <Menu />
-            <div className="flex-1 ml-[300px] mt-2">{/* Todo conteúdo  */}
+          {/*   <div className="flex-1 ml-[300px] mt-2"> */}
              
-                {children} 
-            </div>
+            <Menu />
+                <AppProvider>
+              {children}
+           </AppProvider>
+            {/* </div> */}
               </AccessControlProvider>
           </AuthProvider>
       

@@ -18,6 +18,7 @@ import type { Metadata } from "next";
 import AuthProvider from "@/app/context/AuthProvider";
 import Menu from "@/app/(private-access)/components/menuLateral";
 import { AccessControlProvider } from "@/app/context/AcessControl";
+import AppProvider from "@/app/context/AppProvider";
 
 
 /**
@@ -77,17 +78,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-  
-        <AuthProvider>
-            <AccessControlProvider>
-          <Menu />
-          <div className="flex-1 ml-[300px] mt-2">{/* Todo conteúdo  */}
-           
-              {children} 
-          </div>
-            </AccessControlProvider>
-        </AuthProvider>
-     
+
+    <AuthProvider>
+      <AccessControlProvider>
+        <Menu />
+      {/*   <div className="flex-1 ml-[300px] mt-2"> */}
+
+          <AppProvider>
+            {children}
+          </AppProvider>
+       {/*  </div> */}
+      </AccessControlProvider>
+    </AuthProvider>
+
   );
 }
 
