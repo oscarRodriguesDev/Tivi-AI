@@ -61,48 +61,54 @@ const CardUser = () => {
  /*  useAutoLogout(15*60*1000);// 15 minutos de inatividade */
 
   return (
-    <div
-      className="absolute top-[4.5%] left-[100%] sm:left-[200%] md:left-[300%] lg:left-[680%] 
-      w-[90%] text-black z-50 rounded-sm cursor-pointer bg-white hover:bg-gray-100 transition-colors
-      duration-200 shadow-md"
-      onClick={() => setCardOpen(!cardOpen)}
-    >
-      {status === "authenticated" ? (
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
-            <Image
-              src={fotoPerfil || userDefault}
-              alt="Foto de perfil"
-              width={40}
-              height={40}
-              className="object-cover w-full h-full"
-            />
-          </div>
-          <span className="text-sm text-black truncate">
-            {session.user?.name}
-          </span>
-        </div>
-      ) : (
-        <div>Usuário não autenticado</div>
-      )}
+<div className="relative">
+  {/* Cabeçalho do card */}
+  <div
+    onClick={() => setCardOpen(!cardOpen)}
+    className="flex items-center gap-3 cursor-pointer px-4 py-2 rounded-2xl shadow-md
+    transition-all duration-300 bg-white border border-gray-200 hover:border-green-600"
+   
+  >
+    {status === "authenticated" ? (
+      <>
+        <Image
+          src={fotoPerfil || userDefault}
+          alt="Foto de perfil"
+          width={40}
+          height={40}
+          quality={100}
+          className="rounded-full border border-green-600/30"
+        />
+        <span className="text-sm font-semibold text-gray-800 truncate max-w-[130px]">
+          {session.user?.name}
+        </span>
+      </>
+    ) : (
+      <span className="text-sm text-gray-500">Usuário não autenticado</span>
+    )}
+  </div>
 
-      {cardOpen && (
-        <div className="absolute top-10 w-[220px] left-0 bg-white shadow-md rounded-md p-2">
-          <Link
-            href={urlPerfil}
-            className="block text-black hover:text-red-400 px-0 py-2 rounded-md transition duration-300 ease-in-out"
-          >
-            Meu perfil
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="block w-full text-left text-black hover:text-red-400 px-0 py-2 rounded-md transition duration-300 ease-in-out"
-          >
-            Sair
-          </button>
-        </div>
-      )}
+  {/* Dropdown do card */}
+  {cardOpen && status === "authenticated" && (
+    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50 animate-fadeIn">
+      <Link
+        href={urlPerfil}
+        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-xl"
+      >
+        Meu perfil
+      </Link>
+      <button
+        onClick={handleLogout}
+        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-xl"
+      >
+        Sair
+      </button>
     </div>
+  )}
+</div>
+
+
+
   );
 };
 

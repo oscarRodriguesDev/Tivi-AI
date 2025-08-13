@@ -30,7 +30,7 @@ export default function Footer() {
             {/*   <a href="#" className="text-gray-400 hover:text-tivi-primary transition-colors">
                 <FaFacebook className="h-5 w-5" />
               </a> */}
-              <a href="https://www.instagram.com/tiviai.ia/" className="text-gray-400 hover:text-tivi-primary transition-colors">
+              <a href="https://www.instagram.com/tiviaioficial/" className="text-gray-400 hover:text-tivi-primary transition-colors">
                 <FaInstagram className="h-5 w-5" />
               </a>
               <a href="https://www.linkedin.com/company/tiviai/?viewAsMember=true" className="text-gray-400 hover:text-tivi-primary transition-colors">
