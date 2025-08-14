@@ -25,10 +25,6 @@ export default function LoginPage() {
 
 
 
-
-
-
-
   //função para logar
   const handleLogin = async () => {
     //veriicar se tem algo digitado em senha
@@ -99,15 +95,15 @@ export default function LoginPage() {
             <input
               type="email"
               required
-              placeholder="E-mail"
+              placeholder="email@tiviai.com.br"
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               onBlur={() => {
-                // Checa se contém '@' e termina com '.com'
-                if (!email.includes('@') || !email.endsWith('.com')) {
-                  setAviso("Por favor, informe um e-mail válido contendo '@' e terminando com '.com'");
+                // Checa se contém '@' e termina com '.com.br'
+                if (!email.includes('@') || !email.endsWith('.com.br')) {
+                  setAviso("Por favor, informe um e-mail válido contendo '@' e terminando com '.com.br'");
                 } else {
                   setAviso("");
                 }

@@ -1,14 +1,6 @@
 "use client";
 
-/**
- * Importações de dependências e utilitários usados no componente de transcrição:
- *
- * - `useState`, `useEffect` (React): Hooks utilizados para gerenciar o estado e efeitos colaterais do componente.
- * - `jsPDF`: Biblioteca para geração de arquivos PDF diretamente no cliente.
- * - `FaBrain`, `FaEraser`, `FaFilePdf`, `FaStop` (react-icons/fa): Ícones utilizados na interface para representar ações como análise, limpar, exportar PDF e parar transcrição.
- * - `RiPlayList2Fill` (react-icons/ri): Ícone utilizado para representar o botão de iniciar transcrição.
- * - `useParams` (next/navigation): Hook do Next.js App Router utilizado para capturar parâmetros da URL, como o identificador da sala.
- */
+
 
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
@@ -19,27 +11,12 @@ import { showErrorMessage, showInfoMessage } from "@/app/util/messages";
 import Notiflix from "notiflix";
 import PopupAjuda from "./modalInfo";
 
-
-/**
- * Interface para definir as propriedades do componente `LiveTranscription`.
- *
- * - `mensagem`: Mensagem a ser exibida no componente.
- * - `usuario`: Nome do usuário que está falando.
- * - `sala`: Identificador da sala de reunião.
- * 
- * @interface LiveTranscriptionProps
- * @property {string} mensagem - Mensagem a ser exibida no componente.
- * @property {string} usuario - Nome do usuário que está falando.
- * @property {string} sala - Identificador da sala de reunião.
- */
+//interface de transcrição
 interface LiveTranscriptionProps {
   mensagem: string;
   usuario: string;
   sala: string
 }
-
-
-
 
 
 export default function LiveTranscription({ usuario, mensagem, sala }: LiveTranscriptionProps) {
@@ -328,35 +305,11 @@ export default function LiveTranscription({ usuario, mensagem, sala }: LiveTrans
         <div className="pb-1">
 
 
-          {/*           <button
-            onClick={handleClearTranscription}
-            className="bg-blue-500 text-white px-4 py-2 ml-1 rounded-md hover:bg-blue-600 transition"
-            title="Limpar Transcrição"
-          >
-            <FaEraser size={10} />
-          </button>
- */}
 
-
-          {/*           <button
-            onClick={handleSavePDF}
-            className="bg-yellow-500 text-white px-4 py-2 ml-1 rounded-md hover:bg-yellow-600 transition"
-            title="Salvar PDF"
-          >
-            <FaFilePdf size={10} />
-          </button>
- */}
 
         </div>
 
-        {/* 
-        <button
-          onClick={() => handleGetInsights(transcription)}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-md ml-1 hover:bg-yellow-600 transition"
-          title="Análise"
-        >
-          <FaBrain size={10} />
-        </button> */}
+    
 
 
         {!listening ? (

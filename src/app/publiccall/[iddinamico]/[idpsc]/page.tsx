@@ -1,15 +1,6 @@
 'use client';
 
 
-/**
- * Importações necessárias para o funcionamento do componente de videochamada:
- *
- * - `useEffect`, `useRef`, `useState`: Hooks do React para lidar com estado, referências e efeitos colaterais.
- * - `useParams`: Hook do Next.js para acessar os parâmetros da URL.
- * - `Peer`, `MediaConnection`: Componentes da biblioteca PeerJS para estabelecer conexões P2P de áudio/vídeo.
- * - `LiveTranscription`: Componente personalizado responsável pela transcrição ao vivo da conversa.
- * - Ícones (`Mic`, `MicOff`, `Video`, `VideoOff`, `LogOut`): Ícones da biblioteca Lucide para representar os controles da interface.
- */
 
 import { use, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
@@ -189,8 +180,6 @@ const toggleVideo = () => {
 };
 
 
-
-
 //desliga a chamada
   const endCall = () => {
     setMsg('');
@@ -273,17 +262,6 @@ const toggleVideo = () => {
           Você
         </div>
       </div>
-
-
-      {/* Transcription Area */}
-      <div className="mt-4 bg-gray-800 rounded-lg p-4 h-[150px] overflow-y-auto ">
-        <LiveTranscription
-          usuario={'Paciente'}
-          mensagem={transcription}
-          sala={iddinamico as string}
-        />
-      </div>
-
       {/* Control Buttons */}
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 bg-gray-800/80 p-3 rounded-full backdrop-blur-sm">
         <button
@@ -330,7 +308,7 @@ const toggleVideo = () => {
         usuario={"Paciente"}
         mensagem={transcription}
         sala={iddinamico as string}
-      />
+      /> 
     </div>
   
     {/* Control Buttons */}
@@ -350,7 +328,6 @@ const toggleVideo = () => {
           <MicOff size={20} className="text-red-500" />
         )}
       </button>
-  
       <button
         className="p-3 rounded-full hover:bg-[#3D975B]/30 transition-colors"
         onClick={() => {
@@ -366,7 +343,6 @@ const toggleVideo = () => {
           <VideoOff size={20} className="text-red-500" />
         )}
       </button>
-  
       <button
         className="p-3 rounded-full hover:bg-red-600 transition-colors bg-red-500"
         onClick={endCall}
@@ -377,11 +353,4 @@ const toggleVideo = () => {
   </div>
   
   );
-
-
-
-
 }
-
-
-//testando
