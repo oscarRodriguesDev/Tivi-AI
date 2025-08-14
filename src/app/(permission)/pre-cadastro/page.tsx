@@ -270,37 +270,6 @@ const Cadastro = () => {
         }
     }
 
-    /**
-     * Componente de formulário para pré-cadastro de psicólogos no sistema Tivi AI.
-     *
-     * Este formulário coleta dados obrigatórios para análise da equipe, incluindo
-     * informações pessoais e profissionais como nome, CPF, CRP, e-mail, telefones,
-     * e data de nascimento. Os dados são validados (como idade e CPF) e enviados via
-     * requisição `POST` para a API interna (`/api/analize_psco`).
-     * 
-     * Funcionalidades:
-     * - Verifica se o usuário tem mais de 18 anos.
-     * - Valida o CPF no evento `onBlur`.
-     * - Permite definir DDI para telefones.
-     * - Oculta campo CFP, preenchendo automaticamente com o CRP.
-     * - Após submissão bem-sucedida, os campos são limpos.
-     * 
-     * @component
-     * @returns {JSX.Element} JSX do formulário de cadastro de psicólogos.
-     *
-     * @example
-     * return (
-     *   <FormularioCadastroPsicologo />
-     * )
-     *
-     * @sideEffects
-     * - Mostra alertas em casos de erro ou sucesso.
-     * - Redireciona para a página inicial ao cancelar.
-     * - Atualiza múltiplos estados locais com `useState`.
-     */
-
-    //teste
-
 
     return (
         <>
@@ -369,13 +338,21 @@ const Cadastro = () => {
                                 }} required />
 
                                 <label className="text-sm font-medium">E-mail:</label>
-                                <input type="email" className="border border-gray-300 rounded p-2" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={(e) => {
-                                    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                                    if (!regex.test(e.target.value)) {
-                                        showErrorMessage("Email inválido!");
-                                        setEmail("");
-                                    }
-                                }} required />
+                                <input type="email"
+                                    className="border border-gray-300 rounded p-2"
+                                    value={email} onChange={(e) => setEmail(e.target.value)}
+                                    onBlur={(e) => {
+                                        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                        if (!regex.test(e.target.value)) {
+                                            showErrorMessage("Email inválido!");
+                                            setEmail("");
+                                        }
+                                    }} required />
+                                <span className="text-sm text-gray-800 mt-1 block">
+                                    Usaremos este e-mail para enviar <span className="font-medium text-gray-700">notificações</span>,
+                                    <span className="font-medium text-gray-700">atualizações</span> e para
+                                    <span className="font-medium text-gray-700"> recuperação de acesso</span>.
+                                </span>
                             </div>
                         </div>
 

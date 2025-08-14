@@ -4,6 +4,8 @@ import { Psicologo } from '../../../../../../types/psicologos';
 import { showErrorMessage,showInfoMessage } from '@/app/util/messages';
 
 
+
+
 interface Props extends Psicologo {
   onClose: () => void;
 }
@@ -45,7 +47,9 @@ const AlteracaoSenha: React.FC<Props> = ({ id, email, nome, password, first_aces
         setSenhaAntiga('');
         setNovaSenha('');
         setRepetirSenha('');
-        showInfoMessage(sucesso)
+        showInfoMessage('Senha alterada com sucesso! Você será redirecionado em breve.');
+      
+
         setTimeout(() => onClose(), 2000); // Fecha após sucesso
       } 
     } catch (error) {
