@@ -44,7 +44,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     id: '',
     psicologoId: String(psicologo),
     fantasy_name: gerarCodigoAleatorio(),
-    name: '',
+    name: 'Consulta Avulsa',
     data: '',
     hora: '',
     tipo_consulta: '',

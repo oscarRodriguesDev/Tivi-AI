@@ -6,17 +6,20 @@ import { v4 as uuidv4 } from "uuid";
 import Peer, { MediaConnection } from "peerjs";
 import LiveTranscription from "../../dating/components/transcriptionPSC";;
 import HeadPage from "@/app/(private-access)/components/headPage";
-import { FaVideo } from "react-icons/fa";
-import { FcVideoCall, FcEndCall } from "react-icons/fc";
+import { FaMicrophone, FaMicrophoneSlash, FaVideo } from "react-icons/fa";
+import { FcEndCall, FcMissedCall } from "react-icons/fc";
+import { MdWifiCalling3 } from "react-icons/md";
 import { showErrorMessage } from "@/app/util/messages";
 import { useHistory } from "@/app/context/historyContext";
 import { useAccessControl } from "@/app/context/AcessControl";
 import { example1, example2, example3 } from '@/app/util/books';
 
+
 interface Livro {
   id: string
   resumo: string
 }
+
 
 
 const livromock = [
@@ -59,13 +62,40 @@ export default function Home() {
   const [isPsychologist, setIsPsychologist] = useState<boolean>(true);
   const [transcription, setTranscription] = useState<string>("");
   const { userID } = useAccessControl(); // id do psccologo logado
+  const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(true);
+  const [isVideoOn, setIsVideoOn] = useState<boolean>(true);
+
+  //função para ativar e desativar video
+  function toggleVideo(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    setIsVideoOn((prev) => {
+      const newState = !prev;
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getVideoTracks().forEach(track => {
+          track.enabled = newState;
+        });
+      }
+      return newState;
+    });
+  }
 
 
+  //vunção para ativar e desativar microfone
+  function toggleMicrophone(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    setIsMicrophoneOn((prev) => {
+      const newState = !prev;
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getAudioTracks().forEach(track => {
+          track.enabled = newState;
+        });
+      }
+      return newState;
+    });
+  }
 
 
-
-
- // Monitora o volume do microfone
+  // Monitora o volume do microfone
   const monitorMicrophone = (stream: MediaStream) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
@@ -203,11 +233,13 @@ export default function Home() {
 
 
 
-//realiza a transcrição
+  //realiza a transcrição
   const handleTranscription = (text: string, isPsychologist: boolean) => {
     const speaker = isPsychologist ? 'psicologo' : 'paciente';
     setTranscription(prevTranscription => prevTranscription + `\n${speaker}: ${text}`);
   };
+
+
 
 
 
@@ -245,22 +277,55 @@ export default function Home() {
           </div>
         </div>
 
+
         {/* Botões de ação */}
         <div className="absolute bottom-6 center-6 flex gap-4">
+          {/* botão para iniciar chamada */}
           <button
             onClick={callPeer}
-            className="bg-white hover:bg-blue-100 transition-colors p-3 rounded-full shadow-md"
+            className={`p-3 rounded-full shadow-md transition-all duration-200 
+    ${callActive ? "bg-[#117F43] hover:bg-green-700" : "bg-gray-200 hover:bg-gray-300"} 
+    hover:scale-105 active:scale-95`}
           >
-            <FcVideoCall size={28} />
+            <MdWifiCalling3 size={22} color={callActive ? "white" : "black"} />
           </button>
 
+          {/* botão para encerrar chamada */}
           <button
             onClick={endCall}
-            className="bg-white hover:bg-red-100 transition-colors p-3 rounded-full shadow-md"
+            className={`p-3 rounded-full shadow-md transition-all duration-200 
+    ${callActive ? "bg-red-500 hover:bg-red-600" : "bg-gray-200 hover:bg-red-300"} 
+    hover:scale-105 active:scale-95`}
           >
-            <FcEndCall size={28} />
+            <FcEndCall size={22} />
+          </button>
+
+          {/* toggle microfone */}
+          <button
+            onClick={toggleMicrophone}
+            className={`p-3 rounded-full shadow-md transition-all duration-200 
+    ${isMicrophoneOn ? "bg-[#117F43] hover:bg-green-700" : "bg-gray-200 hover:bg-gray-300"} 
+    hover:scale-105 active:scale-95`}
+          >
+            {isMicrophoneOn ? (
+              <FaMicrophone size={22} color="white" />
+            ) : (
+              <FaMicrophoneSlash size={22} color="black" />
+            )}
+          </button>
+
+          {/* toggle vídeo */}
+          <button
+            onClick={toggleVideo}
+            className={`p-3 rounded-full shadow-md transition-all duration-200 
+    ${isVideoOn ? "bg-[#117F43] hover:bg-green-700" : "bg-gray-200 hover:bg-gray-300"} 
+    hover:scale-105 active:scale-95`}
+          >
+            <FaVideo size={22} color={isVideoOn ? "white" : "black"} />
           </button>
         </div>
+
+
 
         {/* Transcrição ao lado superior direito */}
         <div className="absolute top-6 right-6 w-[300px] max-h-[300px] bg-white bg-opacity-80 rounded-lg p-4 shadow-lg overflow-y-auto">

@@ -439,7 +439,7 @@ export default function AgendamentoPage() {
                 
               }
               agendamentos={agendamentos}
-              onEdit={(agendamentos) => { handleEditar(agendamentos.id) }}
+              onEdit={(agendamentos) => { handleEditar(agendamentos) }}
               onDelete={(agendamentos) => { handleDeletar(agendamentos.id) }}
             />
 
