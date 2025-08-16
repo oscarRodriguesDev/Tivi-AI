@@ -6,7 +6,7 @@ type ModelPrices = {
   output: number; // preço por 1k tokens (saída)
 };
 
-export const prices: Record<string, ModelPrices> = {
+const prices: Record<string, ModelPrices> = {
   // --- GPT-3.5 ---
   "gpt-3.5-turbo": { input: 0.00050, output: 0.00150 },
 
