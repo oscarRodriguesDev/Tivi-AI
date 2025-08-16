@@ -19,6 +19,7 @@ export async function POST(req: Request) {
   const prompt = resumeBook(titulo, autor);
   try {
     const completion = await openai.chat.completions.create({
+    /*   model: "gpt-4o-mini", */
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.2,

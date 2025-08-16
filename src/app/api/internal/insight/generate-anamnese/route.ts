@@ -21,6 +21,7 @@ export async function POST(req: Request) {
   const promptMessage = `${generateAnamnese(responses)} `;
    try {
     const completion = await openai.chat.completions.create({
+        /*   model: "gpt-4o-mini", */
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: promptMessage }],
       temperature: 0.2,
