@@ -4,7 +4,7 @@ export const convertToCredits = (amountInBRL: number): number => {
   };
   
   export const convertToBRL = (credits: number): number => {
-    const rate = 9.97;
+    const rate = 2.50;
     console.log(rate);
     return credits / rate;
   };

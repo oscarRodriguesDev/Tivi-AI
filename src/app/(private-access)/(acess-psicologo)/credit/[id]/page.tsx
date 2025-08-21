@@ -5,13 +5,17 @@ import { FaRegCreditCard, FaCoins, FaArrowUp, FaArrowDown } from "react-icons/fa
 import HeadPage from "@/app/(private-access)/components/headPage"
 import { convertToCredits, convertToBRL } from "@/app/util/credits"
 import PaymentModal from "./components/modal-recharg"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const Creditos = () => {
   const { role } = useAccessControl()
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduto, setSelectedProduto] = useState<Produto | null>(null)
+  const [loadingProdutos, setLoadingProdutos] = useState<boolean>(true)
+  const [erroProdutos, setErroProdutos] = useState<string | null>(null)
+  const [produtosList, setProdutosList] = useState<Produto[]>([])
+
 
   const creditos = {
     saldo: 120, // em reais
@@ -22,21 +26,42 @@ const Creditos = () => {
   interface Produto {
     codigo: string
     titulo: string
-    descrição: string
-    preço: number
+    descricao: string
+    preco: number
     quantidade: number
   }
 
-  const produtos: Produto[] = [
-    { codigo: "p1", titulo: `Pacote ${convertToCredits(100)} Créditos`, descrição: "Ideal para consultas rápidas", preço: convertToBRL(100), quantidade: 1 },
-    { codigo: "p2", titulo: `Pacote ${convertToCredits(500)} Créditos`, descrição: "Mais econômico", preço: convertToBRL(500), quantidade: 1 },
-    { codigo: "p3", titulo: `Pacote ${convertToCredits(1000)} Créditos`, descrição: "Para uso contínuo", preço: convertToBRL(1000), quantidade: 1 },
-  ]
 
   const handleComprar = (produto: Produto) => {
-    setSelectedProduto(produto)
+
     setIsModalOpen(true)
+    setSelectedProduto(produto)
+
   }
+
+
+
+
+  useEffect(() => {
+    const fetchProdutos = async () => {
+      setLoadingProdutos(true)
+      setErroProdutos(null)
+      try {
+        const res = await fetch("/api/internal/products/")
+        if (!res.ok) {
+          throw new Error("Erro ao buscar produtos")
+        }
+        const data = await res.json()
+        setProdutosList(data)
+        console.log(produtosList)
+      } catch (err: any) {
+        setErroProdutos(err.message || "Erro ao buscar produtos")
+      } finally {
+        setLoadingProdutos(false)
+      }
+    }
+    fetchProdutos()
+  }, [])
 
   return (
     <>
@@ -44,10 +69,13 @@ const Creditos = () => {
 
       {role === 'PSYCHOLOGIST' ? (
         <div className="m-4 bg-white rounded-2xl shadow-lg p-6">
-          <PaymentModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
+          {selectedProduto && (
+            <PaymentModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              produto={selectedProduto}
+            />
+          )}
 
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Resumo de Créditos</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-700">
@@ -80,24 +108,43 @@ const Creditos = () => {
 
           {/* LISTA DE PRODUTOS */}
           <h3 className="text-lg font-semibold text-gray-800 mt-8 mb-4">Escolha um pacote de créditos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {produtos.map((produto) => (
+
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {produtosList.map((produto) => (
               <div
                 key={produto.codigo}
-                className="border border-gray-200 rounded-xl p-4 shadow hover:shadow-lg transition cursor-pointer"
+                className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-transform transform hover:-translate-y-2 cursor-pointer flex flex-col items-center text-center p-6 border border-gray-100"
               >
-                <h4 className="text-md font-bold text-gray-800">{produto.titulo}</h4>
-                <p className="text-sm text-gray-600 mb-2">{produto.descrição}</p>
-                <p className="text-lg font-semibold text-[#127B42] mb-3">R$ {produto.preço.toFixed(2)}</p>
+
+
+                {/* Título */}
+                <h4 className="text-xl font-extrabold text-gray-900 mb-2">{produto.titulo}</h4>
+
+                {/* Quantidade de créditos */}
+                <div className="text-green-600 font-bold text-2xl mb-2">{produto.quantidade} Créditos</div>
+
+                {/* Descrição */}
+                <p className="text-gray-500 text-sm mb-4">{produto.descricao}</p>
+
+                {/* Preço */}
+                <div className="bg-gray-100 w-full rounded-xl py-3 mb-6">
+                  <span className="text-xl font-bold text-gray-800">R$ {produto.preco.toFixed(2)}</span>
+                </div>
+
+                {/* Botão Comprar */}
                 <button
                   onClick={() => handleComprar(produto)}
-                  className="w-full bg-[#127B42] hover:bg-[#0f6134] text-white font-medium py-2 rounded-lg transition"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-200"
                 >
                   Comprar
                 </button>
               </div>
             ))}
           </div>
+
+
+
         </div>
       ) : (
         <div className="flex justify-center items-center h-screen text-gray-600">

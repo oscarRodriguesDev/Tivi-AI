@@ -30,7 +30,7 @@ const CardUser = () => {
 
     const fetchFotoPerfil = async () => {
       try {
-        const response = await fetch(`/api/uploads/profile/?userId=${userId}`);
+        const response = await fetch(`/api/internal/uploads/profile/?userId=${userId}`);
         const data = await response.json();
 
         if (data?.url) {

@@ -6,7 +6,7 @@ import { LuLibraryBig } from "react-icons/lu";
 import { BsCreditCard2BackFill } from "react-icons/bs";
 import { PiUserCheckFill } from "react-icons/pi";
 import { FaSadTear } from "react-icons/fa";
-import { GrUserAdmin } from "react-icons/gr";
+import { GrUserAdmin, GrDiamond } from "react-icons/gr";
 import { BsCalendarCheckFill } from "react-icons/bs";
 import { FaHourglassHalf } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
@@ -58,12 +58,15 @@ const Menu: React.FC = () => {
             <MenuItem icon={<LuLibraryBig size={22} />} label="Base Científica" onClick={() => router.push(`/cientific/${id}`)} />
             <MenuItem icon={<BsCreditCard2BackFill size={22} />} label="Créditos" onClick={() => router.push(`/credit/${id}`)} />
             <MenuItem icon={<FaHourglassHalf size={22} />} label="Link Temporário" onClick={() => router.push(`/temp-link/${id}`)} />
+           
           </>
         ) : (
           <>
             <MenuItem icon={<MdSpaceDashboard size={22} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
             <MenuItem icon={<PiUserCheckFill size={22} />} label="Novos Psicólogos" onClick={() => router.push('/aprove-psc')} />
             <MenuItem icon={<GrUserAdmin size={22} />} label="Novo Administrador" onClick={() => router.push('/novo_admin')} />
+            <MenuItem icon={<GrDiamond size={22} />} label="Novo Produto" onClick={() => router.push(`/product-create/${id}`)} />
+           
           </>
         )}
       </nav>

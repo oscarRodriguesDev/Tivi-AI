@@ -34,7 +34,7 @@ const AlteracaoSenha: React.FC<Props> = ({ id, email, nome, password, first_aces
         first_acess: false,
         password: senhaCriptografada,
       };
-      const response = await fetch(`/api/user-profile`, {
+      const response = await fetch(`/api/internal/user-profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

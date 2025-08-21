@@ -22,8 +22,8 @@ interface CreditCardData {
   interface Produto{
       codigo:string;
       titulo: string;
-      descrição: string;
-      preço: number 
+      descricao: string;
+      preco: number 
       quantidade: number,
   
   }

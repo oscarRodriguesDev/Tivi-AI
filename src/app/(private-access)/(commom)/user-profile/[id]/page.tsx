@@ -28,7 +28,7 @@ const Perfil = () => {
     //busca de dados
     async function fetchUserData(userId: string) {
         try {
-            const res = await fetch(`/api/user-profile?id=${userId}`);
+            const res = await fetch(`/api/internal/user-profile?id=${userId}`);
             if (!res.ok) {
                 throw new Error("Erro ao buscar dados do usuário");
             }
@@ -81,7 +81,7 @@ const Perfil = () => {
             const fileData = new FormData();
             fileData.append("file", file);
     
-            const res = await fetch(`/api/uploads/profile/?path=profile-pictures&id=${id}`, {
+            const res = await fetch(`/api/internal/uploads/profile/?path=profile-pictures&id=${id}`, {
                 method: "POST",
                 body: fileData,
             });
@@ -112,7 +112,7 @@ const Perfil = () => {
             fileData.append("file", file);
             alert(id)
     
-            const res = await fetch(`/api/uploads/profile/?path=banner&id=${id}`, {
+            const res = await fetch(`/api/internal/uploads/profile/?path=banner&id=${id}`, {
                 method: "POST",
                 body: fileData,
             });
@@ -140,7 +140,7 @@ const Perfil = () => {
             const { id, ...restOfFormData } = formData;
             const payload = { id: psicologo?.id, ...restOfFormData };
     
-            const res = await fetch(`/api/user-profile`, {
+            const res = await fetch(`/api/internal/user-profile`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

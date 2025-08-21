@@ -1,10 +1,11 @@
-import { showInfoMessage } from "@/app/util/messages";
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
 import { useState } from "react";
-import { CreditCardData,Produto } from "../../../../../../../types/paymentsTypes";
+import { CreditCardData, Produto } from "../../../../../../../types/paymentsTypes";
 
 type PaymentModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  produto: Produto
 
 };
 
@@ -12,7 +13,7 @@ type PaymentModalProps = {
 
 type PixData = Record<string, any>; // se quiser campos extras futuramente
 
-export default function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
+export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card">("pix");
   const [pixData, setPixData] = useState<PixData>({});
   const [creditData, setCreditData] = useState<CreditCardData>({
@@ -21,45 +22,66 @@ export default function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
     expMonth: "",
     expYear: "",
     cvv: "",
-    name:"",
-    email:"",
-    cpf:"",
-    rua:"",
-    numero:"",
-    bairro:"",
-    cidade:"",
-    estado:"",
-    cep:"",
-    ddi:"",
-    ddd:"",
-    telefone:"",
+    name: "",
+    email: "",
+    cpf: "",
+    rua: "",
+    numero: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+    cep: "",
+    ddi: "",
+    ddd: "",
+    telefone: "",
   });
 
-  const [produtoData,setProdutoData] = useState<Produto>({
-    codigo:'',
-    titulo: '',
-    descrição: '',
-    preço: 0, 
-    quantidade: 0,
-  });
+
 
   if (!isOpen) return null;
 
   const handleSubmit = () => {
     if (paymentMethod === "pix") {
-        //handleAdicionarPix()
-      showInfoMessage('rotina de pagamento por pix')
+      //handleAdicionarPix()
+   
     } else {
-        //handleAdicionarCreditos()
-     showInfoMessage('rotina de pagamento por cartão de credito')
+    
+      handleAdicionarCreditos()
     }
   };
+
+
+  // Função para limpar todos os campos do formulário e garantir que não haja cache dos dados digitados
+  function clearFormFields() {
+    setPixData({});
+    setCreditData({
+      cardNumber: "",
+      holderName: "",
+      expMonth: "",
+      expYear: "",
+      cvv: "",
+      name: "",
+      email: "",
+      cpf: "",
+      rua: "",
+      numero: "",
+      bairro: "",
+      cidade: "",
+      estado: "",
+      cep: "",
+      ddi: "",
+      ddd: "",
+      telefone: "",
+    });
+    // Se houver outros campos de estado relacionados ao formulário, limpe-os aqui também
+  }
+
 
 
   //pagamento pix
   async function createPixPayment() {
     try {
-      const response = await fetch('/api/payments/pix', {
+      const response = await fetch('/api/internal/payments/pix', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -85,86 +107,96 @@ export default function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
           ]
         })
       });
-  
+
       const data = await response.json();
-  
+
       if (!data.success) {
         console.error('Erro ao criar pagamento PIX:', data.error);
         return;
       }
-  
+
       const payment = data.order.payments?.[0]; // protege se payments existir
       const pix = payment?.pix; // protege se pix existir
-  
+
       if (!pix) {
         console.error("Não foi possível obter os dados do PIX da order:", data.order);
         return;
       }
-  
+
       console.log("QR Code Base64:", pix.qr_code);
       console.log("Payload do PIX:", pix.qr_code_payload);
-  
-      // Aqui você pode exibir no frontend:
-      // <img src={`data:image/png;base64,${pix.qr_code}`} />
-      // ou mostrar o código para copiar: pix.qr_code_payload
-  
+
+
+
     } catch (err) {
       console.error('Erro ao chamar API PIX:', err);
+    }
+  }
+
+
+
+
+  async function createPaymentCreditCard() {
+    try {
+      const response = await fetch("/api/internal/payments/credit-card", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          card_number: creditData.cardNumber,
+          card_holder_name: creditData.holderName,
+          card_expiration_date: creditData.expMonth + creditData.expYear, // MMYY
+          card_cvv: creditData.cvv,
+          customer: {
+            name: creditData.name,
+            email: creditData.email,
+            document: creditData.cpf,
+            type: "individual",
+            address: {
+              street: creditData.rua,
+              number: creditData.numero,
+              neighborhood: creditData.bairro,
+              city: creditData.cidade,
+              state: creditData.estado,
+              zipCode: creditData.cep,
+            },
+            phones: [
+              {
+                countryCode: creditData.ddi,
+                areaCode: creditData.ddd,
+                number: creditData.telefone
+              },
+            ],
+          },
+          items: [
+            { code: produto.codigo, title: produto.titulo, description: produto.descricao, unit_price: produto.preco, quantity: produto.quantidade },
+          ],
+        }),
+      
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        showSuccessMessage("✅ Pagamento realizado com sucesso!");
+        console.log("Pagamento aprovado:", data);
+        clearFormFields()
+        return data;
+      } else {
+        showErrorMessage("❌ Falha no pagamento: " + (data.message || "Erro desconhecido"));
+        console.error("Erro no pagamento:", data);
+        return null;
+      }
+    } catch (error) {
+      console.error("Erro de rede:", error);
+      showErrorMessage("❌ Ocorreu um erro ao processar o pagamento.");
+      return null;
     }
   }
   
 
 
   //pagamento credit cart
-  async function createPaymentCreditCard() {
-    const response = await fetch("/api/payments/credit-card", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        card_number:creditData.cardNumber,
-        card_holder_name:creditData.holderName,
-        card_expiration_date: creditData.expMonth+creditData.expYear, // MMYY
-        card_cvv: creditData.cvv,
-        customer: {
-          name: creditData.name,
-          email:creditData.email,
-          document: creditData.cpf,
-          type: "individual",
-          address: {
-            street: creditData.rua,
-            number:creditData.numero,
-            neighborhood:creditData.bairro,
-            city: creditData.cidade,
-            state: creditData.estado,
-            zipCode: creditData.cep,
-          },
-          phones: [
-            { 
-                countryCode: creditData.ddi,
-                 areaCode: creditData.ddd,
-                  number: creditData.telefone},
-          ],
-        },
-        items: [
-          {
-            code: produtoData.codigo,
-            title: produtoData.titulo,
-            description: produtoData.descrição,
-            unit_price:produtoData.preço, 
-            quantity:produtoData.quantidade,
-          },
-        ],
-      }),
-    });
-  
-    const data = await response.json();
-    console.log("🔎 Resposta do backend:", data);
-  }
-
-
-
-//pagamento credit cart
-const handleAdicionarCreditos = async () => {
+  const handleAdicionarCreditos = async () => {
     await createPaymentCreditCard()
     //chamar a api de pagamentos para gerenciar creditos
   }
@@ -178,53 +210,104 @@ const handleAdicionarCreditos = async () => {
 
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
-    <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 animate-fadeIn">
-      {/* Cabeçalho */}
-      <h2 className="text-2xl font-semibold text-black mb-6 text-center">
-        💳 Realizar Pagamento
-      </h2>
-  
-      {/* Seletor */}
-      <div className="mb-6">
-        <label className="block mb-2 text-sm font-medium text-black">
-          Método de Pagamento
-        </label>
-        <select
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value as "pix" | "credit_card")}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#127B42]"
-        >
-          <option value="pix">PIX</option>
-          <option value="credit_card">Cartão de Crédito</option>
-        </select>
+<div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+  <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 animate-fadeIn">
+    {/* Cabeçalho */}
+    <h2 className="text-2xl font-semibold text-black mb-6 text-center">
+      💳 Realizar Pagamento
+    </h2>
+
+    {/* Seletor */}
+    <div className="mb-6">
+      <label className="block mb-2 text-sm font-medium text-black">
+        Método de Pagamento
+      </label>
+      <select
+        value={paymentMethod}
+        onChange={(e) => setPaymentMethod(e.target.value as "pix" | "credit_card")}
+        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#127B42]"
+      >
+        <option value="pix">PIX</option>
+        <option value="credit_card">Cartão de Crédito</option>
+      </select>
+    </div>
+
+    {/* PIX */}
+    {paymentMethod === "pix" && (
+      <div className="mb-6 text-center">
+        <p className="text-black text-sm">
+          O pagamento será realizado via{" "}
+          <span className="font-semibold text-[#127B42]">PIX</span>.
+          Após confirmar, um QR Code será gerado para finalização da compra.
+        </p>
       </div>
-  
-      {/* PIX */}
-      {paymentMethod === "pix" && (
-        <div className="mb-6 text-center">
-          <p className="text-black text-sm">
-            O pagamento será realizado via{" "}
-            <span className="font-semibold text-[#127B42]">PIX</span>.  
-            Após confirmar, um QR Code será gerado para finalização da compra.
-          </p>
-        </div>
-      )}
-  
-      {/* Cartão */}
-      {paymentMethod === "credit_card" && (
-        <div className="space-y-4 mb-6">
-          <h3 className="text-lg font-medium text-black">Dados de Endereço</h3>
-          <div>
+    )}
+
+    {/* Cartão */}
+    {paymentMethod === "credit_card" && (
+      <div className="space-y-4 mb-6">
+        <h3 className="text-lg font-medium text-black">Dados Pessoais</h3>
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={creditData.name}
+            onChange={(e) => setCreditData({ ...creditData, name: e.target.value })}
+            placeholder="Nome"
+            className="w-full border border-gray-300 rounded-lg p-3"
+          />
+
+          <input
+            type="text"
+            value={creditData.cpf}
+            onChange={(e) => setCreditData({ ...creditData, cpf: e.target.value })}
+            placeholder="CPF"
+            className="w-full border border-gray-300 rounded-lg p-3"
+          />
+
+          <input
+            type="text"
+            value={creditData.email}
+            onChange={(e) => setCreditData({ ...creditData, email: e.target.value })}
+            placeholder="email"
+            className="w-full border border-gray-300 rounded-lg p-3"
+          />
+
+          {/* Telefone separado em DDI, DDD e número */}
+          <div className="flex gap-3">
             <input
               type="text"
-              value={creditData.rua}
-              onChange={(e) => setCreditData({ ...creditData, rua: e.target.value })}
-              placeholder="Rua"
-              className="w-full border border-gray-300 rounded-lg p-3"
+              value={creditData.ddi}
+              onChange={(e) => setCreditData({ ...creditData, ddi: e.target.value })}
+              placeholder="DDI"
+              className="w-20 border border-gray-300 rounded-lg p-3"
+            />
+            <input
+              type="text"
+              value={creditData.ddd}
+              onChange={(e) => setCreditData({ ...creditData, ddd: e.target.value })}
+              placeholder="DDD"
+              className="w-20 border border-gray-300 rounded-lg p-3"
+            />
+            <input
+              type="text"
+              value={creditData.telefone}
+              onChange={(e) => setCreditData({ ...creditData, telefone: e.target.value })}
+              placeholder="Telefone"
+              className="flex-1 border border-gray-300 rounded-lg p-3"
             />
           </div>
-  
+        </div>
+
+        <h3 className="text-lg font-medium text-black">Dados de Endereço</h3>
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={creditData.rua}
+            onChange={(e) => setCreditData({ ...creditData, rua: e.target.value })}
+            placeholder="Rua"
+            className="w-full border border-gray-300 rounded-lg p-3"
+          />
+
           <div className="flex gap-3">
             <input
               type="text"
@@ -241,7 +324,7 @@ const handleAdicionarCreditos = async () => {
               className="flex-1 border border-gray-300 rounded-lg p-3"
             />
           </div>
-  
+
           <div className="flex gap-3">
             <input
               type="text"
@@ -258,7 +341,7 @@ const handleAdicionarCreditos = async () => {
               className="w-24 border border-gray-300 rounded-lg p-3"
             />
           </div>
-  
+
           <input
             type="text"
             value={creditData.cep}
@@ -266,9 +349,10 @@ const handleAdicionarCreditos = async () => {
             placeholder="CEP"
             className="w-full border border-gray-300 rounded-lg p-3"
           />
-  
-          <h3 className="text-lg font-medium text-black">Dados do Cartão</h3>
-  
+        </div>
+
+        <h3 className="text-lg font-medium text-black">Dados do Cartão</h3>
+        <div className="space-y-3">
           <input
             type="text"
             value={creditData.cardNumber}
@@ -276,7 +360,7 @@ const handleAdicionarCreditos = async () => {
             placeholder="Número do Cartão"
             className="w-full border border-gray-300 rounded-lg p-3"
           />
-  
+
           <input
             type="text"
             value={creditData.holderName}
@@ -284,7 +368,7 @@ const handleAdicionarCreditos = async () => {
             placeholder="Nome do Titular"
             className="w-full border border-gray-300 rounded-lg p-3"
           />
-  
+
           <div className="flex gap-3">
             <input
               type="text"
@@ -309,26 +393,26 @@ const handleAdicionarCreditos = async () => {
             />
           </div>
         </div>
-      )}
-  
-      {/* Botões */}
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={onClose}
-          className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-black font-medium transition"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={handleSubmit}
-          className="px-5 py-2 rounded-lg bg-[#127B42] hover:bg-[#0f6134] text-white font-semibold transition"
-        >
-          Confirmar Pagamento
-        </button>
       </div>
+    )}
+
+    {/* Botões */}
+    <div className="flex justify-end gap-3 sticky bottom-0 bg-white pt-4">
+      <button
+        onClick={onClose}
+        className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-black font-medium transition"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={handleSubmit}
+        className="px-5 py-2 rounded-lg bg-[#127B42] hover:bg-[#0f6134] text-white font-semibold transition"
+      >
+        Confirmar Pagamento
+      </button>
     </div>
   </div>
-  
-  
+</div>
+
   );
 }

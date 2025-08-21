@@ -109,7 +109,7 @@ const BaseCientifica = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const response = await fetch("/api/uploads/capa?path=capa-livro", {
+      const response = await fetch("/api/internal/uploads/capa?path=capa-livro", {
         method: "POST",
         body: formData,
       });
@@ -233,7 +233,7 @@ const BaseCientifica = () => {
 
     setSavingPrompt(true);
     try {
-      const response = await fetch("/api/uploads/doc-model", {
+      const response = await fetch("/api/internal/uploads/doc-model", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -264,7 +264,7 @@ const BaseCientifica = () => {
     }
 
     try {
-      const response = await fetch(`/api/uploads/doc-model?psicologoId=${id}`);
+      const response = await fetch(`/api/internal/uploads/doc-model?psicologoId=${id}`);
       if (!response.ok) throw new Error();
       return await response.json();
     } catch (err) {
@@ -284,7 +284,7 @@ const BaseCientifica = () => {
     if (!confirm("Tem certeza que deseja deletar este documento?")) return;
 
     try {
-      const response = await fetch(`/api/uploads/doc-model?docId=${docId}`, {
+      const response = await fetch(`/api/internal/uploads/doc-model?docId=${docId}`, {
         method: "DELETE",
       });
 

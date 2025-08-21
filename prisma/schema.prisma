@@ -230,3 +230,16 @@ model Historico {
   tipo        String?   @default("geral")
   timestamp   DateTime? @default(now())
 }
+
+//produtos que serão vendidos, apensa adm podem criar produtos
+model Produto {
+  id         String   @id @default(uuid())
+  codigo     String   @unique
+  titulo     String
+  descricao  String
+  preco      Float
+  valorUn    Float
+  quantidade Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
