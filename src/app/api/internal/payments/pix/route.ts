@@ -1,6 +1,9 @@
 // src/app/api/payments/charge/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
+
+
+/* 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -16,43 +19,47 @@ export async function POST(req: NextRequest) {
       0
     );
 
+
     const orderData = {
       customer: {
         ...customer,
         address: {
           ...customer.address,
-          zip_code: customer.address.zipCode, // converter para snake_case
-          country: "BR"
+          zip_code: customer.address.zipCode,
+          country: "BR",
         },
         phones: {
-          mobile_phone: customer.phones[0]
+          mobile_phone: customer.phones?.[0]
             ? {
-                country_code: customer.phones[0].countryCode,
-                area_code: customer.phones[0].areaCode,
-                number: customer.phones[0].number
-              }
-            : undefined
+              country_code: customer.phones[0].countryCode,
+              area_code: customer.phones[0].areaCode,
+              number: customer.phones[0].number,
+            }
+            : undefined,
         },
-        metadata: {}
+        metadata: {},
       },
       items: items.map((i: any) => ({
         code: i.code,
         description: i.description || i.title || "Produto",
         quantity: i.quantity,
-        amount: i.unit_price || i.price
+        amount: (i.unit_price || i.price) * 1,
       })),
       payments: [
         {
           payment_method: "pix",
           amount: totalAmount,
           pix: {
-            expires_in: 3600 // QR Code válido por 1 hora
+            expires_in: 3600
           }
         }
       ],
-      //closed: false
+      closed: false,
     };
-    
+
+
+
+
     const orderResponse = await fetch("https://api.pagar.me/core/v5/orders", {
       method: "POST",
       headers: {
@@ -81,8 +88,90 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("Erro na rota /payments/pix:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
-  } 
+  }
 }
+
+ */
+
+// /pages/api/internal/payments/pix.ts
+
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { customer, items } = body;
+
+    if (!customer || !items || !items.length) {
+      return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
+    }
+
+    const totalAmount = items.reduce(
+      (sum: number, i: any) => sum + (i.unit_price || i.price) * 100 * i.quantity,
+      0
+    );
+
+    const orderData = {
+      customer: {
+        ...customer,
+        address: {
+          ...customer.address,
+          zip_code: customer.address.zipCode,
+          country: "BR",
+        },
+        phones: {
+          mobile_phone: customer.phones?.[0]
+            ? {
+                country_code: customer.phones[0].countryCode,
+                area_code: customer.phones[0].areaCode,
+                number: customer.phones[0].number,
+              }
+            : undefined,
+        },
+        metadata: {},
+      },
+      items: items.map((i: any) => ({
+        code: i.code,
+        description: i.description || i.title || "Produto",
+        quantity: i.quantity,
+        amount: (i.unit_price || i.price) * 100,
+      })),
+      payments: [
+        {
+          payment_method: "pix",
+          amount: totalAmount,
+          pix: { expires_in: 3600 }, // 1 hora
+        },
+      ],
+      environment: "simulator",
+      closed:false // obrigatório para teste PIX
+    };
+
+    const orderResponse = await fetch("https://api.pagar.me/core/v5/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${Buffer.from(`${process.env.PAGARME_API_KEY}:`).toString(
+          "base64"
+        )}`,
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    const orderResult = await orderResponse.json();
+
+    if (!orderResponse.ok) {
+      return NextResponse.json({ error: orderResult }, { status: orderResponse.status });
+    }
+
+    return NextResponse.json({ success: true, order: orderResult });
+  } catch (err: any) {
+    console.error("Erro na rota /payments/pix:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+
+
 
 
 // Método GET apenas para testar se a API está funcionando

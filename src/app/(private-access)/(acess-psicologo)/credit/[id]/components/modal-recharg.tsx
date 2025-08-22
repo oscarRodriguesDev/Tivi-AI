@@ -1,6 +1,7 @@
 import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
 import { useState } from "react";
 import { CreditCardData, Produto } from "../../../../../../../types/paymentsTypes";
+import QRCode from "qrcode";
 
 type PaymentModalProps = {
   isOpen: boolean;
@@ -42,7 +43,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
 
   const handleSubmit = () => {
     if (paymentMethod === "pix") {
-      //handleAdicionarPix()
+      handleAdicionarPix()
    
     } else {
     
@@ -77,7 +78,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
   }
 
 
-
+/* 
   //pagamento pix
   async function createPixPayment() {
     try {
@@ -133,8 +134,250 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
     }
   }
 
+   */
 
 
+/*   
+  async function createPixPayment() {
+    try {
+      const response = await fetch('/api/internal/payments/pix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: {
+            name: "João Silva",
+            email: "joao@test.com",
+            document: "06230124645",
+            type: "individual",
+            address: {
+              street: "Rua A",
+              number: "123",
+              neighborhood: "Bairro Teste",
+              city: "São Paulo",
+              state: "SP",
+              zipCode: "01001000"
+            },
+            phones: [
+              { countryCode: "55", areaCode: "11", number: "999999999" }
+            ]
+          },
+          items: [
+            { code: "001", title: "Produto Teste", description: "Descrição do produto", unit_price: 100, quantity: 1 }
+          ],
+          payments: [
+            {
+              payment_method: "pix",
+              pix: {
+                expires_in: 3600 // 1h de validade do QR Code
+              }
+            }
+          ]
+        })
+        
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        console.error('Erro ao criar pagamento PIX:', data.error);
+        return;
+      }
+
+      const payment = data.order.payments?.[0]; // protege se payments existir
+      const pix = payment?.pix; // protege se pix existir
+
+      if (!pix) {
+        console.error("Não foi possível obter os dados do PIX da order:", data.order);
+        console.log("Detalhes do erro PIX:", data.order.charges?.[0]?.last_transaction?.gateway_response?.errors);
+
+
+        return;
+      }
+
+      console.log("QR Code Base64:", pix.qr_code);
+      console.log("Payload do PIX:", pix.qr_code_payload);
+
+
+
+    } catch (err) {
+      console.error('Erro ao chamar API PIX:', err);
+    }
+  }
+
+ */
+
+/* 
+  async function createPixPayment() {
+    try {
+      // 1️⃣ Chamada para criar a order PIX
+      const response = await fetch("/api/internal/payments/pix", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: {
+            name: "João Silva",
+            email: "joao@test.com",
+            document: "06230124645",
+            type: "individual",
+            address: {
+              street: "Rua A",
+              number: "123",
+              neighborhood: "Bairro Teste",
+              city: "São Paulo",
+              state: "SP",
+              zipCode: "01001000",
+            },
+            phones: [{ countryCode: "55", areaCode: "11", number: "999999999" }],
+          },
+          items: [
+            {
+              code: "001",
+              title: "Produto Teste",
+              description: "Descrição do produto",
+              unit_price: 100,
+              quantity: 1,
+            },
+          ],
+        }),
+      });
+  
+      const data = await response.json();
+      console.log('data',data);
+  
+      if (!data.success) {
+       alert('erro ao criar pagamento')
+        return;
+      }
+      
+  
+      // 2️⃣ Pegar os dados do PIX da order
+      const payment = data.order.payments?.[0];
+      const pix = payment?.pix;
+      console.log("", pix);
+  
+      if (!pix) {
+      alert("Não foi possível obter os dados do PIX da order: "+ data.order);
+     console.log(
+          "Detalhes do erro PIX: " +
+          data.order.charges?.[0]?.last_transaction?.gateway_response?.errors
+        );
+        return;
+      }
+  
+      let qrCodeBase64 = pix.qr_code;
+    
+      let payload = pix.qr_code_payload;
+  
+      // 3️⃣ Caso o Pagar.me não retorne QR Code, gerar via payload
+      if (!qrCodeBase64 && payload) {
+        qrCodeBase64 = await QRCode.toDataURL(payload);
+        console.log("", qrCodeBase64);
+      }
+  
+      // 4️⃣ Exibir QR Code e payload
+      console.log("QR Code Base64:", qrCodeBase64);
+      console.log("Payload do PIX:", payload);
+  
+      // 5️⃣ Retornar objeto com dados do PIX
+      return { qrCodeBase64, payload };
+    } catch (err: any) {
+      alert
+      console.error("Erro ao chamar API PIX:", err.message || err);
+    }
+  }
+
+ */
+
+
+
+
+
+
+
+  async function createPixPayment() {
+    try {
+      // 1️⃣ Criar a order
+      const response = await fetch("/api/internal/payments/pix", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: {
+            name: "João Silva",
+            email: "joao@test.com",
+            document: "06230124645",
+            type: "individual",
+            address: {
+              street: "Rua A",
+              number: "123",
+              neighborhood: "Bairro Teste",
+              city: "São Paulo",
+              state: "SP",
+              zipCode: "01001000",
+            },
+            phones: [{ countryCode: "55", areaCode: "11", number: "999999999" }],
+          },
+          items: [
+            {
+              code: "001",
+              title: "Produto Teste",
+              description: "Descrição do produto",
+              unit_price: 100,
+              quantity: 1,
+            },
+          ],
+          payments: [
+            {
+              payment_method: "pix",
+              pix: {
+                expires_in: 3600, // 1 hora de validade
+              },
+            },
+          ],
+        }),
+      });
+  
+      const data = await response.json();
+      console.log("data", data);
+  
+      if (!data.success) {
+        console.error("Erro ao criar pagamento PIX:", data.error);
+        return;
+      }
+  
+      // 2️⃣ Pegar a primeira charge e a última transação
+      const charge = data.order.charges?.[0];
+      const lastTransaction = charge?.last_transaction;
+  
+      if (!lastTransaction) {
+        console.error("⚠️ Não há transações nesta charge");
+        return;
+      }
+  
+      let pixQrCode: string | undefined;
+      let pixPayload: string | undefined;
+  
+      if (lastTransaction.transaction_type === "pix" && lastTransaction.status !== "failed") {
+        pixQrCode = lastTransaction.pix?.qr_code;
+        pixPayload = lastTransaction.pix?.qr_code_payload;
+      }
+  
+      // 3️⃣ Se não existir, gerar QR a partir de payload de teste
+      if (!pixQrCode && !pixPayload) {
+        pixPayload =
+          "00020126360014BR.GOV.BCB.PIX0114+5511999999995204000053039865405100005802BR5913João Silva6009São Paulo62070503***6304B14F"; // exemplo
+        pixQrCode = await QRCode.toDataURL(pixPayload);
+        console.log("⚠️ PIX não retornado pelo Pagar.me, usando payload de teste");
+      }
+  
+      console.log("QR Code Base64:", pixQrCode);
+      console.log("Payload do PIX:", pixPayload);
+  
+      return { qrCodeBase64: pixQrCode, payload: pixPayload };
+    } catch (err: any) {
+      console.error("Erro ao criar pagamento PIX:", err.message || err);
+    }
+  }
+  
 
   async function createPaymentCreditCard() {
     try {
@@ -236,7 +479,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
     {paymentMethod === "pix" && (
       <div className="mb-6 text-center">
         <p className="text-black text-sm">
-          O pagamento será realizado via{" "}
+          O pagamento será realizado via{"Pix"}
           <span className="font-semibold text-[#127B42]">PIX</span>.
           Após confirmar, um QR Code será gerado para finalização da compra.
         </p>
@@ -404,6 +647,8 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
       >
         Cancelar
       </button>
+
+   
       <button
         onClick={handleSubmit}
         className="px-5 py-2 rounded-lg bg-[#127B42] hover:bg-[#0f6134] text-white font-semibold transition"
