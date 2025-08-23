@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     }
 
     const totalAmount = items.reduce(
-      (sum: number, i: any) => sum + (i.unit_price || i.price) * 100 * i.quantity,
+      (sum: number, i: any) => sum + (i.unit_price || i.price) * 1 * i.quantity,
       0
     );
 
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
         code: i.code,
         description: i.description || i.title || "Produto",
         quantity: i.quantity,
-        amount: (i.unit_price || i.price) * 100,
+        amount: (i.unit_price || i.price) * 1,//por enquanto
       })),
       payments: [
         {
@@ -142,8 +142,8 @@ export async function POST(req: NextRequest) {
           pix: { expires_in: 3600 }, // 1 hora
         },
       ],
-      environment: "simulator",
-      closed:false // obrigatório para teste PIX
+      environment: "production",
+      //closed:false // obrigatório para teste PIX
     };
 
     const orderResponse = await fetch("https://api.pagar.me/core/v5/orders", {
@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, order: orderResult });
   } catch (err: any) {
-    console.error("Erro na rota /payments/pix:", err);
+    console.error("Erro na rota api/internal/payments/pix:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
