@@ -8,12 +8,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
-/**
- * Instancia um novo cliente do Prisma para permitir interações com o banco de dados.
- * 
- * ⚠️ Importante: Em ambientes serverless (como API Routes do Next.js), é recomendado 
- * gerenciar a instância do Prisma para evitar múltiplas conexões simultâneas.
- */
+
 
 const prisma = new PrismaClient();
 

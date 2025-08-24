@@ -2,9 +2,14 @@ import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/uti
 import { useState } from "react";
 import { CreditCardData, Produto } from "../../../../../../../types/paymentsTypes";
 import QRCode from "qrcode";
-import QrModal from "./qrModal";
-import { useRouter} from "next/navigation";
+import { useRouter,useParams} from "next/navigation";
 
+interface transctions {
+  status:string
+  id:string
+  qr_code:string
+  qr_code_url:string
+}
 
 type PaymentModalProps = {
   isOpen: boolean;
@@ -19,6 +24,8 @@ type PixData = Record<string, any>; // se quiser campos extras futuramente
 
 export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card">("pix");
+
+  //objeto compra por credito
   const [creditData, setCreditData] = useState<CreditCardData>({
     cardNumber: "",
     holderName: "",
@@ -39,7 +46,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
     telefone: "",
   });
 
-
+//objeto de compra por pix
   const [pixData, setPixData] = useState<PixData>({
     name: "",
     cpf: "",
@@ -56,24 +63,33 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
 
   });
 
-  const [showModal, setShowModal] = useState(false);
-  const [codigoQr, setCodigoQr] = useState<string>('invalid!')
+ 
+  //roteador para abrir a tela do qrcode
+  const router = useRouter()
 
+
+   // Pega o usuário usando o id do param
+   const params = useParams();
+   const userId = params?.id as string;
+
+
+   //modal de pagamentos
   if (!isOpen) return null;
 
+  
+
+  //confirmar compra
   const handleSubmit = () => {
     if (paymentMethod === "pix") {
-      handleAdicionarPix()
-
-
+      buyPix()
     } else {
 
-      handleAdicionarCreditos()
+      buyCredit()
     }
   };
-const router = useRouter()
 
-  // Função para limpar todos os campos do formulário e garantir que não haja cache dos dados digitados
+  
+  // limpar os campos
   function clearFormFields() {
     setPixData({});
     setCreditData({
@@ -99,7 +115,133 @@ const router = useRouter()
   }
 
 
-  async function createPixPayment() {
+/* 
+async function criarCompra(userId: string, paymentId: string,stats?:string) {
+  alert(stats)
+
+  if(stats=='FAILED'){
+    showErrorMessage(`Não foi possivel concluir sua compra!`)
+    return
+  }
+
+   if(!paymentId || stats=='FAILED'){
+    showErrorMessage(`Ocorreu um erro com seu pagamento, tente novamente mais tarde!`);
+    return
+   }
+  const response = await fetch("/api/internal/payments/savepay", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, paymentId,stats }),
+    
+  });
+
+  const data = await response.json();
+ 
+  showSuccessMessage(
+    `Seu pedido foi enviado com sucesso e está em processamento. 
+  Assim que o pagamento for confirmado, seus créditos serão liberados automaticamente.`
+  );
+  //talvez tenha que tratar um erro caso o pagamento for realizado mas não salvar no banco
+}
+
+ */
+
+/* 
+async function criarCompra(userId: string, paymentId: string, stats?: string) {
+  try {
+    // Sempre envia o status recebido
+    const response = await fetch("/api/internal/payments/savepay", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, paymentId, stats }),
+    });
+
+    const data = await response.json();
+
+    // Mensagem de erro se o pagamento falhou
+    if (stats === "FAILED") {
+      showErrorMessage(
+        `Não foi possível concluir sua compra, mas ela foi registrada com status FAILED.`
+      );
+      return;
+    }
+
+    // Mensagem positiva apenas se o status for PENDING
+    if (stats === "PENDING") {
+      showSuccessMessage(
+        `Seu pedido foi enviado com sucesso e está em processamento. 
+        Assim que o pagamento for confirmado, seus créditos serão liberados automaticamente.`
+      );
+    }
+
+    // Se quiser, pode adicionar outros status aqui (PAID, CANCELED, etc.)
+  } catch (err: any) {
+    console.error("Erro ao salvar compra:", err);
+    showErrorMessage("Ocorreu um erro ao registrar sua compra. Tente novamente mais tarde.");
+  }
+}
+ */
+
+
+async function criarCompra(userId: string, paymentId: string, stats?: string) {
+  try {
+    // Normaliza o status antes de enviar para o backend
+    const validStatuses = ["PENDING", "FAILED", "PAID"];
+    const statusToSend =
+      stats && validStatuses.includes(stats.toUpperCase())
+        ? stats.toUpperCase()
+        : "PENDING";
+
+    // Chama o endpoint de salvar compra
+    const response = await fetch("/api/internal/payments/savepay", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, paymentId, stats: statusToSend }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      showErrorMessage(
+        `Ocorreu um erro ao registrar sua compra. Tente novamente mais tarde.`
+      );
+      return;
+    }
+
+    // Mensagem de erro se o pagamento falhou
+    if (statusToSend === "FAILED") {
+      showErrorMessage(
+        `Não foi possível concluir sua compra, mas ela foi registrada com status FAILED.`
+      );
+      return;
+    }
+
+    // Mensagem positiva apenas se o status for PENDING
+    if (statusToSend === "PENDING") {
+      showSuccessMessage(
+        `Seu pedido foi enviado com sucesso e está em processamento. 
+        Assim que o pagamento for confirmado, seus créditos serão liberados automaticamente.`
+      );
+      return;
+    }
+
+    // Opcional: outros status, ex: PAID
+    if (statusToSend === "PAID") {
+      showSuccessMessage(
+        `Pagamento confirmado! Seus créditos já foram liberados.`
+      );
+    }
+  } catch (err: any) {
+    console.error("Erro ao salvar compra:", err);
+    showErrorMessage(
+      "Ocorreu um erro ao registrar sua compra. Tente novamente mais tarde."
+    );
+  }
+}
+
+
+  //compra por pix
+  async function pixPay() {
     try {
       // 1️⃣ Criar a order
       const response = await fetch("/api/internal/payments/pix", {
@@ -145,22 +287,29 @@ const router = useRouter()
       console.log("🔹 data:", data);
 
       if (!data.success) {
-        console.error("❌ Erro ao criar pagamento PIX:", data.error);
+        showErrorMessage("❌ Erro ao criar pagamento PIX:", data.error);
         return;
       }
 
       // 2️⃣ Pegar a primeira charge e a última transação
       const charge = data.order.charges?.[0];
-      const lastTransaction = charge?.last_transaction;
+      const lastTransaction:transctions = charge?.last_transaction;
 
-
-
+      
       console.log("🔹 charge:", charge);
       console.log("🔹 lastTransaction:", lastTransaction);
 
-      if (!lastTransaction) {
-        console.error("⚠️ Não há transações nesta charge");
+      if (lastTransaction.status==='failed') {
+       
+       showErrorMessage("Não foi possivel concluir seu pagamento, tente novamente mais tarde!");
+       //não deve salvar esta salvando apenas por causa de testes
+        criarCompra(userId, '00xx00','FAILED');
         return;
+      }
+      if(lastTransaction.status==='pending'){
+     showSuccessMessage("Pagamento enviado com sucesso!");
+        criarCompra(userId, lastTransaction.id,'PENDING');
+        return
       }
 
       // 3️⃣ Extrair dados do PIX
@@ -169,30 +318,35 @@ const router = useRouter()
 
       // 4️⃣ (Opcional) Gerar imagem base64 localmente
       const qrCodeBase64 = await QRCode.toDataURL(pixPayload);
-
       // pixPayload é o BRCode do Pagar.me
       const brcodeBase64 = Buffer.from(pixPayload, "utf-8").toString("base64");
 
       console.log("✅ Payload PIX:", pixPayload);
       console.log("✅ Base64 do BRCode:", brcodeBase64);
 
-      // Redireciona para a página do QR Code
+   
+      //enviar para pagina de pix
       router.push(`/credit/pix/${brcodeBase64}`);
 
       return {
-        payload: pixPayload,
+        payload: pixPayload, 
         qrCodeUrl: pixQrCodeUrl,
         qrCodeBase64,
       };
     } catch (err: any) {
-      console.error("❌ Erro ao criar pagamento PIX:", err.message || err);
+      showErrorMessage("❌ Erro ao criar pagamento PIX:", err.message || err); 
+    
+    }
+    finally{
+     onClose();
     }
   }
 
 
 
 
-  async function createPaymentCreditCard() {
+//compra poo credito
+  async function creditPay() {
     try {
       const response = await fetch("/api/internal/payments/credit-card", {
         method: "POST",
@@ -250,16 +404,16 @@ const router = useRouter()
   }
 
 
-
   //pagamento credit cart
-  const handleAdicionarCreditos = async () => {
-    await createPaymentCreditCard()
+  const buyCredit = async () => {
+    await creditPay()
     //chamar a api de pagamentos para gerenciar creditos
   }
 
+
   //pagamento pix
-  const handleAdicionarPix = async () => {
-    await createPixPayment()
+  const buyPix = async () => {
+    await pixPay()
     //chamar a api de pagamentos para gerenciar creditos
   }
 

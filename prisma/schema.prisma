@@ -44,6 +44,7 @@ model User {
   first_acess   Boolean?
   lastname      String?
   pontuacao     Int[]
+  compra        Compra[] //lista de compras porque pode comprar mais de uma vez
 }
 
 model PrePsicologo {
@@ -242,4 +243,16 @@ model Produto {
   quantidade Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+//model pedido aguardando pagamento
+
+model Compra {
+  id         String       @id @default(uuid()) 
+  userId     String
+  user       User         @relation(fields: [userId], references: [id])
+  paymentId  String       @unique // ID da transação do Pagar.me
+  Status     String 
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }

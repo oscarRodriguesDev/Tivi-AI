@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Compra" ALTER COLUMN "Status" DROP DEFAULT;
