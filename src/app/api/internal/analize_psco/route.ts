@@ -1,12 +1,4 @@
-/** 
- * Módulo de dependências utilizado para o endpoint de cadastro e envio de email de verificação.
- * Este módulo integra:
- * - Prisma ORM para manipulação de banco de dados.
- * - Next.js API Response.
- * - Nodemailer para envio de emails.
- * - crypto-random-string para geração de códigos aleatórios.
- * - bcrypt para criptografia de senhas.
- */
+
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import nodemailer from 'nodemailer';
@@ -14,22 +6,75 @@ import cryptoRandomString from 'crypto-random-string';
 import bcrypt from 'bcrypt';
 
 
-/**
- * Instância do Prisma Client para interações com o banco de dados.
- * Deve ser reutilizada sempre que possível para evitar múltiplas conexões simultâneas.
- * 
- * @const {PrismaClient} prisma - Cliente do Prisma para acesso ao banco.
- */
 const prisma = new PrismaClient();
 
 
+
 /**
- * Manipulador HTTP GET para recuperar todos os pré-psicólogos cadastrados no banco de dados.
- *
- * @async
- * @function GET
- * @param {Request} req - Requisição HTTP contendo os dados do pré-cadastro no corpo da requisição.
- * @returns {Promise<NextResponse>} Uma resposta JSON contendo os dados dos pré-psicólogos ou uma mensagem de erro.
+ * @swagger
+ * /api/internal/pre-psicologos:
+ *   get:
+ *     summary: Lista todos os pré-psicólogos
+ *     description: Retorna uma lista com todos os pré-psicólogos cadastrados no sistema, incluindo seus dados básicos.
+ *     tags:
+ *       - Pré-Psicólogos
+ *     responses:
+ *       200:
+ *         description: Lista de pré-psicólogos retornada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       cpf:
+ *                         type: string
+ *                         example: "123.456.789-00"
+ *                       cfp:
+ *                         type: string
+ *                         example: "987654"
+ *                       crp:
+ *                         type: string
+ *                         example: "12/34567"
+ *                       nome:
+ *                         type: string
+ *                         example: "João"
+ *                       lastname:
+ *                         type: string
+ *                         example: "Silva"
+ *                       rg:
+ *                         type: string
+ *                         example: "12.345.678-9"
+ *                       email:
+ *                         type: string
+ *                         example: "joao.silva@gmail.com"
+ *                       data_nasc:
+ *                         type: string
+ *                         format: date
+ *                         example: "1985-06-15"
+ *                       celular:
+ *                         type: string
+ *                         example: "+55 11 91234-5678"
+ *                       telefone:
+ *                         type: string
+ *                         example: "+55 11 3344-5566"
+ *                       habilitado:
+ *                         type: boolean
+ *                         example: false
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Erro interno do servidor!"
  */
 
 export async function GET(req: Request) {
@@ -45,18 +90,128 @@ export async function GET(req: Request) {
 
 
 /**
- * Manipulador HTTP POST que cria um novo pré-cadastro de psicólogo.
- *
- * Recebe os dados enviados pelo formulário e armazena no banco de dados.
- * Campos obrigatórios: cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone.
- * Em caso de sucesso, retorna os dados do novo pré-psicólogo cadastrado.
- * Em caso de erro, retorna mensagens apropriadas, incluindo erro de duplicação (CPF/CFP).
- *
- * @async
- * @function POST
- * @param {Request} req - Requisição HTTP contendo os dados do pré-cadastro no corpo da requisição.
- * @returns {Promise<NextResponse>} Resposta com status 201 e dados do pré-cadastro criado, 
- *                                  ou mensagem de erro com status apropriado.
+ * @swagger
+ * /api/internal/pre-psicologos:
+ *   post:
+ *     summary: Cadastra um novo pré-psicólogo
+ *     description: Recebe os dados de um pré-psicólogo e realiza seu pré-cadastro no sistema. Todos os campos são obrigatórios.
+ *     tags:
+ *       - Pré-Psicólogos
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cpf
+ *               - cfp
+ *               - crp
+ *               - nome
+ *               - lastname
+ *               - rg
+ *               - email
+ *               - data_nasc
+ *               - celular
+ *               - telefone
+ *             properties:
+ *               cpf:
+ *                 type: string
+ *                 example: "123.456.789-00"
+ *               cfp:
+ *                 type: string
+ *                 example: "987654"
+ *               crp:
+ *                 type: string
+ *                 example: "12/34567"
+ *               nome:
+ *                 type: string
+ *                 example: "João"
+ *               lastname:
+ *                 type: string
+ *                 example: "Silva"
+ *               rg:
+ *                 type: string
+ *                 example: "12.345.678-9"
+ *               email:
+ *                 type: string
+ *                 example: "joao.silva@gmail.com"
+ *               data_nasc:
+ *                 type: string
+ *                 format: date
+ *                 example: "1985-06-15"
+ *               celular:
+ *                 type: string
+ *                 example: "+55 11 91234-5678"
+ *               telefone:
+ *                 type: string
+ *                 example: "+55 11 3344-5566"
+ *     responses:
+ *       201:
+ *         description: Pré-cadastro realizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Pré-cadastro realizado com sucesso!"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     cpf:
+ *                       type: string
+ *                     cfp:
+ *                       type: string
+ *                     crp:
+ *                       type: string
+ *                     nome:
+ *                       type: string
+ *                     lastname:
+ *                       type: string
+ *                     rg:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     data_nasc:
+ *                       type: string
+ *                     celular:
+ *                       type: string
+ *                     telefone:
+ *                       type: string
+ *                     habilitado:
+ *                       type: boolean
+ *       400:
+ *         description: Todos os campos obrigatórios não foram informados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Todos os campos são obrigatórios!"
+ *       409:
+ *         description: CPF ou CFP já cadastrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "CPF ou CFP já cadastrado!"
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Erro interno do servidor!"
  */
 
 export async function POST(req: Request) {
@@ -97,14 +252,6 @@ export async function POST(req: Request) {
 
 
 
-/**
- * Notifica por e-mail que o usuário foi habilitado com sucesso.
- * 
- * @param {string} email - E-mail do usuário que será notificado.
- * @param {string} nome - Nome do usuário habilitado.
- * @param {string} email_system - E-mail gerado para acessar a plataforma.
- * @param {string} senha - Senha temporária gerada para o primeiro acesso.
- */
 async function notificar(email: string, nome: string, email_system: string, senha: string) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -134,14 +281,9 @@ async function notificar(email: string, nome: string, email_system: string, senh
   } catch (error) {
   }
 }
-/**
- * Notifica por e-mail que o usuário foi habilitado com sucesso.
- * 
- * @param {string} email - E-mail do usuário que será notificado.
- * @param {string} nome - Nome do usuário habilitado.
- * @param {string} email_system - E-mail gerado para acessar a plataforma.
- * @param {string} senha - Senha temporária gerada para o primeiro acesso.
- */
+
+
+
 async function reproveNotify(email: string, nome: string, email_system: string, senha: string) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -172,32 +314,13 @@ async function reproveNotify(email: string, nome: string, email_system: string, 
 
 
 
-/**
- * Gera uma senha aleatória composta por caracteres alfanuméricos.
- * 
- * @param {number} [tamanho=8] - O comprimento da senha a ser gerada (valor padrão: 8).
- * @returns {string} - Retorna a senha gerada em formato de string.
- */
 function gerarSenhaAleatoria(tamanho: number = 8): string {
   const senha = cryptoRandomString({ length: tamanho, type: 'alphanumeric' });
   return senha
 }
 
 
-/**
- * Efetiva o cadastro do psicólogo no banco de dados.
- * 
- * @param {string} nome - Nome completo do psicólogo.
- * @param {string} email_confirm - E-mail do psicólogo para confirmação e comunicação.
- * @param {string} cpf - CPF do psicólogo (Cadastro de Pessoa Física).
- * @param {string} cfp - Código de identificação profissional do psicólogo.
- * @param {string} crp - Número do registro no Conselho Regional de Psicologia (CRP).
- * @param {string} telefone - Telefone fixo do psicólogo.
- * @param {string} celular - Número de celular do psicólogo.
- * @param {string} data_nasc - Data de nascimento do psicólogo no formato "aaaa-mm-dd".
- * 
- * @returns {Promise<void>} - Retorna uma Promise que não resolve nenhum valor explícito.
- */
+
 async function efetivarPsicologo(nome: string, lastname: string, email_confirm: string, cpf: string, cfp: string, crp: string, telefone: string, celular: string, data_nasc: string) {
   let cname = `${nome.replace(/\s+/g, "")}.${lastname.replace(/\s+/g, "")}`
   cname = cname.toLowerCase()
@@ -267,16 +390,91 @@ async function efetivarPsicologo(nome: string, lastname: string, email_confirm: 
 
 
 /**
- * Manipulador HTTP PUT que habilita um psicólogo previamente cadastrado no sistema.
- *
- * Recebe o CPF do psicólogo no corpo da requisição, valida a existência do registro,
- * atualiza o campo `habilitado` para `true`, efetiva o cadastro e envia um e-mail de notificação.
- *
- * @async
- * @function PUT
- * @param {Request} req - Requisição HTTP contendo o CPF do psicólogo a ser habilitado.
- * @returns {Promise<NextResponse>} Resposta com status 200 e dados do psicólogo habilitado,
- *                                  ou mensagem de erro com status apropriado.
+ * @swagger
+ * /api/internal/pre-psicologos:
+ *   put:
+ *     summary: Habilita um pré-psicólogo
+ *     description: Recebe o CPF de um pré-psicólogo e atualiza seu status para 'habilitado', efetivando-o no sistema e enviando notificação por e-mail.
+ *     tags:
+ *       - Pré-Psicólogos
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cpf
+ *             properties:
+ *               cpf:
+ *                 type: string
+ *                 example: "123.456.789-00"
+ *     responses:
+ *       200:
+ *         description: Psicólogo habilitado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Psicólogo habilitado com sucesso"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     cpf:
+ *                       type: string
+ *                     cfp:
+ *                       type: string
+ *                     crp:
+ *                       type: string
+ *                     nome:
+ *                       type: string
+ *                     lastname:
+ *                       type: string
+ *                     rg:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     data_nasc:
+ *                       type: string
+ *                     celular:
+ *                       type: string
+ *                     telefone:
+ *                       type: string
+ *                     habilitado:
+ *                       type: boolean
+ *       400:
+ *         description: CPF não informado ou sobrenome ausente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "CPF é obrigatório"
+ *       404:
+ *         description: Pré-psicólogo não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Psicólogo não encontrado"
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Erro interno do servidor!"
  */
 
 export async function PUT(req: Request) {
@@ -334,6 +532,71 @@ export async function PUT(req: Request) {
 
 
 
+/**
+ * @swagger
+ * /api/internal/pre-psicologos:
+ *   delete:
+ *     summary: Remove um pré-psicólogo
+ *     description: Recebe o CPF de um pré-psicólogo e remove o registro do sistema. Caso o psicólogo não esteja habilitado, envia uma notificação por e-mail informando a reprovação.
+ *     tags:
+ *       - Pré-Psicólogos
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cpf
+ *             properties:
+ *               cpf:
+ *                 type: string
+ *                 example: "123.456.789-00"
+ *     responses:
+ *       200:
+ *         description: Psicólogo removido com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Psicólogo removido com sucesso"
+ *                 deletedCpf:
+ *                   type: string
+ *                   example: "123.456.789-00"
+ *       400:
+ *         description: CPF não informado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "CPF é obrigatório"
+ *       404:
+ *         description: Psicólogo não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Psicólogo não encontrado"
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Erro interno do servidor"
+ */
 
 export async function DELETE(req: Request) {
   try {

@@ -1,33 +1,58 @@
 import { NextResponse } from 'next/server';
 
 
-/**
- * Armazena temporariamente as transcrições únicas por sala.
- *
- * Cada chave do objeto representa uma sala identificada por string (ID dinâmico),
- * e o valor é um `Set` contendo strings únicas de trechos de transcrição, 
- * evitando duplicatas durante a chamada.
- *
- * @example
- * transcriptionStorage["sala123"] = new Set(["paciente: Olá", "psicologo: Como você está?"]);
- */
+
 
 const transcriptionStorage: Record<string, Set<string>> = {};
 
-
-
 /**
- * Handler da rota GET para retornar a transcrição acumulada de uma sala.
- *
- * Esta função é chamada com uma query `sala`, que representa o identificador da sala de reunião.
- * Ela retorna a transcrição completa (sem duplicatas) armazenada no `transcriptionStorage`.
- *
- * @param req - Objeto da requisição HTTP contendo a URL com os parâmetros de busca.
- * @returns JSON com a transcrição da sala ou uma mensagem de erro.
- *
- * @response 200 - Quando a transcrição é retornada com sucesso (pode ser string vazia).
- * @response 400 - Quando o parâmetro `sala` não é informado.
- * @response 500 - Em caso de erro interno do servidor.
+ * @swagger
+ * /api/transcriptions:
+ *   get:
+ *     summary: Recupera transcrição de uma sala
+ *     description: Retorna toda a transcrição acumulada de uma sala específica. Se não houver transcrição, retorna uma string vazia.
+ *     tags:
+ *       - Transcrições
+ *     parameters:
+ *       - in: query
+ *         name: sala
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identificador da sala de transcrição
+ *         example: "sala123"
+ *     responses:
+ *       200:
+ *         description: Transcrição recuperada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 transcript:
+ *                   type: string
+ *                   description: Texto completo da transcrição
+ *                   example: "Olá, bem-vindo à sala!\nAqui estamos testando a transcrição."
+ *       400:
+ *         description: Parâmetro "sala" não fornecido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Parâmetro "sala" é obrigatório.'
+ *       500:
+ *         description: Erro interno do servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro interno do servidor."
  */
 
 export async function GET(req: Request) {
@@ -57,22 +82,67 @@ export async function GET(req: Request) {
 
 
 /**
- * Handler da rota POST para salvar transcrições de uma sala.
- *
- * Esta função espera um corpo JSON contendo os campos:
- * - `sala`: string identificando a sala da reunião
- * - `transcript`: string com o trecho da transcrição a ser salvo
- *
- * O trecho de transcrição é armazenado em um `Set` para evitar duplicações
- * e manter o histórico de falas associadas à sala correspondente.
- *
- * @param req - Objeto da requisição HTTP contendo os dados da transcrição.
- * @returns JSON confirmando o salvamento ou uma mensagem de erro.
- *
- * @response 201 - Quando a transcrição é salva com sucesso.
- * @response 400 - Quando os dados estão ausentes ou inválidos.
- * @response 500 - Em caso de erro interno do servidor.
+ * @swagger
+ * /api/transcriptions:
+ *   post:
+ *     summary: Salva uma nova transcrição em uma sala
+ *     description: Adiciona o texto da transcrição à sala especificada. Transcrições duplicadas dentro da mesma sala não são adicionadas.
+ *     tags:
+ *       - Transcrições
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sala
+ *               - transcript
+ *             properties:
+ *               sala:
+ *                 type: string
+ *                 description: Identificador da sala
+ *                 example: "sala123"
+ *               transcript:
+ *                 type: string
+ *                 description: Texto da transcrição a ser salvo
+ *                 example: "Olá, esta é a primeira transcrição da sala."
+ *     responses:
+ *       201:
+ *         description: Transcrição salva com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Transcrição salva com sucesso."
+ *                 transcript:
+ *                   type: string
+ *                   example: "Olá, esta é a primeira transcrição da sala."
+ *       400:
+ *         description: Dados inválidos fornecidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Dados inválidos. Informe "sala" e "transcript".'
+ *       500:
+ *         description: Erro interno do servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro interno do servidor."
  */
+
 
 export async function POST(req: Request) {
   try {

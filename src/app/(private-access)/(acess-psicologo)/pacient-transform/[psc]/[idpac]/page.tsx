@@ -265,7 +265,7 @@ const Pacientes = () => {
 
             setAnamnese('Gerando anamnese...');
             
-            const response = await fetch('/api/internal/insight/generate-anamnese', {
+            const response = await fetch(`/api/internal/insight/generate-anamnese/?userId=${psc}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,27 +1,32 @@
 'use client'
 import { useAccessControl } from "@/app/context/AcessControl"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { FaRegCreditCard, FaCoins, FaArrowUp, FaArrowDown } from "react-icons/fa"
 import HeadPage from "@/app/(private-access)/components/headPage"
-import { convertToCredits, convertToBRL } from "@/app/util/credits"
 import PaymentModal from "./components/modal-recharg"
 import { useEffect, useState } from "react"
 
 const Creditos = () => {
   const { role } = useAccessControl()
+  
   const router = useRouter()
+
+  //determinando  o usuarios
+  const params = useParams()
+  const id= params.id as string
+
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduto, setSelectedProduto] = useState<Produto | null>(null)
   const [loadingProdutos, setLoadingProdutos] = useState<boolean>(true)
   const [erroProdutos, setErroProdutos] = useState<string | null>(null)
   const [produtosList, setProdutosList] = useState<Produto[]>([])
+  const [credito,setCredito] = useState<string>('0')
+  const [recarga,setRecarga] = useState<string>('0')
+  const [gastos,setGastos] = useState<string>('R$ 0,00')
+  
 
 
-  const creditos = {
-    saldo: 120, // em reais
-    totalRecarregado: 500,
-    totalGasto: 380
-  }
 
   interface Produto {
     codigo: string
@@ -32,6 +37,7 @@ const Creditos = () => {
   }
 
 
+  //comprar creditos
   const handleComprar = (produto: Produto) => {
 
     setIsModalOpen(true)
@@ -39,6 +45,26 @@ const Creditos = () => {
 
   }
 
+  
+   async function fetchUserCreditos(userId: string): Promise<number | null> {
+    try {
+      const res = await fetch(`/api/internal/creditos?userId=${userId}`);
+      const data = await res.json();
+      if (data.success) {
+       setCredito(data.creditos)
+      }
+      return null;
+    } catch (err) {
+      console.error("Erro ao buscar créditos:", err);
+      return null;
+    }
+  }
+
+
+//buscar os creditos do usuario quando a pagina carregar
+  useEffect(()=>{
+    fetchUserCreditos(id)
+  })
 
 
 
@@ -82,7 +108,7 @@ const Creditos = () => {
             <div className="bg-blue-50 p-4 rounded-xl flex items-center justify-between shadow-sm">
               <div>
                 <p className="text-gray-500">Créditos disponíveis</p>
-                <p className="text-2xl font-bold text-blue-600">{creditos.saldo.toFixed(0)} créditos</p>
+                <p className="text-2xl font-bold text-blue-600">{credito} créditos</p>
               </div>
               <FaCoins size={32} className="text-blue-500" />
             </div>
@@ -91,7 +117,7 @@ const Creditos = () => {
               <div>
                 <p className="text-gray-500">Total recarregado</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {creditos.totalRecarregado.toFixed(0)} créditos
+                  {recarga} créditos
                 </p>
               </div>
               <FaArrowUp size={32} className="text-green-500" />
@@ -100,7 +126,7 @@ const Creditos = () => {
             <div className="bg-red-50 p-4 rounded-xl flex items-center justify-between shadow-sm">
               <div>
                 <p className="text-gray-500">Total gasto</p>
-                <p className="text-2xl font-bold text-red-600">{creditos.totalGasto.toFixed(0)} créditos</p>
+                <p className="text-2xl font-bold text-red-600">{gastos} créditos</p>
               </div>
               <FaArrowDown size={32} className="text-red-500" />
             </div>

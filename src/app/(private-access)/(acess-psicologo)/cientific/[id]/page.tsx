@@ -130,7 +130,7 @@ const BaseCientifica = () => {
   const getResume = async (titulo: string, autor: string): Promise<string> => {
     const toastId = showPersistentLoadingMessage('Gerando resumo do livro...');
     try {
-      const response = await fetch("/api/internal/insight/generateResume", {
+      const response = await fetch(`/api/internal/insight/generateResume/?userId=${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

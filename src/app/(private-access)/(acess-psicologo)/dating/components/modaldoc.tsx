@@ -34,7 +34,7 @@ export const DocumentoModal: React.FC<DocumentoModalProps> = ({
 useEffect(() => {
   const fetchDocumentos = async () => {
     try {
-      const response = await fetch(`/api/uploads/doc-model/?psicologoId=${userID}`)
+      const response = await fetch(`/api/internal/uploads/doc-model/?psicologoId=${userID}`)
       if (!response.ok) throw new Error("Erro ao buscar documentos")
 
       const data: Docs[] = await response.json()

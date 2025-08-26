@@ -332,12 +332,15 @@ function getBasedBooks(livros: Livro[]) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 120000); //120 segundos
     try {
-      const response = await fetch(`/api/internal/insight/psicochat/?tipo=${tipoSelecionado}&&prompt=${prompt}`, {
+      const response = await fetch(`/api/internal/insight/psicochat/?tipo=${tipoSelecionado}&&userId=${userID}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: mensagem }),
+        body: JSON.stringify({
+           message: mensagem,
+           prompt:prompt
+          }),
         signal: controller.signal,
       });
 
@@ -366,7 +369,7 @@ function getBasedBooks(livros: Livro[]) {
   //busca os documentos para gerar as transcrições
   const fetchDocumentos = async (tipo: string) => {
     try {
-      const response = await fetch(`/api/uploads/doc-model/?psicologoId=${userID}`)
+      const response = await fetch(`/api/internal/uploads/doc-model/?psicologoId=${userID}`)
       if (!response.ok) throw new Error("Erro ao buscar documentos")
 
       const data: Docs[] = await response.json()

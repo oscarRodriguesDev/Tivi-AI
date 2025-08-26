@@ -1,11 +1,11 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-import { generate} from "@/app/util/GenericPrompts";
+import { generate } from "@/app/util/GenericPrompts";
+import { useCredit } from "@/hooks/useCredits";
 
 
-
-export const runtime = 'edge';
-//export const runtime = 'nodejs';
+//export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 
 const openai = new OpenAI({
@@ -15,45 +15,44 @@ const openai = new OpenAI({
 
 
 export async function POST(req: Request) {
-  var retorno =''
+  var retorno = ''
 
   const { searchParams } = new URL(req.url);
-  const model = searchParams.get('prompt');
-  const { message: transcription } = await req.json();
-  
-  //no corpo da requisição preciso enviar os dados do paciente, o valor da cunsulta, dados do psicologo
-  //na url enviar o tipo do documento que vai ser gerado
+// const model = searchParams.get('prompt'); //parametnro
+  const userId = searchParams.get("userId") as string;
+  const {
+    message: transcription,
+     prompt: model
 
-  //recuperar data do dia
+
+  } = await req.json();
+
+
   const currentDate = new Date();
   const formattedDate = currentDate.toISOString().split('T')[0];
 
 
-  const prompt = generate(transcription, String(model)) // Corrigido: prompt agora é o resultado da função, não a prompt
+  const prompt = generate(transcription, String(model))
 
   if (!transcription) {
     return NextResponse.json({ error: "Mensagem não fornecida." }, { status: 400 });
   }
-  // Corrigido: prompt agora é o resultado da função, não a função em si
-  //generate
-
-
   const promptMessage = `${retorno} crie o documento solicitado para a seguinte transcrição: ${transcription} ao fim me fale dos materiais que se baseou`;
-
   try {
     const completion = await openai.chat.completions.create({
-      /*   model: "gpt-4o-mini", */
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.2,
-       max_tokens: 2000
+      max_tokens: 2000
     });
 
     const content = completion.choices[0]?.message?.content || "Sem resposta.";
+
+    await useCredit(userId, 1)
     return NextResponse.json({ response: content });
 
   } catch (error: any) {
     return NextResponse.json({ error: "Erro ao gerar resposta do modelo." }, { status: 500 });
-  } 
+  }
 }
 

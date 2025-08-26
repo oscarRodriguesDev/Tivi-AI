@@ -299,13 +299,15 @@ async function criarCompra(userId: string, paymentId: string, stats?: string) {
       console.log("🔹 charge:", charge);
       console.log("🔹 lastTransaction:", lastTransaction);
 
+      //salva a falha no pagamento
       if (lastTransaction.status==='failed') {
-       
        showErrorMessage("Não foi possivel concluir seu pagamento, tente novamente mais tarde!");
        //não deve salvar esta salvando apenas por causa de testes
-        criarCompra(userId, '00xx00','FAILED');
+        criarCompra(userId, lastTransaction.id,'FAILED');
         return;
       }
+
+      //salva o sucesso no pagamento
       if(lastTransaction.status==='pending'){
      showSuccessMessage("Pagamento enviado com sucesso!");
         criarCompra(userId, lastTransaction.id,'PENDING');

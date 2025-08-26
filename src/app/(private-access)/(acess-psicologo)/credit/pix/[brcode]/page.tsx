@@ -9,16 +9,19 @@ interface PixPageProps {
   params: { brcode: any };
 }
 
-export default function PixPage({ params }: PixPageProps) {
+   export default function PixPage({ params }: PixPageProps) {
   const router = useRouter();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [secondsLeft, setSecondsLeft] = useState(180); // 3 minutos
   const brcode = Buffer.from(params.brcode, "base64").toString("utf-8");
 
+
+
   // Gera QR Code
   useEffect(() => {
     QRCode.toDataURL(brcode).then(setQrCodeUrl);
   }, [brcode]);
+
 
   // Contador regressivo
   useEffect(() => {
@@ -36,16 +39,22 @@ export default function PixPage({ params }: PixPageProps) {
     return () => clearInterval(timer);
   }, [router]);
 
+
+  //limpa os campos
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60).toString().padStart(2, "0");
     const s = (sec % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
 
+
+  //copiar o codigo do pix
   const handleCopy = () => {
     navigator.clipboard.writeText(brcode);
     alert("Código PIX copiado!");
   };
+
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white text-black p-6">

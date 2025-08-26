@@ -1,8 +1,10 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { resumeBook } from "@/app/util/resumebook";
+import { useCredit } from "@/hooks/useCredits";
 
-export const runtime = 'edge';
+//export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -12,6 +14,11 @@ const openai = new OpenAI({
 
 // Rota para gerar resumo pelo gpt
 export async function POST(req: Request) {
+  
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get("userId") as string;
+
+
  const { titulo, autor } = await req.json();
   if (!titulo || !autor) {
     return NextResponse.json({ error: "Título e autor são obrigatórios." }, { status: 400 });
@@ -26,6 +33,7 @@ export async function POST(req: Request) {
        max_tokens: 2000
     });
     const content = completion.choices[0]?.message?.content || "Sem resposta.";
+    await useCredit(userId,1);
     return NextResponse.json({ result: content });
 
   } catch (error: any) {

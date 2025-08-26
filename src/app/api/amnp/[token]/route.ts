@@ -3,6 +3,77 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+
+/**
+ * @swagger
+ * /api/anamnese/acesso/{token}:
+ *   get:
+ *     summary: Valida o acesso temporário à anamnese via token
+ *     description: >
+ *       Este endpoint valida se o acesso à anamnese é autorizado com base em um token temporário.
+ *       O token expira em **10 minutos** após a criação ou após o primeiro acesso.  
+ *       O acesso só é válido para o mesmo IP que realizou o primeiro acesso.
+ *     tags:
+ *       - Anamnese
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token único de acesso temporário.
+ *     responses:
+ *       200:
+ *         description: Acesso autorizado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 autorizado:
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: Token ausente na requisição.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 autorizado:
+ *                   type: boolean
+ *                   example: false
+ *                 erro:
+ *                   type: string
+ *                   example: "Token ausente"
+ *       404:
+ *         description: Token não encontrado ou inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 autorizado:
+ *                   type: boolean
+ *                   example: false
+ *                 erro:
+ *                   type: string
+ *                   example: "Token inválido"
+ *       403:
+ *         description: Token expirado ou usado em IP diferente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 autorizado:
+ *                   type: boolean
+ *                   example: false
+ *                 erro:
+ *                   type: string
+ *                   example: "Link expirado ou IP diferente"
+ */
+
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.pathname.split("/").pop();
 
@@ -56,7 +127,67 @@ export async function GET(req: NextRequest) {
 
 
 
-//delete para o front
+/**
+ * @swagger
+ * /api/anamnese/acesso/{token}:
+ *   delete:
+ *     summary: Remove registro de acesso temporário à anamnese
+ *     description: Deleta um registro de token de acesso temporário. Útil para invalidar manualmente o link.
+ *     tags:
+ *       - Anamnese
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token único do registro que será removido.
+ *     responses:
+ *       200:
+ *         description: Registro removido com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sucesso:
+ *                   type: boolean
+ *                   example: true
+ *                 mensagem:
+ *                   type: string
+ *                   example: "Registro removido com sucesso"
+ *       400:
+ *         description: Token ausente na requisição.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 erro:
+ *                   type: string
+ *                   example: "Token ausente"
+ *       404:
+ *         description: Registro não encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 erro:
+ *                   type: string
+ *                   example: "Registro não encontrado"
+ *       500:
+ *         description: Erro interno do servidor ao tentar deletar.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 erro:
+ *                   type: string
+ *                   example: "Erro interno ao tentar deletar"
+ */
+
 export async function DELETE(req: NextRequest) {
   const token = req.nextUrl.pathname.split('/').pop();
 

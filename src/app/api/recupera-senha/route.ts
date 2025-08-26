@@ -62,6 +62,73 @@ async function notificar(email: string, nome: string, email_system: string, senh
 
 
 
+/**
+ * @swagger
+ * /api/recover-password:
+ *   put:
+ *     summary: Recuperação de senha
+ *     description: Permite que o usuário recupere a senha. Caso o email seja válido e confirmado, será enviada uma nova senha provisória para o usuário.
+ *     tags:
+ *       - Autenticação
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: E-mail cadastrado do usuário
+ *                 example: usuario@email.com
+ *     responses:
+ *       200:
+ *         description: Senha alterada com sucesso e enviada por e-mail.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Senha alterada com sucesso. Verifique seu e-mail para a nova senha.
+ *       400:
+ *         description: Erro de validação (e-mail não fornecido ou não confirmado).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: E-mail não confirmado. Não é possível realizar a recuperação de senha.
+ *       404:
+ *         description: Usuário não encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: E-mail não encontrado.
+ *       500:
+ *         description: Erro interno do servidor ao tentar recuperar a senha.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Erro ao tentar recuperar a senha.
+ */
+
+
+
 export async function PUT(req: Request) {
     const { email } = await req.json(); // Supondo que o corpo da requisição tenha o email fornecido pelo usuário
   

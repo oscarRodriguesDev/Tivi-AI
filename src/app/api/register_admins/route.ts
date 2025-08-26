@@ -4,6 +4,63 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+
+/**
+ * @swagger
+ * /api/register_admins:
+ *   post:
+ *     summary: Criação de um administrador
+ *     description: Endpoint para registrar um administrador no sistema.
+ *     tags:
+ *       - Administradores
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - role
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nome completo do administrador
+ *                 example: João da Silva
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email do administrador
+ *                 example: joao@email.com
+ *               password:
+ *                 type: string
+ *                 description: Senha do administrador
+ *                 example: 123456
+ *               role:
+ *                 type: string
+ *                 description: Papel do usuário
+ *                 enum: [ADMIN, SUPER_ADMIN]
+ *                 example: ADMIN
+ *     responses:
+ *       201:
+ *         description: Administrador criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Administrador criado com sucesso
+ *       400:
+ *         description: Erro de validação nos dados enviados
+ *       500:
+ *         description: Erro interno do servidor
+ */
+
+
 export async function POST(req: Request) {
   try {
     // Extraindo os dados do corpo da requisição

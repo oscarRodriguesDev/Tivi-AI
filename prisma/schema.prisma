@@ -248,11 +248,12 @@ model Produto {
 //model pedido aguardando pagamento
 
 model Compra {
-  id         String       @id @default(uuid()) 
-  userId     String
-  user       User         @relation(fields: [userId], references: [id])
-  paymentId  String       @unique // ID da transação do Pagar.me
-  Status     String 
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  id          String       @id @default(uuid()) 
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  paymentId   String       @unique // ID da transação do Pagar.me
+  Status      String 
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  qtdCreditos String?
 }

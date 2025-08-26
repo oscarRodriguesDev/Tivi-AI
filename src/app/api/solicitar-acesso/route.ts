@@ -1,41 +1,122 @@
-/** 
- * Módulo de dependências utilizado para o endpoint de cadastro e envio de email de verificação.
- * Este módulo integra:
- * - Prisma ORM para manipulação de banco de dados.
- * - Next.js API Response.
- * - Nodemailer para envio de emails.
- * - crypto-random-string para geração de códigos aleatórios.
- * - bcrypt para criptografia de senhas.
- */
+
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 
-
-/**
- * Instância do Prisma Client para interações com o banco de dados.
- * Deve ser reutilizada sempre que possível para evitar múltiplas conexões simultâneas.
- * 
- * @const {PrismaClient} prisma - Cliente do Prisma para acesso ao banco.
- */
 const prisma = new PrismaClient();
 
 
 
-
 /**
- * Manipulador HTTP POST que cria um novo pré-cadastro de psicólogo.
- *
- * Recebe os dados enviados pelo formulário e armazena no banco de dados.
- * Campos obrigatórios: cpf, cfp, crp, nome, rg, email, data_nasc, celular, telefone.
- * Em caso de sucesso, retorna os dados do novo pré-psicólogo cadastrado.
- * Em caso de erro, retorna mensagens apropriadas, incluindo erro de duplicação (CPF/CFP).
- *
- * @async
- * @function POST
- * @param {Request} req - Requisição HTTP contendo os dados do pré-cadastro no corpo da requisição.
- * @returns {Promise<NextResponse>} Resposta com status 201 e dados do pré-cadastro criado, 
- *                                  ou mensagem de erro com status apropriado.
+ * @swagger
+ * /api/pre-psicologo:
+ *   post:
+ *     summary: Realiza o pré-cadastro de um psicólogo
+ *     description: Cria um registro de pré-cadastro para psicólogos. Todos os campos são obrigatórios.
+ *     tags:
+ *       - Psicólogos
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cpf
+ *               - cfp
+ *               - crp
+ *               - nome
+ *               - lastname
+ *               - rg
+ *               - email
+ *               - data_nasc
+ *               - celular
+ *               - telefone
+ *             properties:
+ *               cpf:
+ *                 type: string
+ *                 description: CPF do psicólogo
+ *                 example: "123.456.789-00"
+ *               cfp:
+ *                 type: string
+ *                 description: CFP do psicólogo
+ *                 example: "123456"
+ *               crp:
+ *                 type: string
+ *                 description: CRP do psicólogo
+ *                 example: "CRP-12/3456"
+ *               nome:
+ *                 type: string
+ *                 description: Nome do psicólogo
+ *                 example: "João"
+ *               lastname:
+ *                 type: string
+ *                 description: Sobrenome do psicólogo
+ *                 example: "Silva"
+ *               rg:
+ *                 type: string
+ *                 description: RG do psicólogo
+ *                 example: "12.345.678-9"
+ *               email:
+ *                 type: string
+ *                 description: E-mail do psicólogo
+ *                 example: "joao.silva@email.com"
+ *               data_nasc:
+ *                 type: string
+ *                 format: date
+ *                 description: Data de nascimento do psicólogo
+ *                 example: "1980-05-15"
+ *               celular:
+ *                 type: string
+ *                 description: Número de celular
+ *                 example: "+55 11 91234-5678"
+ *               telefone:
+ *                 type: string
+ *                 description: Número de telefone fixo
+ *                 example: "+55 11 3456-7890"
+ *     responses:
+ *       201:
+ *         description: Pré-cadastro realizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Pré-cadastro realizado com sucesso!
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Campos obrigatórios ausentes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Todos os campos são obrigatórios!
+ *       409:
+ *         description: CPF ou CRP já cadastrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: CPF ou CRP já cadastrado!
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Erro interno do servidor!
  */
 
 export async function POST(req: Request) {
