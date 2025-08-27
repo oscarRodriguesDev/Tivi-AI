@@ -6,14 +6,15 @@ import HeadPage from "@/app/(private-access)/components/headPage"
 import PaymentModal from "./components/modal-recharg"
 import { useEffect, useState } from "react"
 
+
 const Creditos = () => {
   const { role } = useAccessControl()
-  
+
   const router = useRouter()
 
   //determinando  o usuarios
   const params = useParams()
-  const id= params.id as string
+  const id = params.id as string
 
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -21,13 +22,14 @@ const Creditos = () => {
   const [loadingProdutos, setLoadingProdutos] = useState<boolean>(true)
   const [erroProdutos, setErroProdutos] = useState<string | null>(null)
   const [produtosList, setProdutosList] = useState<Produto[]>([])
-  const [credito,setCredito] = useState<string>('0')
-  const [recarga,setRecarga] = useState<string>('0')
-  const [gastos,setGastos] = useState<string>('R$ 0,00')
-  
+  const [credito, setCredito] = useState<string>('0')
+  const [recarga, setRecarga] = useState<string>('0')
+  const [gastos, setGastos] = useState<string>('R$ 0,00')
+  // State para armazenar a lista de ordens de compra do usuário
+  const [compras, setCompras] = useState<Compra[]>([]);
 
 
-
+  //representa meu produto
   interface Produto {
     codigo: string
     titulo: string
@@ -36,7 +38,122 @@ const Creditos = () => {
     quantidade: number
   }
 
+/* primeria parte do fluxo, buscar as ordens salvas no banco */
 
+//represetna minha compra salva no banco de dados
+  interface Compra {
+    id: string;
+    userId: string;
+    user: string;
+    paymentId: string;
+    status: string;
+    qtdCreditos: string;
+  }
+
+  interface ComprasResponse {
+    compras: Compra[];
+  }
+
+
+
+
+  // Função para buscar as ordens no banco e atribuir ao objeto ordens
+  async function fetchOrdens(userId: string) {
+    try {
+      const res = await fetch(`/api/internal/payments/savepay?userId=${userId}`);
+      if (!res.ok) {
+        alert("Nenhuma ordem encontrada");
+        throw new Error("Erro ao buscar ordens");
+      }
+
+      // data é o objeto que contém a propriedade 'compras'
+      const data: ComprasResponse = await res.json();
+
+      // setando somente o array de compras no state
+      setCompras(data.compras);
+     
+      //como peegar os objetos, tem que percorrer as ordens
+      console.log(data.compras[0].id); // aqui você verá o array completo
+    } catch (error) {
+      console.error("Erro ao buscar ordens:", error);
+    }
+  }
+
+  // Buscar as ordens do usuário quando a página carregar ou quando o id mudar
+  useEffect(() => {
+    if (id) {
+      fetchOrdens(id);
+    }
+  }, [id]);
+
+  
+
+  /* segunda parte do fluxo pesquisar se as ordens foram salvas */
+
+
+    //checar status do pagamento
+    async function checkPaymentStatus(orderId: string) {
+      try {
+        const response = await fetch(`/api/internal/location-verification?orderId=${orderId}`);
+        const data = await response.json();
+  
+        if (!response.ok) {
+          console.error("Erro ao consultar status:", data.error);
+          return "error";
+        }
+  
+        const status = data.status;
+        console.log("🔎 Status atual:", status);
+  
+        return status;
+        // waiting_payment | paid | failed | canceled
+      } catch (err) {
+        console.error("Erro ao consultar status:", err);
+        return "error";
+      }
+    }
+  
+
+
+    //agora ja esta fazendo o check no banco mas como nao consegui fazer o fluxo de pagamento por causa de erros de 
+    //chave pix
+  useEffect(() => {
+    // Função para verificar status de todas as ordens
+    const verificarStatusOrdens = async () => {
+      if (compras && compras.length > 0) {
+        for (const compra of compras) {
+          const status = await checkPaymentStatus(compra.id);
+          // Aqui você pode atualizar o status da ordem no state, se desejar
+          // Exemplo: atualizar o array de compras com o novo status
+          // setCompras(prev =>
+          //   prev.map(c => c.id === compra.id ? { ...c, status } : c)
+          // );
+          //apagar os status failed
+          //recuperar o produto comprado
+          //entregar o credito para o usuario
+        }
+      }
+    };
+
+    // Verifica imediatamente ao montar
+    verificarStatusOrdens();
+
+    // Cria o intervalo para verificar a cada 10 segundos
+    const interval = setInterval(() => {
+      verificarStatusOrdens();
+    }, 10000);
+
+    // Limpa o intervalo ao desmontar
+    return () => clearInterval(interval);
+  }, [compras]);
+
+
+
+
+
+
+
+    
   //comprar creditos
   const handleComprar = (produto: Produto) => {
 
@@ -45,13 +162,13 @@ const Creditos = () => {
 
   }
 
-  
-   async function fetchUserCreditos(userId: string): Promise<number | null> {
+
+  async function fetchUserCreditos(userId: string): Promise<number | null> {
     try {
       const res = await fetch(`/api/internal/creditos?userId=${userId}`);
       const data = await res.json();
       if (data.success) {
-       setCredito(data.creditos)
+        setCredito(data.creditos)
       }
       return null;
     } catch (err) {
@@ -60,14 +177,23 @@ const Creditos = () => {
     }
   }
 
+  // Efeito para checar status das ordens a cada minuto
 
-//buscar os creditos do usuario quando a pagina carregar
-  useEffect(()=>{
+
+
+
+
+  //buscar os creditos do usuario quando a pagina carregar
+  useEffect(() => {
     fetchUserCreditos(id)
   })
 
 
 
+
+
+
+  //listar meus produtos
   useEffect(() => {
     const fetchProdutos = async () => {
       setLoadingProdutos(true)
@@ -88,6 +214,8 @@ const Creditos = () => {
     }
     fetchProdutos()
   }, [])
+
+
 
   return (
     <>
@@ -177,6 +305,27 @@ const Creditos = () => {
           Essa página é acessível apenas para psicólogos.
         </div>
       )}
+
+      {/* Div para apresentar as ordens do usuário */}
+      <div className="mt-12">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Minhas Ordens de Compra</h3>
+        {/* Aqui você pode mapear e exibir as ordens do usuário */}
+        {/* Exemplo estático, troque por dados reais depois */}
+        <div className="bg-white rounded-xl shadow p-4">
+          <p className="text-gray-500">Nenhuma ordem encontrada.</p>
+
+          {/*   {ordens.map((ordem) => (
+          <div key={ordem.id} className="border-b py-2 flex justify-between items-center">
+            <span className="font-medium">{ordem.produto}</span>
+            <span className={`px-2 py-1 rounded text-xs ${ordem.status === 'PAID' ? 'bg-green-100 text-green-700' : ordem.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+              {ordem.status}
+            </span>
+            <span className="text-gray-400">{new Date(ordem.createdAt).toLocaleString()}</span>
+          </div>
+        ))}
+         */}
+        </div>
+      </div>
     </>
   )
 }

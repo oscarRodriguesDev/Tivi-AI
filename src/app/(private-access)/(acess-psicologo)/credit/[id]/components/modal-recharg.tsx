@@ -268,7 +268,7 @@ async function criarCompra(userId: string, paymentId: string, stats?: string) {
               code: produto.codigo,
               title: produto.titulo,
               description: produto.descricao,
-              unit_price: 1,//valor
+              unit_price: 2,//valor
               quantity: 1, //quantidade
             },
           ],
@@ -422,6 +422,8 @@ async function criarCompra(userId: string, paymentId: string, stats?: string) {
 
 
   return (
+    <>
+    
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 animate-fadeIn">
         {/* Cabeçalho */}
@@ -748,6 +750,7 @@ async function criarCompra(userId: string, paymentId: string, stats?: string) {
         </div>
       </div>
     </div>
+    </>
 
   );
 }

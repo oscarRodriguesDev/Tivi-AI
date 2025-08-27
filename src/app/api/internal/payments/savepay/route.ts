@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-
+//retorna as compras do usuario
 // GET /api/internal/payments/savepay?userId=...
 export async function GET(req: Request) {
   try {
@@ -16,7 +16,6 @@ export async function GET(req: Request) {
         { status: 400 }
       );
     }
-
     const compras = await prisma.compra.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
