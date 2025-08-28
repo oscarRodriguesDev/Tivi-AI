@@ -96,6 +96,8 @@ export async function POST(req: NextRequest) {
 // /pages/api/internal/payments/pix.ts
 
 
+//função que estava dando certo
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -133,7 +135,7 @@ export async function POST(req: NextRequest) {
         code: i.code,
         description: i.description || i.title || "Produto",
         quantity: i.quantity,
-        amount: (i.unit_price || i.price) * 1,//por enquanto
+        amount: (i.unit_price || i.price),//por enquanto
       })),
       payments: [
         {
@@ -169,6 +171,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+ 
 
 
 

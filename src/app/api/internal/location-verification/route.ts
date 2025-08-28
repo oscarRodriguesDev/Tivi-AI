@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+
+//verifica o status da ordem no pagarme
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -21,7 +23,7 @@ export async function GET(req: NextRequest) {
     }
 
     const pagarmeResponse = await fetch(
-      `https://api.pagar.me/core/v5/orders/${orderId}`,
+      `https://api.pagar.me/core/v5/transactions/${orderId}`,
       {
         method: "GET",
         headers: {
