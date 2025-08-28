@@ -62,7 +62,7 @@ model PrePsicologo {
 }
 
 model PrePaciente {
-  id                   String      @id @default(uuid())
+  id                   String   @id @default(uuid())
   nome                 String?
   email                String?
   endereco             String?
@@ -101,6 +101,7 @@ model PrePaciente {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   psicologoId          String?
+
 }
 
 model Paciente {
@@ -126,6 +127,7 @@ model Paciente {
   psicologoId  String?
   resumo_anmp  String?
   result_amnp  String[]
+  prontuario   prontuario?
 }
 
 model Consulta {
@@ -185,4 +187,46 @@ enum UserRole {
   ADMIN
   PSYCHOLOGIST
   COMMON
+}
+
+//modelos de documentos
+model model_doc {
+  id           String   @id @default(uuid())
+  name         String
+  criado_em    DateTime @default(now())
+  psicologoId  String
+  prompt        String
+  }
+
+//livros
+model base_cientific {
+  id           String   @id @default(uuid())
+  psicologoId  String
+  name         String
+  autor        String
+  url_capa     String?
+  resumo       String
+
+}
+
+model prontuario {
+  id          String   @id @default(uuid())
+  pacienteId  String   @unique
+  paciente    Paciente @relation(fields: [pacienteId], references: [id])
+  queixaPrincipal String?
+  historico       String?
+  conduta         String?
+  transcription   String?
+  evolucao        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Historico {
+  id          String   @id @default(uuid())
+  psicologoId String
+  userName    String?
+  descricao   String?
+  tipo        String?   @default("geral")
+  timestamp   DateTime? @default(now())
 }

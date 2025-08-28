@@ -2,7 +2,7 @@
 import { useAccessControl } from "@/app/context/AcessControl"
 import { FaList, FaFileAlt, FaThumbsUp, FaThumbsDown, FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa"//icones de like e dislike
 import HeadPage from "@/app/(private-access)/components/headPage"
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { redirect, useParams, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { FaCirclePlus } from "react-icons/fa6";
@@ -12,6 +12,8 @@ import { ModalPacientes } from "./components/modal-pacientes"
 import { Paciente } from "../../../../../../types/paciente"
 import { PrePaciente } from "../../../../../../types/prePacientes"
 import Notiflix from 'notiflix';
+import ProntuarioModal from "./components/prontuario"
+
 
 const mockAtendimentos = [
   {
@@ -84,6 +86,9 @@ const MeusPacientes = () => {
   const idpsc = params?.id as string;
   const router = useRouter()
   const [prePacientes, setPrePacientes] = useState<PrePaciente[]>([])
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const [idPac,setIdPac]= useState<string>("00")
 
 
 
@@ -119,7 +124,7 @@ const MeusPacientes = () => {
         if (response.ok) {
           const data = await response.json();
           setPrePacientes(data);
-     
+
         } else {
           showErrorMessage('Erro ao carregar pré-pacientes');
         }
@@ -136,6 +141,24 @@ const MeusPacientes = () => {
     }
   }, [idpsc]);
 
+  // Função para deletar paciente
+  const deletePaciente = async (pacienteId: string) => {
+    try {
+      const response = await fetch(`/api/internal/register_pacientes?id=${pacienteId}`, {
+        method: 'DELETE',
+      });
+  
+      if (response.ok) {
+        setPacientes(pacientes.filter(paciente => paciente.id !== pacienteId));
+        showSuccessMessage('Paciente deletado com sucesso!');
+      } else {
+        const data = await response.json();
+        showErrorMessage(`Erro ao deletar paciente: ${data?.error || 'Erro desconhecido'}`);
+      }
+    } catch (error) {
+      showErrorMessage('Erro ao deletar paciente. Tente novamente mais tarde.');
+    }
+  };
 
 
 
@@ -144,42 +167,26 @@ const MeusPacientes = () => {
    * function deletePaciente
    * @param string id
    */
-  const deletePaciente = async (id: string) => {
-
-    async function deletarUser(pacienteId: string) {
-      try {
-        const response = await fetch('/api/internal/register_pacientes', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ id: pacienteId }),
-        });
-
-        if (response.ok) {
-          // Atualiza a lista de pacientes após a deleção
-          setPacientes(pacientes.filter(paciente => paciente.id !== pacienteId));
-          showSuccessMessage('Paciente deletado com sucesso!');
-        } else {
-          const data: Paciente = await response.json();
-          showErrorMessage(`Erro ao deletar paciente: ${data}`);
-        }
-      } catch (error) {
-        showErrorMessage('Erro ao deletar paciente. Tente novamente mais tarde.');
+ /*  const deletePaciente = async (pacienteId: string) => {
+    try {
+      const response = await fetch(`/api/internal/register_pacientes?id=${pacienteId}`, {
+        method: 'DELETE',
+      });
+  
+      if (response.ok) {
+        setPacientes(pacientes.filter(paciente => paciente.id !== pacienteId));
+        showSuccessMessage('Paciente deletado com sucesso!');
+      } else {
+        const data = await response.json();
+        showErrorMessage(`Erro ao deletar paciente: ${data?.error || 'Erro desconhecido'}`);
       }
-    };
+    } catch (error) {
+      showErrorMessage('Erro ao deletar paciente. Tente novamente mais tarde.');
+    }
+  }; */
+  
 
-    Notiflix.Confirm.show(
-      'Título',
-      'Mensagem de confirmação',
-      'Sim',
-      'Não',
-      () => {
-        deletarUser(id)
-      },
-      () => { showInfoMessage("Nenhuma alteração realizada!"); },
-    );
-  }
+ 
 
 
 
@@ -208,7 +215,7 @@ const MeusPacientes = () => {
 
 
   useEffect(() => {
-  
+
     // se quiser realmente testar a API, descomente:
     fetchPacientes()
   }, [idpsc])
@@ -216,43 +223,43 @@ const MeusPacientes = () => {
 
   //abre a pagina com o id do  paciente e do psicologo na url
   const openPacTrasn = (psc: string, pac: string) => {
-    try{
+    try {
       router.push(`/pacient-transform/${psc}/${pac}`);
 
-    }catch(error){
-  showErrorMessage("Ocorreu um erro ao tentar identificar o psicologo!")
+    } catch (error) {
+      showErrorMessage("Ocorreu um erro ao tentar identificar o psicologo!")
     }
-    finally{
-     console.log('finalizou')
+    finally {
+      console.log('finalizou')
     }
 
   }
 
 
-  
-    //descarte de pré paciente
-const descartarPrePaciente = async (idpac:string) => {
-  try {
+
+  //descarte de pré paciente
+  const descartarPrePaciente = async (idpac: string) => {
+    try {
       const response = await fetch(`/api/internal/register_pacientes/transform?idpac=${idpac}`, {
-          method: 'DELETE',
+        method: 'DELETE',
       });
 
       if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Erro ao descartar pré-paciente');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao descartar pré-paciente');
       }
 
       const data = await response.json();
-     
+
       showInfoMessage('Pré-paciente descartado com sucesso!');
-      
-        fetchPacientes()
-      
-  } catch (error) {
+
+      fetchPacientes()
+
+    } catch (error) {
       showErrorMessage(`Erro ao descartar pré-paciente: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
       console.error('Erro ao descartar PrePaciente:', error);
-  }
-};
+    }
+  };
 
 
 
@@ -270,6 +277,12 @@ const descartarPrePaciente = async (idpac:string) => {
         title={'Meus Pacientes'}
         icon={<FaList size={20} />}
       />
+      <ProntuarioModal
+        pacienteId={idPac}//apenas um usuario para testes
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
+
 
       <div className="overflow-x-auto p-4">
         <div className=" h-full px-5 py-3 flex justify-end">
@@ -296,7 +309,6 @@ const descartarPrePaciente = async (idpac:string) => {
             {pacientes && pacientes.length > 0 ? (
               pacientes.map((item, index) => (
                 <tr key={index} className="border-t border-gray-200 text-sm">
-                  {/*   <td className="px-4 py-2">{name_psico}</td> */}
                   <td className="px-4 py-2">{item.nome}</td>
                   <td className="px-4 py-2">{item.idade}</td>
                   <td className="px-4 py-2">{item.telefone}</td>
@@ -304,18 +316,26 @@ const descartarPrePaciente = async (idpac:string) => {
                   <td className="px-4 py-2">{item.estado}</td>
                   <td className="px-4 py-2">{item.convenio}</td>
                   <td className="px-4 py-2">
-                    <FaFileAlt className="text-blue-500 hover:text-blue-700 cursor-pointer" />
+                    <FaFileAlt className="text-blue-500 hover:text-blue-700 cursor-pointer"
+                    
+                     onClick={() => {
+                      setIdPac(item.id)
+                      setModalOpen(true)}}
+                    />
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex gap-2">
                       <button className="flex items-center gap-1 bg-blue-700 text-white hover:bg-blue-400 hover:text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                       // onClick={() => { getPaciente(item.id) }}
-                        onClick={() => abrirModal(item)}
+                        // onClick={() => { getPaciente(item.id) }}
+                        onClick={() =>{ 
+                          abrirModal(item)}}
                       >
 
                         Abrir
                         {/* Esse modal vamos usar em outra versão */}
-                        <GrDocumentUser />
+                        <GrDocumentUser
+                       
+                        />
                       </button>
                       <button
                         className="flex items-center gap-1 bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-800 px-3 py-1 rounded-md text-sm font-medium transition-colors"
@@ -343,14 +363,16 @@ const descartarPrePaciente = async (idpac:string) => {
               mockAtendimentos.map((item, index) => (
                 <tr key={index} className="border-t border-gray-200 text-sm">
                   {/*  <td className="px-4 py-2">{name_psico}</td> */}
-                  
-                 
+
+
                   <td className="px-4 py-2">{item.nome}</td>
                   <td className="px-4 py-2">{item.idade}</td>
                   <td className="px-4 py-2">{item.telefone}</td>
 
                   <td className="px-4 py-2">
-                    <FaFileAlt className="text-blue-500 hover:text-blue-700 cursor-pointer" />
+                    <FaFileAlt className="text-blue-500 hover:text-blue-700 cursor-pointer" 
+                    
+                    />
                   </td>
                   <td className="px-4 py-2">
                     <span className="px-2 py-1 rounded-full text-xs font-semibold">
@@ -387,11 +409,11 @@ const descartarPrePaciente = async (idpac:string) => {
                         <button
                           className="flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900 px-3 py-1 rounded-md text-sm font-medium transition-colors"
                           onClick={() => {
-                           
-                              openPacTrasn(idpsc, item.id);
-                            
+
+                            openPacTrasn(idpsc, item.id);
+
                           }}
-                          
+
                           title="Habilitar como paciente"
                         >
                           <FaCheck />

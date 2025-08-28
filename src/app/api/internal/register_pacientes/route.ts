@@ -57,53 +57,119 @@ export async function GET(req: Request) {
 }
 
 
+async function salvarProntuarioInicial(pacienteId: string, sintomas: string) {
+  try {
+    // Verifica se já existe um prontuário para este paciente
+    const prontuarioExistente = await prisma.prontuario.findUnique({
+      where: { pacienteId }
+    });
+
+    if (prontuarioExistente) {
+      return prontuarioExistente;
+    }
+
+    // Cria um prontuário inicial baseado nos sintomas
+    const prontuario = await prisma.prontuario.create({
+      data: {
+        pacienteId,
+        queixaPrincipal: sintomas,
+        historico: "Histórico inicial baseado nos sintomas informados",
+        conduta: "Aguardando primeira consulta",
+        evolucao: "Paciente recém cadastrado"
+      }
+    });
+
+    return prontuario;
+  } catch (error: any) {
+    console.error("Erro ao criar prontuário inicial:", error);
+    throw error;
+  }
+}
+
+
+
 export async function POST(req: Request) {
   try {
-    const body: Paciente = await req.json();
-    const { nome, fantasy_name, idade, sintomas, telefone, convenio, cpf, 
-      sexo, cep, cidade, bairro, rua, numero, pais, complemento, estado, email, rg, psicologoId,resumo_anmp } = body;
+    const body: any = await req.json();
 
+    const {
+      nome,
+      fantasy_name,
+      idade,
+      sintomas,
+      telefone,
+      convenio,
+      cpf,
+      sexo,
+      cep,
+      cidade,
+      bairro,
+      rua,
+      numero,
+      pais,
+      complemento,
+      estado,
+      email,
+      rg,
+      psicologoId,
+      resumo_anmp
+    } = body;
 
     // Validação dos campos obrigatórios
-    if (!nome || !fantasy_name || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep
-       || !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg || !psicologoId ||!resumo_anmp) {
+    if (
+      !nome || !fantasy_name || !sintomas || !telefone || !convenio || !cpf || !sexo || !cep ||
+      !cidade || !bairro || !rua || !numero || !pais || !estado || !email || !rg || !psicologoId
+    ) {
       return NextResponse.json(
         { error: "Todos os campos obrigatórios devem ser preenchidos" },
         { status: 400 }
       );
     }
 
-    // Criando paciente no banco de dados
+    // Criando paciente com prontuário aninhado
     const novoPaciente = await prisma.paciente.create({
       data: {
-        nome,               // Nome do paciente
-        cpf,                // CPF do paciente
-        idade, // Idade como string (mantendo a coerência com o modelo)
-        sintomas,           // Sintomas do paciente
-        telefone,           // Telefone do paciente         // ID do psicólogo
+        nome,
         fantasy_name,
-        psicologoId,
-        convenio,           // Convênio
-        sexo,               // Sexo do paciente
-        cep,                // CEP do paciente
-        cidade,             // Cidade do paciente
-        bairro,             // Bairro do paciente
-        rua,                // Rua do paciente
-        numero,             // Número do endereço
-        pais,               // País do paciente
-        complemento,        // Complemento do endereço
-        estado,             // Estado do paciente
-        email,              // E-mail do paciente
+        idade,
+        sintomas,
+        telefone,
+        convenio,
+        cpf,
+        sexo,
+        cep,
+        cidade,
+        bairro,
+        rua,
+        numero,
+        pais,
+        complemento,
+        estado,
+        email,
         rg,
-        resumo_anmp
+        psicologoId,
+        resumo_anmp,
+
+        prontuario: {
+          create: {
+            queixaPrincipal: sintomas,
+            historico: "Prontuário inicial criado automaticamente.",
+            conduta: null,
+            evolucao: null
+          }
+        }
       },
+      include: {
+        prontuario: true
+      }
     });
 
     return NextResponse.json(
-      { message: "Paciente cadastrado com sucesso", data: novoPaciente },
+      { message: "Paciente e prontuário criados com sucesso", data: novoPaciente },
       { status: 201 }
     );
   } catch (error: any) {
+    console.error("Erro ao processar requisição:", error);
     return NextResponse.json(
       { error: "Erro ao processar a requisição", details: error.message },
       { status: 500 }
@@ -112,10 +178,12 @@ export async function POST(req: Request) {
 }
 
 
-//rota deletar um paciente
+
+
 export async function DELETE(request: Request) {
   try {
-    const { id } = await request.json();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
 
     if (!id) {
       return NextResponse.json(
@@ -127,6 +195,9 @@ export async function DELETE(request: Request) {
     // Verifica se o paciente existe
     const paciente = await prisma.paciente.findUnique({
       where: { id },
+      include: {
+        prontuario: true
+      }
     });
 
     if (!paciente) {
@@ -136,9 +207,16 @@ export async function DELETE(request: Request) {
       );
     }
 
+    // Deleta o prontuário primeiro (se existir) devido à relação
+    if (paciente.prontuario) {
+      await prisma.prontuario.delete({
+        where: { id: paciente.prontuario.id }
+      });
+    }
+
     // Deleta o paciente
     await prisma.paciente.delete({
-      where: { id },
+      where: { id }
     });
 
     return NextResponse.json(
@@ -146,12 +224,14 @@ export async function DELETE(request: Request) {
       { status: 200 }
     );
   } catch (error: any) {
+    console.error("Erro ao deletar paciente:", error);
     return NextResponse.json(
       { error: "Erro ao deletar paciente", details: error.message },
       { status: 500 }
     );
   }
 }
+
 
 
 

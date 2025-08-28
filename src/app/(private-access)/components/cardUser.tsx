@@ -2,94 +2,114 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react"; // Importe o hook useSession e signOut
+import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
-import userDefault from '../../../../public/profile_pictures_ps/userdefault.png'
+import userDefault from '../../../../public/profile_pictures_ps/userdefault.png';
 import { showErrorMessage } from "../../util/messages";
-
+import { useAutoLogout } from "@/app/hooks/useAutoLogout";
 
 const CardUser = () => {
-
-  const [id, setId] = useState<string | null>('')
-  const { data: session, status } = useSession(); // Obtém os dados da sessão
+  const { data: session, status } = useSession();
   const [cardOpen, setCardOpen] = useState(false);
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const [id, setId] = useState<string | null>('');
+
+  const userId = session?.user?.id;
+  const urlPerfil = `/user-profile/${id}`;
 
   useEffect(() => {
+    if (!userId) return;
+
+    const cacheKey = `fotoPerfil_${userId}`;
+    const cachedFoto = localStorage.getItem(cacheKey);
+
+    if (cachedFoto) {
+      setFotoPerfil(cachedFoto);
+      return;
+    }
+
     const fetchFotoPerfil = async () => {
       try {
-        const response = await fetch(`/api/uploads?userId=${session?.user?.id}`);
+        const response = await fetch(`/api/uploads/profile/?userId=${userId}`);
         const data = await response.json();
-        setFotoPerfil(data.url);
-        // Passa apenas a parte relativa para o estado
+
+        if (data?.url) {
+          localStorage.setItem(cacheKey, data.url);
+          setFotoPerfil(data.url);
+        }
       } catch (error) {
-        showErrorMessage(`Erro ao buscar dados do usuario ${error}`);
+        showErrorMessage(`Erro ao buscar dados do usuário: ${error}`);
       }
     };
+
     fetchFotoPerfil();
-  }, [session?.user?.id]);
-
-
+  }, [userId]);
 
   useEffect(() => {
-    if (session?.user?.id) {
-      setId(session?.user?.id);
+    if (userId) {
+      setId(userId);
     }
-  }, [session]); // Atualiza o ID sempre que a sessão mudar
-  const urlPerfil = `/user-profile/${id}`
+  }, [userId]);
 
-
-  // Função de Logout usando o signOut do NextAuth
   const handleLogout = async () => {
+    if (userId) {
+      localStorage.removeItem(`fotoPerfil_${userId}`);
+    }
     await signOut({ callbackUrl: "/login" });
-
   };
 
+ /*  useAutoLogout(15*60*1000);// 15 minutos de inatividade */
 
   return (
-    <>
-      <div
-        className="absolute top-[4.5%] left-[100%] sm:left-[200%] md:left-[300%] lg:left-[680%] 
-        w-[90%] text-black z-50 rounded-sm cursor-pointer bg-white hover:bg-gray-100 transition-colors
-        duration-200 shadow-md"
-        onClick={() => setCardOpen(!cardOpen)}
+<div className="relative">
+  {/* Cabeçalho do card */}
+  <div
+    onClick={() => setCardOpen(!cardOpen)}
+    className="flex items-center gap-3 cursor-pointer px-4 py-2 rounded-2xl shadow-md
+    transition-all duration-300 bg-white border border-gray-200 hover:border-green-600"
+   
+  >
+    {status === "authenticated" ? (
+      <>
+        <Image
+          src={fotoPerfil || userDefault}
+          alt="Foto de perfil"
+          width={40}
+          height={40}
+          quality={100}
+          className="rounded-full border border-green-600/30"
+        />
+        <span className="text-sm font-semibold text-gray-800 truncate max-w-[130px]">
+          {session.user?.name}
+        </span>
+      </>
+    ) : (
+      <span className="text-sm text-gray-500">Usuário não autenticado</span>
+    )}
+  </div>
+
+  {/* Dropdown do card */}
+  {cardOpen && status === "authenticated" && (
+    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50 animate-fadeIn">
+      <Link
+        href={urlPerfil}
+        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-xl"
       >
-        {/* conteúdo aqui */}
-        {status === "authenticated" ? (
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
-              <Image
-                src={fotoPerfil || userDefault}
-                alt="Foto de perfil"
-                width={40}
-                height={40}
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <span className="text-sm text-black truncate">{session.user?.name}</span>
-          </div>
-        ) : (
-          <>
-            <div>Usuario não autenticado</div>
-          </>
-        )}
-        {cardOpen && (
-          <div className="absolute top-10  w-[220px] left-[0%] bg-white shadow-md rounded-md p-2">
-            <Link href={urlPerfil} className="text-black  hover:text-red-400 px-0 py-2 rounded-md transition duration-300 ease-in-out">
-              Meu perfil
-            </Link>
-            <br />
-            <button
-              onClick={handleLogout}
-              className=" text-black hover:text-red-400 px-0 py-2 rounded-md transition duration-300 ease-in-out"
-            >
-              Sair
-            </button>
-          </div>
-        )}
-      </div>
-    </>
+        Meu perfil
+      </Link>
+      <button
+        onClick={handleLogout}
+        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-xl"
+      >
+        Sair
+      </button>
+    </div>
+  )}
+</div>
+
+
+
   );
 };
-export default CardUser;
 
+export default CardUser;

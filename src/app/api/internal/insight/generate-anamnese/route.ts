@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { generateAnamnese } from "@/app/util/Anamnese";
 
 
-//export const runtime = 'edge';
-export const runtime = 'nodejs';
+export const runtime = 'edge';
+//export const runtime = 'nodejs';
 
 
 const openai = new OpenAI({
@@ -21,9 +21,11 @@ export async function POST(req: Request) {
   const promptMessage = `${generateAnamnese(responses)} `;
    try {
     const completion = await openai.chat.completions.create({
+        /*   model: "gpt-4o-mini", */
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: promptMessage }],
       temperature: 0.2,
+       max_tokens: 2000
     });
     const content = completion.choices[0]?.message?.content || "Sem resposta.";
     return NextResponse.json({ response: content });

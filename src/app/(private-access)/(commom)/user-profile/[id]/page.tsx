@@ -11,6 +11,7 @@ import { Psicologo } from "../../../../../../types/psicologos";
 import LoadingNoHidration from "@/app/(private-access)/components/noHidrationn";
 import { useAccessControl } from "@/app/context/AcessControl";
 import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
+import { signOut } from "next-auth/react";
 
 const Perfil = () => {
     const { id } = useParams<{ id: string }>();
@@ -80,11 +81,11 @@ const Perfil = () => {
             const fileData = new FormData();
             fileData.append("file", file);
     
-            const res = await fetch("/api/uploads/?path=profile-pictures", {
+            const res = await fetch(`/api/uploads/profile/?path=profile-pictures&id=${id}`, {
                 method: "POST",
                 body: fileData,
             });
-    
+              alert(id)
             if (!res.ok) {
                 const error = await res.json();
                 throw new Error(error.error || "Erro no upload");
@@ -109,8 +110,9 @@ const Perfil = () => {
         try {
             const fileData = new FormData();
             fileData.append("file", file);
+            alert(id)
     
-            const res = await fetch("/api/uploads/?path=banner", {
+            const res = await fetch(`/api/uploads/profile/?path=banner&id=${id}`, {
                 method: "POST",
                 body: fileData,
             });
@@ -374,7 +376,11 @@ const Perfil = () => {
                   password={formData.password}
                   first_acess={formData.first_acess}
                   lastname={formData.lastname}
-                  onClose={() => setAlterar(!alterar)}
+                  onClose={() => {
+                    setAlterar(!alterar)
+                    signOut();
+
+                  }}
                 />
               </div>
             )}

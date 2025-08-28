@@ -10,7 +10,7 @@ import Image from "next/image";
 import Logo from '../../../../public/marca/logo.png'
 import Link from "next/link";
 import { KeyboardEvent } from 'react';
-import { showErrorMessage, showSuccessMessage } from "@/app/util/messages";
+import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
 
 
 
@@ -22,23 +22,36 @@ export default function LoginPage() {
   const session = useSession()
   const [showPassword, setShowPassword] = useState(false);
   const [aviso, setAviso] = useState('')
-  
 
-   //função para logar
+
+
+  //função para logar
   const handleLogin = async () => {
+    //veriicar se tem algo digitado em senha
+    if (!password.trim()) {
+     showErrorMessage("A senha não pode estar vazia");
+     setAviso("Senha Inválida");
+      return;
+    }
+    //verificar se email está vazio
+    if (!email.trim()) {
+      showErrorMessage("O e-mail não pode estar vazio");
+      setAviso("E-mail Inválido");
+      return;
+    }
     try {
       const result = await signIn("credentials", { email, password, callbackUrl: `/common-page`, redirect: false });
       if (result?.error) {
         //experimental
         showErrorMessage(result?.error);
         setPassword('')
-        if(result.error==='Usuario não existe no sistema'){
+        if (result.error === 'Usuario não existe no sistema') {
           setEmail("");
         }
         throw new Error(result.error);
-      }else{
-        showSuccessMessage('Seja bem vindo de volta')
-       /*  redirect('/common-page') */
+      } else {
+        showSuccessMessage('Bem vindo a TiviAI')
+        /*  redirect('/common-page') */
         router.push('/common-page')
       }
       // Se não houver erro, o usuário será redirecionado automaticamente pelo NextAuth
@@ -49,7 +62,7 @@ export default function LoginPage() {
   };
 
 
-  
+
   //verificando estado do usuario
   useEffect(() => {
     if (session.status === 'unauthenticated') {
@@ -69,26 +82,33 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-green-400 via-green-600 to-gray-100 flex items-center justify-center">
-        <div className="w-full max-w-sm p-10 bg-white rounded-3xl shadow-lg border border-gray-100">
-          <h1
-            className="flex items-center justify-center text-3xl font-semibold text-center text-green-600 mb-6">
+      <div className="min-h-screen bg-gradient-to-br from-green-400 via-green-600 to-gray-100 flex items-center justify-center px-4">
+        <div className="w-full max-w-md p-8 sm:p-10 bg-white rounded-3xl shadow-lg border border-gray-100">
+          <h1 className="flex items-center justify-center text-2xl sm:text-3xl font-semibold text-center text-green-600 mb-6">
             <span>
-              <Image src={Logo}
-                alt='imagem logo'
-                quality={100}
-                className="w-10 h-10 mr-8" />
-            </span>Login</h1>
+              <Image src={Logo} alt="imagem logo" quality={100} className="w-10 h-10 mr-3" />
+            </span>
+            Login
+          </h1>
           <div className="space-y-6">
-         
+
             <input
-              type='email'
+              type="email"
               required
-              placeholder="E-mail"
-              name='email'
+              placeholder="email@tiviai.com.br"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              autoComplete="email"
+              onBlur={() => {
+                // Checa se contém '@' e termina com '.com.br'
+                if (!email.includes('@') || !email.endsWith('.com.br')) {
+                  setAviso("Por favor, informe um e-mail válido contendo '@' e terminando com '.com.br'");
+                } else {
+                  setAviso("");
+                }
+              }}
+              className="w-full p-3 sm:p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
             <div className="relative w-full">
               <input
@@ -99,9 +119,18 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                className="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
+                className="w-full p-3 sm:p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
                 onKeyDown={handleKeyDown}
+                onBlur={() => {
+                  if (!password.trim()) {
+                    setAviso("A senha não pode estar vazia");
+                  } else {
+                    setAviso("");
+                  }
+                }}
               />
+
+              
               <p className="absolute -mt-2 text-xs text-red-600 p-2 text-center">
                 {aviso}
               </p>
@@ -114,10 +143,10 @@ export default function LoginPage() {
               </button>
             </div>
             <input
-              type='button'
-              onClick={() => { handleLogin() }}/* no futuro vai mandar para a agenda para marcar as reuniões */
+              type="button"
+              onClick={handleLogin}
               className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-              value='Acessar'
+              value="Acessar"
             />
             <button
               onClick={() => router.push('/pre-cadastro')}
@@ -127,16 +156,17 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="mt-6 text-center">
-            <Link href="/recupera" className="text-sm text-green-600 hover:text-green-700">
+          <div className="mt-6 text-center flex flex-col sm:flex-row justify-center gap-2 text-sm">
+            <Link href="/recupera" className="text-green-600 hover:text-green-700">
               Esqueceu a senha?
             </Link>
-            <Link href="/" className="text-sm ml-2 text-green-600 hover:text-green-700">
+            <Link href="/" className="text-green-600 hover:text-green-700">
               Voltar
             </Link>
           </div>
         </div>
       </div>
+
     </>
 
 

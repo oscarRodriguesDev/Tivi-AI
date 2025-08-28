@@ -21,4 +21,5 @@ export interface Paciente {
   psicologoId?: string; //
   result_amnp:[string]; //vem da anamnese cadastro
   resumo_anmp?:string; //gerado pelo gpt a partir da anamnse
+  
 }

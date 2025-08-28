@@ -30,46 +30,50 @@ const Menu: React.FC = () => {
   const id = session?.user.id
   const role = session?.user?.role
   return (
-    <div className="absolute w-[244px] h-auto bg-white p-5">
-      <CardUser />
-      {/* logomarca */}
-      <div className="w-[187px] h-[78px] bg-white  mb-5">
-        <Image src={Logomarca} alt="logomarca tiviai" className="w-full h-full object-contain" />
+    <div className="absolute w-[244px] min-h-screen bg-white shadow-lg flex flex-col p-5 border-r border-gray-200">
 
+
+      {/* Logomarca */}
+      <div className="w-auto h-[40px] flex items-start justify-start mb-4">
+        <Image
+          src={Logomarca}
+          alt="Logomarca TiviAi"
+          className="max-w-[120px] max-h-[40px] object-contain"
+        />
+      </div>
+
+      {/* Usuário */}
+      <div className="mb-6">
+        <CardUser />
       </div>
 
       {/* Itens do menu */}
+      <nav className="flex-1 space-y-2">
+        {role === 'PSYCHOLOGIST' ? (
+          <>
+            <MenuItem icon={<MdSpaceDashboard size={22} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
+            <MenuItem icon={<LuCalendarDays size={22} />} label="Agendamentos" onClick={() => router.push(`/dating/${id}`)} />
+            <MenuItem icon={<BsCalendarCheckFill size={22} />} label="Histórico" onClick={() => router.push(`/historico/${id}`)} />
+            <MenuItem icon={<FaSadTear size={22} />} label="Meus Pacientes" onClick={() => router.push(`/meus-pacientes/${id}`)} />
+            <MenuItem icon={<LuLibraryBig size={22} />} label="Base Científica" onClick={() => router.push(`/cientific/${id}`)} />
+            <MenuItem icon={<BsCreditCard2BackFill size={22} />} label="Créditos" onClick={() => router.push(`/credit/${id}`)} />
+            <MenuItem icon={<FaHourglassHalf size={22} />} label="Link Temporário" onClick={() => router.push(`/temp-link/${id}`)} />
+          </>
+        ) : (
+          <>
+            <MenuItem icon={<MdSpaceDashboard size={22} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
+            <MenuItem icon={<PiUserCheckFill size={22} />} label="Novos Psicólogos" onClick={() => router.push('/aprove-psc')} />
+            <MenuItem icon={<GrUserAdmin size={22} />} label="Novo Administrador" onClick={() => router.push('/novo_admin')} />
+          </>
+        )}
+      </nav>
 
-
-      {role === 'PSYCHOLOGIST' ? (
-
-        <nav className="space-y-5 border-r-[1px] border-gray-400">
-          <MenuItem icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
-          {/* <MenuItem icon={<RiCustomerServiceFill size={25} />} label="Cadastro de Paciente" onClick={() => router.push(`/cadastro-pacientes/${id}`)} /> */}{/* vai pegar o id do psicolog */}
-          <MenuItem icon={<LuCalendarDays size={25} />} label="Agendamentos" onClick={() => router.push(`/dating/${id}`)} />
-          <MenuItem icon={<BsCalendarCheckFill size={25} />} label="Meus atendimentos" onClick={() => router.push(`/atendimentos/${id}`)} />
-          <MenuItem icon={<FaSadTear size={25} />} label="Meus Pacientes" onClick={() => router.push(`/meus-pacientes/${id}`)} />
-          <MenuItem icon={<LuLibraryBig size={25} />} label="Base Científica" onClick={() => router.push(`/cientific/${id}`)} />
-          {/*  <MenuItem icon={<IoBarChart size={25} />} label="Financeiro" onClick={() => router.push(`/finance/${id}`)} /> */}
-          <MenuItem icon={<BsCreditCard2BackFill size={25} />} label="Créditos" onClick={() => router.push(`/credit/${id}`)} />
-          <MenuItem icon={<FaHourglassHalf size={25} />} label="Link Temporario" onClick={() => router.push(`/temp-link/${id}`)} />
-       
-
-        </nav>
-      ) : (
-        <nav className="space-y-5 border-r-[1px] border-gray-400">
-          <MenuItem icon={<MdSpaceDashboard size={25} />} label="Dashboard" onClick={() => router.push(`/dashboard/${id}`)} />
-          <MenuItem icon={<PiUserCheckFill size={25} />} label="Novos psicologos" onClick={() => router.push('/aprove-psc')} />
-          <MenuItem icon={<GrUserAdmin size={25} />} label="Novo Administrador" onClick={() => router.push('/novo_admin')} />
-
-        </nav>
-
-      )}
-
-
-
-
+      {/* Rodapé opcional */}
+      <div className="mt-auto text-xs text-gray-400 text-center pt-4 border-t border-gray-100">
+        © 2025 TiviAi
+      </div>
     </div>
+
   );
 };
 
@@ -79,16 +83,32 @@ const Menu: React.FC = () => {
 const MenuItem: React.FC<MenuItemProps> = ({ icon, label, onClick }) => {
   return (
     <>
-
       <div
-        className="flex mt-auto mb-auto py-3 space-x-3 border-b-[1px]  border-gray-400 hover:text-cyan-900 active:scale-95 active:bg-gray-200 transition-transform duration-300 rounded-xs cursor-pointer"
-        onClick={onClick} // Utilizando o onClick passado como prop
+        className="
+      flex items-center mt-auto mb-auto py-3 px-4 space-x-3
+      border-b border-gray-300
+      rounded-md
+      text-gray-700
+      hover:text-cyan-700 hover:bg-cyan-100
+      active:scale-95 active:bg-cyan-200
+      transition
+      duration-200
+      cursor-pointer
+      select-none
+      focus:outline-none focus:ring-2 focus:ring-cyan-400
+    "
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") onClick();
+        }}
       >
         {icon}
-        <span className="text-black text-sm font-medium hover:text-cyan-900 transition-colors duration-300">{label}</span>
+        <span className="text-sm font-semibold">{label}</span>
       </div>
-
     </>
+
   );
 };
 

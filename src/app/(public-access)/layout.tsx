@@ -1,9 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "../globals.css"
-import Navbar from "../components/navbar"
-import Footer from "../components/footer"
-import WhatsappButton from "../components/whatsapp-button"
+
+
 
 
 export const metadata: Metadata = {
@@ -33,10 +32,8 @@ export default function RootLayout({
 }) {
   return (
     <>
-      <Navbar />
       <main className="min-h-screen pt-16">{children}</main>
-      <Footer />
-      <WhatsappButton />
+     
     </>
 
   )

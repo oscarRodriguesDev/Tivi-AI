@@ -6,6 +6,7 @@ import './globals.css'
 import CookiesAlert from "./(general-policies)/components/cookies-alert";
 
 
+
 export const metadata: Metadata = {
   title: "Tivi AI - Consultas Inteligentes",
   description:
@@ -38,6 +39,7 @@ export default function RootLayout({
     <html lang="pt-BR">
     <body>
         {children}
+        
         <ToastContainer/>
         <CookiesAlert/>
     </body>

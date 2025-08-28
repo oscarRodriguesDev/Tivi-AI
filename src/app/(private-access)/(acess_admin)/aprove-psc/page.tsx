@@ -16,13 +16,31 @@ const ListaPsicologos = () => {
 
 
   const { role, hasRole } = useAccessControl();
-  const [psicologos, setPsicologos] = useState<Psicologo[]>([]);
+  const [psicologos, setPsicologos] = useState<PrePsicologos[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isAtivo, setAtivo] = useState<boolean>(false);
 
 
+interface PrePsicologos{
+  id: string;
+  nome: string;
+  lastname: string;
+  email: string;
+  crp: string;
+  cpf: string;
+  habilitado: boolean;
+}
 
+
+const [ativoPorId, setAtivoPorId] = useState<{ [key: string]: boolean }>({});
+
+const toggleAtivo = (id: string) => {
+  setAtivoPorId(prev => ({
+    ...prev,
+    [id]: !prev[id] // inverte só o do psicólogo clicado
+  }));
+};
 
 
 
@@ -186,57 +204,61 @@ const ListaPsicologos = () => {
                   <th className="py-3 px-6 border-b font-semibold">Sobrenome</th>
                   <th className="py-3 px-6 border-b font-semibold">CPF</th>
                   <th className="py-3 px-6 border-b font-semibold">CRP</th>
-                  <th className="py-3 px-6 border-b font-semibold text-center">Ações</th>
+                  <th className="py-3 px-6 border-b font-semibold text-center">Email</th>
                 </tr>
 
               </thead>
               <tbody>
-                {psicologos.map((psicologo) => (
-                  <tr key={psicologo.id}>
-                    <td className="border p-0 text-center leading-none whitespace-nowrap">{psicologo.nome}</td>
-                    <td className="border p-0 text-center leading-none whitespace-nowrap">{psicologo.lastname}</td>
-                    <td className="border p-0 text-center leading-none whitespace-nowrap">{psicologo.cpf}</td>
-                    <td className="border p-0 text-center leading-none whitespace-nowrap">{psicologo.crp}</td>
+{psicologos.map((psicologo) => {
+  const isAtivo = ativoPorId[psicologo.id] || false;
 
-                    <td className="border p-2 flex ">
+  return (
+    <tr key={psicologo.id}>
+      <td className="border p-0 text-center">{psicologo.nome}</td>
+      <td className="border p-0 text-center">{psicologo.lastname}</td>
+      <td className="border p-0 text-center">{psicologo.cpf}</td>
+      <td className="border p-0 text-center">{psicologo.crp}</td>
+      <td className="border p-0 text-center">{psicologo.email}</td>
 
-                      <div className="p-0 flex w-full justify-between">
-                        <button onClick={() => setAtivo(!isAtivo)}>
-                          {isAtivo ? (
-                            <PiPlugsConnectedFill color="green" size={25} />
-                          ) : (
-                            <VscDebugDisconnect color="red" size={25} />
-                          )}
-                        </button>
+      <td className="border p-2 flex">
+        <div className="p-0 flex w-full justify-between">
+          <button onClick={() => toggleAtivo(psicologo.id)}>
+            {isAtivo ? (
+              <PiPlugsConnectedFill color="green" size={25} />
+            ) : (
+              <VscDebugDisconnect color="red" size={25} />
+            )}
+          </button>
 
-                        <button
-                          onClick={() => ativarPsicologo(psicologo.cpf || '')}
-                          disabled={!isAtivo}
-                          className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${isAtivo
-                              ? 'bg-green-500 hover:bg-green-600 cursor-pointer'
-                              : 'bg-gray-300 cursor-not-allowed opacity-60'
-                            }`}
-                        >
-                          Save
-                        </button>
+          <button
+            onClick={() => ativarPsicologo(psicologo.cpf || '')}
+            disabled={!isAtivo}
+            className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${
+              isAtivo
+                ? 'bg-green-500 hover:bg-green-600 cursor-pointer'
+                : 'bg-gray-300 cursor-not-allowed opacity-60'
+            }`}
+          >
+            Save
+          </button>
 
-                        <button
-                          onClick={() => rejeitarPisicologo(psicologo.cpf || '')}
-                          disabled={isAtivo} // inverte a lógica aqui
-                          className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${!isAtivo
-                              ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
-                              : 'bg-gray-300 cursor-not-allowed opacity-60'
-                            }`}
-                        >
-                          No Enable
-                        </button>
-                      </div>
+          <button
+            onClick={() => rejeitarPisicologo(psicologo.cpf || '')}
+            disabled={isAtivo}
+            className={`px-3 py-0 text-[12px] rounded text-white font-semibold transition-all duration-200 ${
+              !isAtivo
+                ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
+                : 'bg-gray-300 cursor-not-allowed opacity-60'
+            }`}
+          >
+            No Enable
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+})}
 
-
-
-                    </td>
-                  </tr>
-                ))}
               </tbody>
             </table>
           )}

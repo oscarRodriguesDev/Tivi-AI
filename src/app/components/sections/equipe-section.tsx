@@ -38,6 +38,8 @@ export default function EquipeSection() {
                 é responsável pela validação das abordagens terapêuticas e pelo alinhamento ético e humanizado da plataforma.
                 Lidera com visão estratégica e compromisso com o cuidado ao paciente.
               </p>
+
+          {/*     
               <div className="flex space-x-3">
                 <a href="#" className="text-gray-500 hover:text-tivi-primary">
                   <Github className="h-5 w-5" />
@@ -49,6 +51,8 @@ export default function EquipeSection() {
                   <Mail className="h-5 w-5" />
                 </a>
               </div>
+
+ */}
             </div>
           </div>
 
@@ -73,6 +77,8 @@ export default function EquipeSection() {
                 Especialista em inteligência artificial com foco em engenharia de prompt, linguagem natural e construção de experiências conversacionais.
                 Atua no design de soluções inteligentes, combinando visão estratégica, criatividade e pensamento sistêmico.
               </p>
+
+{/* 
               <div className="flex space-x-3">
                 <a href="#" className="text-gray-500 hover:text-tivi-primary">
                   <Github className="h-5 w-5" />
@@ -84,6 +90,8 @@ export default function EquipeSection() {
                   <Mail className="h-5 w-5" />
                 </a>
               </div>
+ */}
+
             </div>
           </div>
 
@@ -107,6 +115,8 @@ export default function EquipeSection() {
                 necessidades dos usuários e os objetivos do negócio. Atua na priorização de
                 funcionalidades e na definição estratégica da plataforma.
               </p>
+{/* 
+
               <div className="flex space-x-3">
                 <a href="#" className="text-gray-500 hover:text-tivi-primary">
                   <Github className="h-5 w-5" />
@@ -118,6 +128,8 @@ export default function EquipeSection() {
                   <Mail className="h-5 w-5" />
                 </a>
               </div>
+
+               */}
             </div>
           </div>
 
@@ -141,6 +153,8 @@ export default function EquipeSection() {
                 Responsável pela liderança das equipes de suporte e pelo fortalecimento do relacionamento com os usuários. Atua garantindo excelência no atendimento,
                 escuta ativa e construção de conexões humanas com foco em confiança e continuidade.
               </p>
+
+{/* 
               <div className="flex space-x-3">
                 <a href="#" className="text-gray-500 hover:text-tivi-primary">
                   <Github className="h-5 w-5" />
@@ -152,6 +166,9 @@ export default function EquipeSection() {
                   <Mail className="h-5 w-5" />
                 </a>
               </div>
+ */}
+
+
             </div>
           </div>
 
