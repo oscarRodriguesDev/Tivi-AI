@@ -9,9 +9,7 @@ import { FaCirclePlus } from "react-icons/fa6";
 import { GrDocumentUser } from "react-icons/gr";
 import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages"
 import { ModalPacientes } from "./components/modal-pacientes"
-import { Paciente } from "../../../../../../types/paciente"
 import { PrePaciente } from "../../../../../../types/prePacientes"
-import Notiflix from 'notiflix';
 import ProntuarioModal from "./components/prontuario"
 
 

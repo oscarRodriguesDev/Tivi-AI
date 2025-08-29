@@ -233,7 +233,7 @@ model Historico {
 }
 
 //produtos que serão vendidos, apensa adm podem criar produtos
-model Produto {
+model produto {
   id         String   @id @default(uuid())
   codigo     String   @unique
   titulo     String

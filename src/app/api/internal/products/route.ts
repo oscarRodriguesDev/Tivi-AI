@@ -47,31 +47,50 @@ export async function POST(req: Request) {
 
     const { codigo, titulo, descricao, preco, valorUn, quantidade } = body;
 
-    if (!codigo || !titulo || !preco || !valorUn || !quantidade) {
+    // Checagem de campos obrigatórios (descricao pode ser opcional)
+    if (
+      !codigo ||
+      !titulo ||
+      preco === undefined ||
+      valorUn === undefined ||
+      quantidade === undefined
+    ) {
       return NextResponse.json(
         { error: "Campos obrigatórios ausentes" },
         { status: 400 }
       );
     }
 
+    // Verifica se já existe produto com o mesmo código
+    const exists = await prisma.produto.findUnique({ where: { codigo } });
+    if (exists) {
+      return NextResponse.json(
+        { error: "Código de produto já cadastrado" },
+        { status: 409 }
+      );
+    }
+
+    // Cria o produto
     const produto = await prisma.produto.create({
       data: {
         codigo,
         titulo,
-        descricao,
-        preco: parseFloat(preco),
-        valorUn: parseFloat(valorUn),
-        quantidade: parseInt(quantidade),
+        descricao: descricao ?? "",
+        preco: Number(preco),
+        valorUn: Number(valorUn),
+        quantidade: Number(quantidade),
       },
     });
 
     return NextResponse.json(produto, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return NextResponse.json({ error: "Erro ao cadastrar produto" }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || "Erro ao cadastrar produto" },
+      { status: 500 }
+    );
   }
 }
-
 
 
 // Recuperar todos os produtos
