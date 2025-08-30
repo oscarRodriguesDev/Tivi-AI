@@ -6,62 +6,71 @@ const prisma = new PrismaClient();
 // POST: Conclusão de pagamento, entrega créditos, zera compra e marca como entregue
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { userId, creditos, compraId } = body;
+    const { userId, creditos, compraId } = await req.json();
 
-    console.log("body", body);
-
-    if (!userId || typeof creditos !== "number" || !compraId) {
-      return NextResponse.json(
-        { error: "Parâmetros obrigatórios: userId (string), creditos (number), compraId (string)" },
-        { status: 400 }
-      );
+    if (!userId || !creditos || !compraId) {
+      return NextResponse.json({ error: "Parâmetros obrigatórios ausentes. " +req.body }, { status: 400 });
     }
 
-    // Busca a compra específica
-    const compra = await prisma.compra.findUnique({ where: { id: compraId } });
-    if (!compra) {
-      return NextResponse.json({ error: "Compra não encontrada" }, { status: 404 });
-    }
-    if (compra.Status === "ENTREGUE") {
-      return NextResponse.json({ error: "Compra já marcada como ENTREGUE" }, { status: 409 });
-    }
-
-    // Busca o usuário
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
-    }
-
-    // Adiciona os créditos ao usuário (incrementa)
-    const currentCredits = user.creditos ? parseInt(user.creditos, 10) : 0;
-    const newCredits = currentCredits + creditos;
-
-    // Atualiza o usuário com os novos créditos
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { creditos: newCredits.toString() },
+    // Busca a compra para garantir que pertence ao usuário informado
+    const compra = await prisma.compra.findUnique({
+      where: { id: compraId },
+      select: { userId: true, Status: true, qtdCreditos: true },
     });
 
-    // Marca a compra como entregue e zera os créditos da compra
-    await prisma.compra.update({
+    if (!compra) {
+      return NextResponse.json({ error: "Compra não encontrada." }, { status: 404 });
+    }
+
+    if (compra.userId !== userId) {
+      return NextResponse.json({ error: "Usuário não autorizado para esta compra." }, { status: 403 });
+    }
+
+    // Limita a apenas uma entrega: só entrega se ainda não foi entregue (Status !== "entregue") e qtdCreditos não é null
+    if (compra.Status === "entregue" || compra.qtdCreditos === null) {
+      return NextResponse.json({ error: "Créditos já entregues para esta compra." }, { status: 409 });
+    }
+
+    // Busca o usuário atual para pegar o saldo de créditos atual (em string)
+    const userAtual = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { creditos: true },
+    });
+
+    if (!userAtual) {
+      return NextResponse.json({ error: "Usuário não encontrado." }, { status: 404 });
+    }
+
+    // Converte os créditos atuais e os créditos recebidos para número
+    const creditosAtuais = Number(userAtual.creditos) || 0;
+    const creditosAdicionar = Number(creditos) || 0;
+    const novoCredito = (creditosAtuais + creditosAdicionar).toString();
+
+    // Atualiza o saldo de créditos do usuário (como string)
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        creditos: novoCredito,
+      },
+    });
+
+    // Marca a compra como entregue/concluída e zera qtdCreditos (seta como null)
+    const compraAtualizada = await prisma.compra.update({
       where: { id: compraId },
       data: {
-        Status: "ENTREGUE",
-        qtdCreditos:null,
+        Status: "entregue",
+        qtdCreditos: null,
       },
     });
 
     return NextResponse.json({
       success: true,
-      userId: updatedUser.id,
-      creditos: updatedUser.creditos,
-      compraId,
-      compraStatus: "ENTREGUE",
+      message: "Créditos entregues com sucesso.",
+      user,
+      compra: compraAtualizada,
     });
-
   } catch (error) {
-    console.error("Erro ao concluir pagamento e entregar créditos:", error);
-    return NextResponse.json({ error: "Erro interno ao concluir pagamento" }, { status: 500 });
+    console.error("Erro ao entregar créditos:", error);
+    return NextResponse.json({ error: "Erro ao entregar créditos." }, { status: 500 });
   }
 }

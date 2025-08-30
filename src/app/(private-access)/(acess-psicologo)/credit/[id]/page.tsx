@@ -5,6 +5,7 @@ import { FaRegCreditCard, FaCoins, FaArrowUp, FaArrowDown } from "react-icons/fa
 import HeadPage from "@/app/(private-access)/components/headPage"
 import PaymentModal from "./components/modal-recharg"
 import { useEffect, useState } from "react"
+import Error from "next/error"
 
 
 const Creditos = () => {
@@ -62,8 +63,8 @@ const Creditos = () => {
     try {
       const res = await fetch(`/api/internal/payments/savepay?userId=${userId}`);
       if (!res.ok) {
-        alert("Nenhuma ordem encontrada");
-        throw new Error("Erro ao buscar ordens");
+        
+        return
       }
 
       // data é o objeto que contém a propriedade 'compras'
@@ -90,7 +91,7 @@ const Creditos = () => {
 
 
 // Função para chamar a API e entregar créditos ao usuário
-async function entregarCreditos(qtdCreditos: string) {
+async function entregarCreditos(qtdCreditos: string, compraId:string) {
   try {
     // Supondo que o id do usuário está disponível como 'id'
     const response = await fetch("/api/internal/payments/conclusion", {
@@ -99,13 +100,14 @@ async function entregarCreditos(qtdCreditos: string) {
       body: JSON.stringify({
         userId: id,
         creditos: Number(qtdCreditos),
+        compraId: compraId
       }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Erro ao entregar créditos:", data.error);
+    
       return;
     }
 
@@ -113,6 +115,7 @@ async function entregarCreditos(qtdCreditos: string) {
     // Aqui você pode atualizar o estado do usuário, mostrar mensagem, etc.
   } catch (error) {
     console.error("Erro ao entregar créditos:", error);
+    return
   }
 }
 
@@ -145,35 +148,46 @@ async function entregarCreditos(qtdCreditos: string) {
 
 
   useEffect(() => {
-    const verificarStatusOrdens = async () => {
-      let creditosEntregues = false;
-      if (compras && compras.length > 0) {
-        for (const compra of compras) {
-          const status = await checkPaymentStatus(compra.paymentId);
-          console.log("Status", status);
-          console.log("Ordem", compra.paymentId);
-          // fazer a entrega enquanto está em teste
-          if (status === 'failed') { //aqui será paid apenas
-            await entregarCreditos(compra.qtdCreditos);
-            creditosEntregues = true;
-            console.log(`creditos entregues para ${id} com sucesso! vai apagar`);
+
+    try{
+      const verificarStatusOrdens = async () => {
+        let creditosEntregues = false;
+        if (compras && compras.length > 0) {
+          for (const compra of compras) {
+            const status = await checkPaymentStatus(compra.paymentId);
+            console.log("Status", status);
+            console.log("Ordem", compra.paymentId);
+            // fazer a entrega enquanto está em teste
+            if (status === 'failed') { //aqui será paid apenas
+              await entregarCreditos(compra.qtdCreditos, compra.id);
+              creditosEntregues = true;
+             
+            }
           }
         }
-      }
-      // Atualiza o saldo de créditos do usuário após entregar créditos
-      if (creditosEntregues) {
-        await fetchUserCreditos(id);
-      }
-    };
-    verificarStatusOrdens();
-    // Se quiser rodar periodicamente, descomente abaixo:
-    /*
+        // Atualiza o saldo de créditos do usuário após entregar créditos
+        if (creditosEntregues) {
+          await fetchUserCreditos(id);
+        }
+      };
+
+      verificarStatusOrdens();
+  // Se quiser rodar periodicamente, descomente abaixo:
+    
     const interval = setInterval(() => {
       verificarStatusOrdens();
     }, 10000);
     return () => clearInterval(interval);
-    */
-  }, [id, compras]);
+    
+
+    }catch(error){
+      return;
+    }
+
+
+  
+  }, [compras]);
+
 
 
 
@@ -191,6 +205,7 @@ async function entregarCreditos(qtdCreditos: string) {
   }
 
 
+  //
   async function fetchUserCreditos(userId: string): Promise<number | null> {
     try {
       const res = await fetch(`/api/internal/creditos?userId=${userId}`);
@@ -229,7 +244,7 @@ async function entregarCreditos(qtdCreditos: string) {
       try {
         const res = await fetch("/api/internal/products/")
         if (!res.ok) {
-          throw new Error("Erro ao buscar produtos")
+          return
         }
         const data = await res.json()
         setProdutosList(data)
@@ -252,11 +267,14 @@ async function entregarCreditos(qtdCreditos: string) {
       {role === 'PSYCHOLOGIST' ? (
         <div className="m-4 bg-white rounded-2xl shadow-lg p-6">
           {selectedProduto && (
+            <>
+            
             <PaymentModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               produto={selectedProduto}
             />
+            </>
           )}
 
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Resumo de Créditos</h2>
