@@ -3,9 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    // Checagem do token secreto
-    const token = req.headers.get("x-webhook-token");
-    if (token !== process.env.PAGARME_WEBHOOK_SECRET) {
+    // Pegar header Authorization
+    const auth = req.headers.get("authorization"); // "Basic <base64>"
+    const expected = "Basic " + Buffer.from(
+      process.env.PAGARME_WEBHOOK_USER + ":" + process.env.PAGARME_WEBHOOK_PASSWORD
+    ).toString("base64");
+
+    if (auth !== expected) {
       console.warn("⚠️ Acesso não autorizado ao webhook");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
