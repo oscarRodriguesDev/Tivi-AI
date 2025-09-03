@@ -3,15 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    // Checagem do token secreto
+    const token = req.headers.get("x-webhook-token");
+    if (token !== process.env.PAGARME_WEBHOOK_SECRET) {
+      console.warn("⚠️ Acesso não autorizado ao webhook");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // Pega o tipo do evento
+    const body = await req.json();
     const event = body.type;
 
     switch (event) {
       case "order.paid":
         console.log("✅ Pagamento aprovado:", body.data.id);
-        // atualizar status do pedido no DB
         break;
       case "order.payment_failed":
         console.log("❌ Pagamento recusado:", body.data.id);
@@ -28,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error(error);
+    console.error("❌ Erro no webhook:", error);
     return NextResponse.json({ error: "Webhook error" }, { status: 400 });
   }
 }
