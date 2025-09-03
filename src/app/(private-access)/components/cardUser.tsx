@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import userDefault from '../../../../public/profile_pictures_ps/userdefault.png';
 import { showErrorMessage } from "../../util/messages";
-import { useAutoLogout } from "@/app/hooks/useAutoLogout";
+
 
 const CardUser = () => {
   const { data: session, status } = useSession();

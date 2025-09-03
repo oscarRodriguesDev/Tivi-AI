@@ -175,7 +175,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
   // Se quiser rodar periodicamente, descomente abaixo:
     
     const interval = setInterval(() => {
-      verificarStatusOrdens();
+      //verificarStatusOrdens();
     }, 10000);
     return () => clearInterval(interval);
     
@@ -205,7 +205,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
   }
 
 
-  //
+  //recupera o credito do usuario
   async function fetchUserCreditos(userId: string): Promise<number | null> {
     try {
       const res = await fetch(`/api/internal/creditos?userId=${userId}`);
