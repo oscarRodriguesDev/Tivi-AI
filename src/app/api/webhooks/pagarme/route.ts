@@ -3,13 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    // Pegar header Authorization
-    const auth = req.headers.get("authorization"); // "Basic <base64>"
-    const expected = "Basic " + Buffer.from(
-      process.env.PAGARME_WEBHOOK_USER + ":" + process.env.PAGARME_WEBHOOK_PASSWORD
-    ).toString("base64");
+    const auth = req.headers.get("authorization");
+    const expected = "Basic " +
+      Buffer.from(
+        process.env.PAGARME_WEBHOOK_USER + ":" + process.env.PAGARME_WEBHOOK_PASSWORD
+      ).toString("base64");
 
-    if (auth !== expected) {
+    if (!auth || auth !== expected) {
       console.warn("⚠️ Acesso não autorizado ao webhook");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -39,4 +39,8 @@ export async function POST(req: NextRequest) {
     console.error("❌ Erro no webhook:", error);
     return NextResponse.json({ error: "Webhook error" }, { status: 400 });
   }
+}
+
+export async function GET(req: NextRequest) {
+  return NextResponse.json({ message: "Webhook ativo e funcionando!" });
 }
