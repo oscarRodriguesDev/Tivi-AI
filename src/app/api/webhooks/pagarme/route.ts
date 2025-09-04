@@ -4,13 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const auth = req.headers.get("authorization");
-    const expected = "Basic " +
-      Buffer.from(
-        process.env.PAGARME_WEBHOOK_USER + ":" + process.env.PAGARME_WEBHOOK_PASSWORD
-      ).toString("base64");
 
-    if (!auth || auth !== expected) {
-      console.warn("⚠️ Acesso não autorizado ao webhook");
+    if (!auth || !auth.startsWith("Basic ")) {
+      console.warn("⚠️ Sem credenciais no header Authorization");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const expected = "Basic " + Buffer.from(
+      `${process.env.PAGARME_WEBHOOK_USER}:${process.env.PAGARME_WEBHOOK_PASSWORD}`
+    ).toString("base64");
+
+    if (auth !== expected) {
+      console.warn("⚠️ Credenciais inválidas no webhook");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -41,6 +46,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   return NextResponse.json({ message: "Webhook ativo e funcionando!" });
 }
