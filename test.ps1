@@ -24,3 +24,8 @@ Invoke-WebRequest -Uri "https://pagarme.tiviai.com.br/api/webhooks/pagarme" `
     -Body $body `
     -ContentType "application/json" `
     -Headers $headers
+
+
+    git add *
+    git commit -m "teste"
+    git push origin oscar

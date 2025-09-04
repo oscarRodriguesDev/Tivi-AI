@@ -1,6 +1,7 @@
 // app/api/webhooks/pagarme/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
+/* 
 export async function POST(req: NextRequest) {
   try {
     const auth = req.headers.get("authorization");
@@ -45,6 +46,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Webhook error" }, { status: 400 });
   }
 }
+ */
+
+
+// app/api/webhooks/pagarme/route.ts
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+
+    console.log("📩 Webhook recebido:", JSON.stringify(body, null, 2));
+
+    // pega tipo do evento
+    const event = body.type;
+
+    switch (event) {
+      case "order.paid":
+        console.log("✅ Pedido pago:", body.data.id, "Cliente:", body.data.customer.name);
+        break;
+      case "order.payment_failed":
+        console.log("❌ Pagamento recusado:", body.data.id);
+        break;
+      case "order.canceled":
+        console.log("⚠️ Pedido cancelado:", body.data.id);
+        break;
+      default:
+        console.log("ℹ️ Evento ignorado:", event);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error("❌ Erro no webhook:", error);
+    return NextResponse.json({ error: "Webhook error" }, { status: 400 });
+  }
+}
+
+
 
 export async function GET() {
   return NextResponse.json({ message: "Webhook ativo e funcionando!" });
