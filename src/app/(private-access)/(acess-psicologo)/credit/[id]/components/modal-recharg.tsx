@@ -1,15 +1,9 @@
 import { showErrorMessage, showInfoMessage, showSuccessMessage } from "@/app/util/messages";
 import { useState } from "react";
 import { CreditCardData, Produto } from "../../../../../../../types/paymentsTypes";
-import QRCode from "qrcode";
 import { useRouter, useParams } from "next/navigation";
 
-interface transctions {
-  status: string
-  id: string
-  qr_code: string
-  qr_code_url: string
-}
+
 
 type PaymentModalProps = {
   isOpen: boolean;
@@ -115,7 +109,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
   }
 
 
- 
+ //criação de compra
   async function criarCompra(userId: string, paymentId: string, stats?: string) {
     try {
       const validStatuses = ["PENDING", "FAILED", "PAID"];
@@ -126,7 +120,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
       const response = await fetch("/api/internal/payments/savepay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, paymentId, stats: statusToSend }),
+        body: JSON.stringify({ userId, paymentId, stats: statusToSend, qtdCreditos: produto.quantidade }),
       });
       const data = await response.json();
       if (!data.success) {
@@ -300,7 +294,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
               code: produto.codigo,
               title: produto.titulo,
               description: produto.descricao,
-              unit_price: 1,
+              unit_price: produto.preco,
               quantity: 1,
             },
           ],
@@ -308,7 +302,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
             {
               payment_method: "pix",
               pix: {
-                expires_in: 3600,
+                expires_in: 1800,//3600,
               },
             },
           ],

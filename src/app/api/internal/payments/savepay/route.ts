@@ -37,7 +37,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId, paymentId, stats } = body;
+    const { userId, paymentId, stats,qtdCreditos } = body;
     if (!userId || !paymentId) {
       return NextResponse.json(
         { error: "userId e paymentId são obrigatórios" },
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         userId,
         paymentId,
         Status: statusToSave,
-        qtdCreditos:'',
+        qtdCreditos,
       },
     });
 

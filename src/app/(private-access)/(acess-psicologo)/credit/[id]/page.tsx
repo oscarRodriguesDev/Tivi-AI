@@ -124,9 +124,9 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
   
 
 //esse teste éapenas local
-    async function checkPaymentStatus(orderId: string) {
+    async function checkPaymentStatus(transactionId: string) {
       try {
-        const response = await fetch(`/api/internal/location-verification?orderId=${orderId}`);
+        const response = await fetch(`/api/internal/location-verification?orderId=${transactionId}`);
         const data = await response.json();
   
         if (!response.ok) {
@@ -147,7 +147,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
 
 
 
-  useEffect(() => {
+  useEffect(() => { 
 
     try{
       const verificarStatusOrdens = async () => {
@@ -158,7 +158,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
             console.log("Status", status);
             console.log("Ordem", compra.paymentId);
             // fazer a entrega enquanto está em teste
-            if (status === 'failed') { //aqui será paid apenas
+            if (status === 'paid') { //aqui será paid apenas
               await entregarCreditos(compra.qtdCreditos, compra.id);
               creditosEntregues = true;
              

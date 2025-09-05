@@ -1,9 +1,14 @@
 "use client"
 
+
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useAccessControl } from "@/app/context/AcessControl"
+
+
 
 export default function PixClient({ brcode }: { brcode: string }) {
+  const { userID } = useAccessControl()
   const router = useRouter()
   const qrCodeUrl = decodeURIComponent(brcode)
   const [secondsLeft, setSecondsLeft] = useState(180)
@@ -13,12 +18,12 @@ export default function PixClient({ brcode }: { brcode: string }) {
       setSecondsLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          router.push("/creditos")
+          router.push(`/credit/${userID}`)
           return 0
         }
         return prev - 1
       })
-    }, 1000)
+    }, 1800000) //1800000 = 30 minutos
 
     return () => clearInterval(timer)
   }, [router])
@@ -47,7 +52,7 @@ export default function PixClient({ brcode }: { brcode: string }) {
       </div>
 
       <button
-        onClick={() => router.push("/creditos")}
+        onClick={() => router.push(`/credit/${userID}`	)}
         className="px-6 py-3 bg-[#117F43] text-white rounded-lg text-lg hover:bg-green-600 transition"
       >
         Voltar aos Créditos

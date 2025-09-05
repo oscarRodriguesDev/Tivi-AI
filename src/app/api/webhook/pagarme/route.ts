@@ -1,6 +1,77 @@
 // app/api/webhooks/pagarme/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+
+async function EntregaCredito(transactionId: string) {
+  // Busca a compra no banco de dados usando o transactionId (que é o id da compra)
+  const compra = await prisma.compra.findUnique({
+    where: { id: transactionId },
+    select: { userId: true, qtdCreditos: true, Status: true },
+  });
+
+  if (!compra) {
+    console.error("Compra não encontrada para entrega de créditos. ID:", transactionId);
+    return { success: false, error: "Compra não encontrada." };
+  }
+
+  if (compra.Status === "entregue" || compra.qtdCreditos === null) {
+    console.warn("Créditos já entregues ou compra inválida para entrega. ID:", transactionId);
+    return { success: false, error: "Créditos já entregues ou compra inválida." };
+  }
+
+  // Busca o usuário para atualizar os créditos
+  const userAtual = await prisma.user.findUnique({
+    where: { id: compra.userId },
+    select: { creditos: true },
+  });
+
+  if (!userAtual) {
+    console.error("Usuário não encontrado para entrega de créditos. userId:", compra.userId);
+    return { success: false, error: "Usuário não encontrado." };
+  }
+
+  // Soma os créditos
+  const creditosAtuais = Number(userAtual.creditos) || 0;
+  const creditosAdicionar = Number(compra.qtdCreditos) || 0;
+  const novoCredito = (creditosAtuais + creditosAdicionar).toString();
+
+  // Atualiza o saldo de créditos do usuário
+  await prisma.user.update({
+    where: { id: compra.userId },
+    data: { creditos: novoCredito },
+  });
+
+  // Marca a compra como entregue e zera qtdCreditos
+  await prisma.compra.update({
+    where: { id: transactionId },
+    data: { Status: "entregue", qtdCreditos: null },
+  });
+
+  return { success: true, message: "Créditos entregues com sucesso." };
+}
+
+
+async function atualizarStatusCompra(transactionId: string, status: "PENDING" | "FAILED" | "PAID") {
+  // Atualiza o status da compra no banco de dados
+  try {
+    const compra = await prisma.compra.update({
+      where: { id: transactionId },
+      data: { Status: status.toLowerCase() }, // salva como "pending", "failed" ou "paid"
+    });
+    return { success: true, compra };
+  } catch (error) {
+    console.error("Erro ao atualizar status da compra:", error);
+    return { success: false, error: "Erro ao atualizar status da compra." };
+  }
+}
+
+
+
+
 export async function POST(req: NextRequest) {
   try {
     // -----------------------------
@@ -28,17 +99,33 @@ export async function POST(req: NextRequest) {
     const event = body.type;
 
     switch (event) {
-      case "order.paid":
-        console.log("✅ Pagamento aprovado:", body.data.id);
+      case  "order.paid":
+        console.log("✅ Pagamento aprovado:", body.data.id); 
+        // Supondo que o ID da transação está em body.data.charges[0].last_transaction.id
+        let transactionId1 = body.data?.charges?.[0]?.last_transaction?.id;
+        const result1 = await atualizarStatusCompra(transactionId1, "PAID");
+
+  
         break;
       case "order.payment_failed":
         console.log("❌ Pagamento recusado:", body.data.id);
+        const transactionId2 = body.data?.charges?.[0]?.last_transaction?.id;
+        const result2 = await atualizarStatusCompra(transactionId2, "FAILED");
         break;
       case "order.payment_processing":
+        const transactionId3 = body.data?.charges?.[0]?.last_transaction?.id;
+        const result3 = await atualizarStatusCompra(transactionId3, "PENDING");
         console.log("⏳ Pagamento em processamento:", body.data.id);
         break;
       case "order.canceled":
+        const transactionId4 = body.data?.charges?.[0]?.last_transaction?.id;
+        const result4 = await atualizarStatusCompra(transactionId4, "FAILED");
         console.log("⚠️ Pedido cancelado:", body.data.id);
+        break;
+        case 'order.payment.pending':
+        const transactionId5 = body.data?.charges?.[0]?.last_transaction?.id;
+        const result5 = await atualizarStatusCompra(transactionId5, "PENDING");
+        console.log("⏳ Pagamento pendente:", body.data.id);
         break;
       default:
         console.log("Evento ignorado:", event);
@@ -50,6 +137,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Webhook error" }, { status: 400 });
   }
 }
+
+
+
 
 export async function GET(req: NextRequest) {
   return NextResponse.json({ message: "Webhook ativo e funcionando!" });
