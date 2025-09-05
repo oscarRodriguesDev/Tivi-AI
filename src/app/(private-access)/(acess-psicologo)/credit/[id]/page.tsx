@@ -158,7 +158,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
             console.log("Status", status);
             console.log("Ordem", compra.paymentId);
             // fazer a entrega enquanto está em teste
-            if (status === 'paid') { //aqui será paid apenas
+            if (status === 'fAILED') { //aqui será paid apenas
               await entregarCreditos(compra.qtdCreditos, compra.id);
               creditosEntregues = true;
              

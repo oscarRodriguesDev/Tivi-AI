@@ -120,7 +120,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
       const response = await fetch("/api/internal/payments/savepay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, paymentId, stats: statusToSend, qtdCreditos: produto.quantidade }),
+        body: JSON.stringify({ userId, paymentId, stats: statusToSend, qtdCreditos: String(produto.quantidade) }),
       });
       const data = await response.json();
       if (!data.success) {
