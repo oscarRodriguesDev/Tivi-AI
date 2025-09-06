@@ -47,7 +47,7 @@ const Creditos = () => {
     userId: string;
     user: string;
     paymentId: string;
-    status: string;
+    Status: string;
     qtdCreditos: string;
   }
 
@@ -67,20 +67,15 @@ const Creditos = () => {
         return
       }
 
-      // data é o objeto que contém a propriedade 'compras'
       const data: ComprasResponse = await res.json();
-
-      // setando somente o array de compras no state
       setCompras(data.compras);
      
       //como peegar os objetos, tem que percorrer as ordens
       console.log(data.compras[0].id); // aqui você verá o array completo
     } catch (error) {
-      console.error("Erro ao buscar ordens:", error);
+      console.log("Erro ao buscar ordens:", error);
     }
   }
-
-
 
   // Buscar as ordens do usuário quando a página carregar ou quando o id mudar
   useEffect(() => {
@@ -123,7 +118,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
 
   
 
-//esse teste éapenas local
+//checa o status do pagamento chamando a api para isso retorno o status da compra
     async function checkPaymentStatus(transactionId: string) {
       try {
         const response = await fetch(`/api/internal/location-verification?orderId=${transactionId}`);
@@ -146,7 +141,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
     }
 
 
-
+/* esse use efect vai fazer a entrega de cvredito quando compra estiver paga */
   useEffect(() => { 
 
     try{
@@ -158,11 +153,17 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
             console.log("Status", status);
             console.log("Ordem", compra.paymentId);
             // fazer a entrega enquanto está em teste
-            if (status === 'fAILED') { //aqui será paid apenas
+            if (compra.Status==='PAID') { //precisa pegar o status real da compra
               await entregarCreditos(compra.qtdCreditos, compra.id);
-              creditosEntregues = true;
              
+              creditosEntregues = true;
+              console.log('verificando compra')
+             
+            }else{
+              console.log("Nenhum pagamento encontrado para esse usuario")
             }
+            console.log(`O Status da tranação ${compra.paymentId} está ${status}`)
+            console.log('STATUS DE COMPRA: ',compra.Status)
           }
         }
         // Atualiza o saldo de créditos do usuário após entregar créditos
@@ -175,8 +176,9 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
   // Se quiser rodar periodicamente, descomente abaixo:
     
     const interval = setInterval(() => {
-      //verificarStatusOrdens();
-    }, 10000);
+      verificarStatusOrdens();
+      
+    }, 5000);
     return () => clearInterval(interval);
     
 

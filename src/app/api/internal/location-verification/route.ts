@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 
-//verifica o status da ordem no pagarme
+//verifica o status da ordem no pagarme para pagar quando confirmar o pagamento
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

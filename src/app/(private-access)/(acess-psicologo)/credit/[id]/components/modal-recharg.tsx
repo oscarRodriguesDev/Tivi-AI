@@ -109,7 +109,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
   }
 
 
- //criação de compra
+ //função salva a compra no banco de dados
   async function criarCompra(userId: string, paymentId: string, stats?: string) {
     try {
       const validStatuses = ["PENDING", "FAILED", "PAID"];
@@ -157,115 +157,8 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
   }
 
 
-  //antiga função de compra pix funcionava  
-/* 
-    async function pixPay() {
-      try {
-        // 1️⃣ Criar a order
-        const response = await fetch("/api/internal/payments/pix", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            customer: {
-              name: pixData.name,
-              email: pixData.email,
-              document: pixData.cpf,
-              type: "individual",
-              address: {
-                street: pixData.rua,
-                number: pixData.numero,
-                neighborhood: pixData.bairro,
-                city: pixData.cidade,
-                state: pixData.estado,
-                zipCode: pixData.cep,
-              },
-              phones: [{ countryCode: pixData.ddi, areaCode: pixData.ddd, number: pixData.telefone }],
-            },
-            items: [
-              {
-                code: produto.codigo,
-                title: produto.titulo,
-                description: produto.descricao,
-                unit_price: 1,//valor
-                quantity: 1, //quantidade
-              },
-            ],
-            payments: [
-              {
-                payment_method: "pix",
-                pix: {
-                  expires_in: 3600, // 1 hora de validade
-                },
-              },
-            ],
-          }),
-        });
-  
-        const data = await response.json();
-        console.log("🔹 data:", data);
-  
-        if (!data.success) {
-          showErrorMessage("❌ Erro ao criar pagamento PIX:", data.error);
-          return;
-        }
-  
-        // 2️⃣ Pegar a primeira charge e a última transação
-        const charge = data.order.charges?.[0];
-        const lastTransaction:transctions = charge?.last_transaction;
-  
-        
-        console.log("🔹 charge:", charge);
-       console.log("Order", charge.order);
-        console.log("🔹 lastTransaction:", lastTransaction);
-  
-        //salva a falha no pagamento
-        if (lastTransaction.status==='failed') {
-         showErrorMessage("Não foi possivel concluir seu pagamento, tente novamente mais tarde!");
-         //não deve salvar esta salvando apenas por causa de testes
-          criarCompra(userId, lastTransaction.id,'FAILED');
-          return;
-        }
-  
-        //salva o sucesso no pagamento
-        if(lastTransaction.status==='pending'){
-       showSuccessMessage("Pagamento enviado com sucesso!");
-          criarCompra(userId, lastTransaction.id,'PENDING');
-          return
-        }
-  
-        // 3️⃣ Extrair dados do PIX
-        const pixPayload = lastTransaction.qr_code; // BRCode (string copiável)
-        const pixQrCodeUrl = lastTransaction.qr_code_url; // URL pronta (imagem no Pagar.me)
-  
-        // 4️⃣ (Opcional) Gerar imagem base64 localmente
-        const qrCodeBase64 = await QRCode.toDataURL(pixPayload);
-        // pixPayload é o BRCode do Pagar.me
-        const brcodeBase64 = Buffer.from(pixPayload, "utf-8").toString("base64");
-  
-        console.log("✅ Payload PIX:", pixPayload);
-        console.log("✅ Base64 do BRCode:", brcodeBase64);
-  
-     
-        //enviar para pagina de pix
-        router.push(`/credit/pix/${brcodeBase64}`);
-  
-        return {
-          payload: pixPayload, 
-          qrCodeUrl: pixQrCodeUrl,
-          qrCodeBase64,
-        };
-      } catch (err: any) {
-        showErrorMessage("❌ Erro ao criar pagamento PIX:", err.message || err); 
-      
-      }
-      finally{
-       onClose();
-      }
-    }
-   
- */
- //função valida
-   
+ 
+   //pagamento por pix
   async function pixPay() {
     try {
       const response = await fetch("/api/internal/payments/pix", {
