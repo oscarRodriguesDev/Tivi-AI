@@ -85,7 +85,7 @@ const Creditos = () => {
   }, [id]);
 
 
-// Função para chamar a API e entregar créditos ao usuário
+/* // Função para chamar a API e entregar créditos ao usuário
 async function entregarCreditos(qtdCreditos: string, compraId:string) {
   try {
     // Supondo que o id do usuário está disponível como 'id'
@@ -113,7 +113,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
     return
   }
 }
-
+ */
 
 
   
@@ -142,7 +142,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
 
 
 /* esse use efect vai fazer a entrega de cvredito quando compra estiver paga */
-  useEffect(() => { 
+/*   useEffect(() => { 
 
     try{
       const verificarStatusOrdens = async () => {
@@ -188,7 +188,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
 
 
   
-  }, [compras]);
+  }, [compras]); */
 
 
 

@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     // -----------------------------
     // Log dos headers (opcional, para debug)
     // -----------------------------
-    console.log("Webhook chamado, headers:", JSON.stringify([...req.headers]));
+    //console.log("Webhook chamado, headers:", JSON.stringify([...req.headers]));
 
     const body = await req.json();
     const event = body.type;
@@ -105,8 +105,6 @@ export async function POST(req: NextRequest) {
         let transactionId1 = body.data?.charges?.[0]?.last_transaction?.id;
         await  EntregaCredito(transactionId1)
      
-
-  
         break;
       case "order.payment_failed":
         console.log("❌ Pagamento recusado:", body.data.id);
