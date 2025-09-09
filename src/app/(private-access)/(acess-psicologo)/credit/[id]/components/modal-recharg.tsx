@@ -242,7 +242,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
       // Fazer um temporizador para dar tempo de salvar a compra no BD antes de redirecionar para a tela do PIX
       // Aguarda 1 segundo antes de redirecionar (ajuste se necessário)
       await new Promise((resolve) => setTimeout(resolve, 3000));
-      //router.push(`/credit/pix/${encodeURIComponent(lastTransaction.qr_code_url)}`);
+      router.push(`/credit/pix/${encodeURIComponent(lastTransaction.qr_code_url)}`);
       onClose(); // fecha modal apenas no sucesso
       return {
         payload: pixPayload,
