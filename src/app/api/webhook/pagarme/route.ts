@@ -107,28 +107,28 @@ export async function POST(req: NextRequest) {
       case  "order.paid":
         console.log("✅ Pagamento aprovado:", body.data.id); 
         // Supondo que o ID da transação está em body.data.charges[0].last_transaction.id
-        let transactionId1 = body.data?.charges?.[0]?.last_transaction?.id;
-        const result1 = await atualizarStatusCompra(transactionId1, "PAID");
-        await  EntregaCredito(transactionId1)
+        let ordem1 = body.data?.id; // Pega o id da ordem (order)
+        const result1 = await atualizarStatusCompra(ordem1, "PAID");
+        await  EntregaCredito(ordem1)
      
         break;
       case "order.payment_failed":
         console.log("❌ Pagamento recusado:", body.data.id);
-        const transactionId2 = body.data?.charges?.[0]?.last_transaction?.id;
+        const transactionId2 = body.data?.id;
         const result2 = await atualizarStatusCompra(transactionId2, "FAILED");
         break;
       case "order.payment_processing":
-        const transactionId3 = body.data?.charges?.[0]?.last_transaction?.id;
+        const transactionId3 = body.data?.id;
         const result3 = await atualizarStatusCompra(transactionId3, "PENDING");
         console.log("⏳ Pagamento em processamento:", body.data.id);
         break;
       case "order.canceled":
-        const transactionId4 = body.data?.charges?.[0]?.last_transaction?.id;
+        const transactionId4 = body.data?.id;
         const result4 = await atualizarStatusCompra(transactionId4, "FAILED");
         console.log("⚠️ Pedido cancelado:", body.data.id);
         break;
         case 'order.payment.pending':
-        const transactionId5 = body.data?.charges?.[0]?.last_transaction?.id;
+        const transactionId5 = body.data?.id;
         const result5 = await atualizarStatusCompra(transactionId5, "PENDING");
         console.log("⏳ Pagamento pendente:", body.data.id);
         break;

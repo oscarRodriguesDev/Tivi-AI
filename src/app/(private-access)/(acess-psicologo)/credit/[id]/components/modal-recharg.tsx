@@ -210,23 +210,26 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
       }
       const charge = data.order.charges[0];
       const lastTransaction = charge.last_transaction;
+      const ordem = data.order.id;
+      // console.log("Ordem: ",ordem);
+
       if (lastTransaction.status === "failed") {
         showErrorMessage("Não foi possível concluir seu pagamento, tente novamente mais tarde!");
-        criarCompra(userId, lastTransaction.id, "PENDING");
+        criarCompra(userId, ordem, "PENDING");
         return;
       }
       if (lastTransaction.status === "waiting_payment") {
         showSuccessMessage("Pagamento gerado com sucesso!");
-        criarCompra(userId, lastTransaction.id, "WAITING_PAYMENT");
+        criarCompra(userId, ordem, "WAITING_PAYMENT");
       }
 
       if (lastTransaction.status === "pending") {
         showSuccessMessage("Pagamento gerado com sucesso!");
-        criarCompra(userId, lastTransaction.id, "PENDING");
+        criarCompra(userId, ordem, "PENDING");
       }
       if (lastTransaction.status === "paid") {
         showSuccessMessage("Pagamento aprovado!");
-        criarCompra(userId, lastTransaction.id, "PAID");
+        criarCompra(userId, ordem, "PAID");
       }
 
       console.log("🔹 charge:", charge);
@@ -239,7 +242,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
       // Fazer um temporizador para dar tempo de salvar a compra no BD antes de redirecionar para a tela do PIX
       // Aguarda 1 segundo antes de redirecionar (ajuste se necessário)
       await new Promise((resolve) => setTimeout(resolve, 3000));
-      router.push(`/credit/pix/${encodeURIComponent(lastTransaction.qr_code_url)}`);
+      //router.push(`/credit/pix/${encodeURIComponent(lastTransaction.qr_code_url)}`);
       onClose(); // fecha modal apenas no sucesso
       return {
         payload: pixPayload,
