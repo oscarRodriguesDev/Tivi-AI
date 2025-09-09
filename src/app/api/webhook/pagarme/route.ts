@@ -7,51 +7,56 @@ const prisma = new PrismaClient();
 
 
 async function EntregaCredito(transactionId: string) {
-  // Busca a compra no banco de dados usando o transactionId (que é o id da compra)
-  const compra = await prisma.compra.findUnique({
-    where: { id: transactionId },
-    select: { userId: true, qtdCreditos: true, Status: true },
-  });
+  try {
+    // Busca a compra no banco de dados usando o transactionId (que é o paymentId da compra)
+    const compra = await prisma.compra.findFirst({
+      where: { paymentId: transactionId },
+      select: { id: true, userId: true, qtdCreditos: true, Status: true },
+    });
 
-  if (!compra) {
-    console.error("Compra não encontrada para entrega de créditos. ID:", transactionId);
-    return { success: false, error: "Compra não encontrada." };
+    if (!compra) {
+      console.error("Compra não encontrada para entrega de créditos. paymentId:", transactionId);
+      return { success: false, error: "Compra não encontrada." };
+    }
+
+    if (compra.Status === "entregue" || compra.qtdCreditos === null) {
+      console.warn("Créditos já entregues ou compra inválida para entrega. paymentId:", transactionId);
+      return { success: false, error: "Créditos já entregues ou compra inválida." };
+    }
+
+    // Busca o usuário para atualizar os créditos
+    const comprador = await prisma.user.findUnique({
+      where: { id: compra.userId },
+      select: { creditos: true },
+    });
+
+    if (!comprador) {
+      console.error("Usuário não encontrado para entrega de créditos. userId:", compra.userId);
+      return { success: false, error: "Usuário não encontrado." };
+    }
+
+    // Soma os créditos
+    const creditosAtuais = Number(comprador.creditos) || 0;
+    const creditosAdicionar = Number(compra.qtdCreditos) || 0;
+    const novoCredito = creditosAtuais + creditosAdicionar;
+
+    // Atualiza o saldo de créditos do usuário
+    await prisma.user.update({
+      where: { id: compra.userId },
+      data: { creditos:String(novoCredito) },
+    });
+
+    // Marca a compra como entregue e zera qtdCreditos
+    await prisma.compra.update({
+      where: { id: compra.id },
+      data: { Status: "entregue", qtdCreditos: null },
+    });
+
+    return { success: true, message: "Créditos entregues com sucesso." };
+  } catch (error) {
+    console.error("Erro ao entregar créditos:", error);
+    return { success: false, error: "Erro ao entregar créditos." };
   }
-
-  if (compra.Status === "entregue" || compra.qtdCreditos === null) {
-    console.warn("Créditos já entregues ou compra inválida para entrega. ID:", transactionId);
-    return { success: false, error: "Créditos já entregues ou compra inválida." };
-  }
-
-  // Busca o usuário para atualizar os créditos
-  const comprador = await prisma.user.findUnique({
-    where: { id: compra.userId },
-    select: { creditos: true },
-  });
-
-  if (!comprador) {
-    console.error("Usuário não encontrado para entrega de créditos. userId:", compra.userId);
-    return { success: false, error: "Usuário não encontrado." };
-  }
-
-  // Soma os créditos
-  const creditosAtuais = Number(comprador.creditos) || 0;
-  const creditosAdicionar = Number(compra.qtdCreditos) || 0;
-  const novoCredito = (creditosAtuais + creditosAdicionar).toString();
-
-  // Atualiza o saldo de créditos do usuário
-  await prisma.user.update({
-    where: { id: compra.userId },
-    data: { creditos: novoCredito },
-  });
-
-  // Marca a compra como entregue e zera qtdCreditos
-  await prisma.compra.update({
-    where: { id: transactionId },
-    data: { Status: "entregue", qtdCreditos: null },
-  });
-
-  return { success: true, message: "Créditos entregues com sucesso." };
 }
 
 
@@ -103,6 +108,7 @@ export async function POST(req: NextRequest) {
         console.log("✅ Pagamento aprovado:", body.data.id); 
         // Supondo que o ID da transação está em body.data.charges[0].last_transaction.id
         let transactionId1 = body.data?.charges?.[0]?.last_transaction?.id;
+        const result1 = await atualizarStatusCompra(transactionId1, "PAID");
         await  EntregaCredito(transactionId1)
      
         break;
