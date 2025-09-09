@@ -24,18 +24,18 @@ async function EntregaCredito(transactionId: string) {
   }
 
   // Busca o usuário para atualizar os créditos
-  const userAtual = await prisma.user.findUnique({
+  const comprador = await prisma.user.findUnique({
     where: { id: compra.userId },
     select: { creditos: true },
   });
 
-  if (!userAtual) {
+  if (!comprador) {
     console.error("Usuário não encontrado para entrega de créditos. userId:", compra.userId);
     return { success: false, error: "Usuário não encontrado." };
   }
 
   // Soma os créditos
-  const creditosAtuais = Number(userAtual.creditos) || 0;
+  const creditosAtuais = Number(comprador.creditos) || 0;
   const creditosAdicionar = Number(compra.qtdCreditos) || 0;
   const novoCredito = (creditosAtuais + creditosAdicionar).toString();
 
@@ -55,7 +55,7 @@ async function EntregaCredito(transactionId: string) {
 }
 
 
-async function atualizarStatusCompra(transactionId: string, status: "PENDING" | "FAILED" | "PAID") {
+async function atualizarStatusCompra(transactionId: string, status: "PENDING" | "FAILED" | "PAID"|'entregue') {
   // Atualiza o status da compra no banco de dados
   try {
     const compra = await prisma.compra.update({
@@ -103,7 +103,8 @@ export async function POST(req: NextRequest) {
         console.log("✅ Pagamento aprovado:", body.data.id); 
         // Supondo que o ID da transação está em body.data.charges[0].last_transaction.id
         let transactionId1 = body.data?.charges?.[0]?.last_transaction?.id;
-        const result1 = await atualizarStatusCompra(transactionId1, "PAID");
+        await  EntregaCredito(transactionId1)
+     
 
   
         break;
