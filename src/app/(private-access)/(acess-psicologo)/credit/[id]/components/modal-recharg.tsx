@@ -212,12 +212,17 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
       const lastTransaction = charge.last_transaction;
       if (lastTransaction.status === "failed") {
         showErrorMessage("Não foi possível concluir seu pagamento, tente novamente mais tarde!");
-        criarCompra(userId, lastTransaction.id, "FAILED");
+        criarCompra(userId, lastTransaction.id, "PENDING");
         return;
       }
       if (lastTransaction.status === "waiting_payment") {
         showSuccessMessage("Pagamento gerado com sucesso!");
         criarCompra(userId, lastTransaction.id, "WAITING_PAYMENT");
+      }
+
+      if (lastTransaction.status === "pending") {
+        showSuccessMessage("Pagamento gerado com sucesso!");
+        criarCompra(userId, lastTransaction.id, "PENDING");
       }
       if (lastTransaction.status === "paid") {
         showSuccessMessage("Pagamento aprovado!");
