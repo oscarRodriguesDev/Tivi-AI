@@ -187,7 +187,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
               code: produto.codigo,
               title: produto.titulo,
               description: produto.descricao,
-              unit_price: produto.preco,
+              unit_price: 1,//produto.preco,
               quantity: 1,
             },
           ],
