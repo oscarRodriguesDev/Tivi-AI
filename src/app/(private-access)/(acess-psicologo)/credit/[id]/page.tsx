@@ -142,6 +142,8 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
 
 
 /* esse use efect vai fazer a entrega de cvredito quando compra estiver paga */
+
+/* 
   useEffect(() => { 
 
     try{
@@ -191,7 +193,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
   }, [compras]);
 
 
-
+ */
 
 
 
