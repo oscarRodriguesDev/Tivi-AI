@@ -79,10 +79,7 @@ async function atualizarStatusCompra(transactionId: string, status: "PENDING" | 
 
 export async function POST(req: NextRequest) {
   try {
-    // -----------------------------
-    // Autenticação (Basic Auth) - comente/descomente quando quiser usar
-    // -----------------------------
-    /*
+ 
     const auth = req.headers.get("authorization");
     const expected = "Basic " +
       Buffer.from(
@@ -93,12 +90,12 @@ export async function POST(req: NextRequest) {
       console.warn("⚠️ Acesso não autorizado ao webhook");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    */
+    
 
     // -----------------------------
     // Log dos headers (opcional, para debug)
     // -----------------------------
-    //console.log("Webhook chamado, headers:", JSON.stringify([...req.headers]));
+    console.log("Webhook chamado, headers:", JSON.stringify([...req.headers]));
 
     const body = await req.json();
     const event = body.type;

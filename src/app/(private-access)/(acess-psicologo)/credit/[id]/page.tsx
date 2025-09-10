@@ -85,118 +85,6 @@ const Creditos = () => {
   }, [id]);
 
 
-// Função para chamar a API e entregar créditos ao usuário
-async function entregarCreditos(qtdCreditos: string, compraId:string) {
-  try {
-    // Supondo que o id do usuário está disponível como 'id'
-    const response = await fetch("/api/internal/payments/conclusion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: id,
-        creditos: Number(qtdCreditos),
-        compraId: compraId
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-    
-      return;
-    }
-
-    console.log("Créditos entregues com sucesso:", data);
-    // Aqui você pode atualizar o estado do usuário, mostrar mensagem, etc.
-  } catch (error) {
-    console.error("Erro ao entregar créditos:", error);
-    return
-  }
-}
-
-
-
-  
-
-//checa o status do pagamento chamando a api para isso retorno o status da compra
-    async function checkPaymentStatus(transactionId: string) {
-      try {
-        const response = await fetch(`/api/internal/location-verification?orderId=${transactionId}`);
-        const data = await response.json();
-  
-        if (!response.ok) {
-          console.error("Erro ao consultar status:", data.error);
-          return "error";
-        }
-  
-        const status = data.status;
-        console.log("🔎 Status atual:", status);
-  
-        return status;
-        // waiting_payment | paid | failed | canceled
-      } catch (err) {
-        console.error("Erro ao consultar status:", err);
-        return "error";
-      }
-    }
-
-
-/* esse use efect vai fazer a entrega de cvredito quando compra estiver paga */
-
-/* 
-  useEffect(() => { 
-
-    try{
-      const verificarStatusOrdens = async () => {
-        let creditosEntregues = false;
-        if (compras && compras.length > 0) {
-          for (const compra of compras) {
-            const status = await checkPaymentStatus(compra.paymentId);
-            console.log("Status", status);
-            console.log("Ordem", compra.paymentId);
-            // fazer a entrega enquanto está em teste
-            if (compra.Status==='PAID') { //precisa pegar o status real da compra
-              await entregarCreditos(compra.qtdCreditos, compra.id);
-             
-              creditosEntregues = true;
-              console.log('verificando compra')
-             
-            }else{
-              console.log("Nenhum pagamento encontrado para esse usuario")
-            }
-            console.log(`O Status da tranação ${compra.paymentId} está ${status}`)
-            console.log('STATUS DE COMPRA: ',compra.Status)
-          }
-        }
-        // Atualiza o saldo de créditos do usuário após entregar créditos
-        if (creditosEntregues) {
-          await fetchUserCreditos(id);
-        }
-      };
-
-      verificarStatusOrdens();
-  // Se quiser rodar periodicamente, descomente abaixo:
-    
-    const interval = setInterval(() => {
-      verificarStatusOrdens();
-      
-    }, 5000);
-    return () => clearInterval(interval);
-    
-
-    }catch(error){
-      return;
-    }
-
-
-  
-  }, [compras]);
-
-
- */
-
-
-
 
 
     
@@ -224,7 +112,7 @@ async function entregarCreditos(qtdCreditos: string, compraId:string) {
     }
   }
 
-  // Efeito para checar status das ordens a cada minuto
+ 
 
 
 

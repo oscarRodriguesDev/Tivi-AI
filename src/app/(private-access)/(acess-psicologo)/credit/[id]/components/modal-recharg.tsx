@@ -184,7 +184,7 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
           },
           items: [
             {
-              code: 1212,//produto.codigo,
+              code: produto.codigo,
               title: produto.titulo,
               description: produto.descricao,
               unit_price: 1,//produto.preco,
@@ -296,15 +296,28 @@ export default function PaymentModal({ isOpen, onClose, produto }: PaymentModalP
 
       const data = await response.json();
 
-      if (response.ok) {
-        showSuccessMessage("✅ Pagamento realizado com sucesso!");
-        console.log("Pagamento aprovado:", data);
-        clearFormFields()
-        return data;
-      } else {
-        showErrorMessage("❌ Falha no pagamento: " + (data.message || "Erro desconhecido"));
-        console.error("Erro no pagamento:", data);
-        return null;
+      const charge = data.order.charges[0];
+      const lastTransaction = charge.last_transaction;
+      const ordem = data.order.id;
+      // console.log("Ordem: ",ordem);
+
+      if (lastTransaction.status === "failed") {
+        showErrorMessage("Não foi possível concluir seu pagamento, tente novamente mais tarde!");
+        criarCompra(userId, ordem, "PENDING");
+        return;
+      }
+      if (lastTransaction.status === "waiting_payment") {
+        showSuccessMessage("Pagamento gerado com sucesso!");
+        criarCompra(userId, ordem, "WAITING_PAYMENT");
+      }
+
+      if (lastTransaction.status === "pending") {
+        showSuccessMessage("Pagamento gerado com sucesso!");
+        criarCompra(userId, ordem, "PENDING");
+      }
+      if (lastTransaction.status === "paid") {
+        showSuccessMessage("Pagamento aprovado!");
+        criarCompra(userId, ordem, "PAID");
       }
     } catch (error) {
       console.error("Erro de rede:", error);
