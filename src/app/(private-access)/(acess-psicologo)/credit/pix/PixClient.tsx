@@ -37,8 +37,8 @@ export default function PixClient({ brcode }: { brcode: string }) {
       try {
         const res = await fetch(`/api/internal/payments/compra-status?userId=${userID}&paymentId=${ordem}`);
         const data = await res.json();
-         if(data.status==='PENDING'){
-          intervalId = setInterval(checkStatus, 5000);
+         if(data.status==='PAID'){
+        
           router.push(`/credit/${userID}`)
         } 
          
@@ -75,7 +75,7 @@ export default function PixClient({ brcode }: { brcode: string }) {
         }
         return prev - 1
       })
-    }, 120000) // 2 minutoa
+    }, 60000) // 2 minutoa
 
     return () => clearInterval(timer)
   }, [router])
