@@ -38,7 +38,8 @@ export default function PixClient({ brcode }: { brcode: string }) {
         const res = await fetch(`/api/internal/payments/compra-status?userId=${userID}&paymentId=${ordem}`);
         const data = await res.json();
          if(data.status==='PENDING'){
-          //router.push(`/credit/${userID}`)
+          intervalId = setInterval(checkStatus, 5000);
+          router.push(`/credit/${userID}`)
         } 
          
         // Se quiser tratar outros status, adicione aqui
@@ -48,7 +49,7 @@ export default function PixClient({ brcode }: { brcode: string }) {
       }
     };
 
-    intervalId = setInterval(checkStatus, 1000);
+    intervalId = setInterval(checkStatus, 5000);
 
     // Checa imediatamente ao montar
     checkStatus();

@@ -107,6 +107,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const event = body.type;
 
+
+     console.log("evento: ", event);
     switch (event) {
       case  "order.paid":
         console.log("✅ Pagamento aprovado:", body.data.id); 
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest) {
         const result3 = await atualizarStatusCompra(transactionId3, "PROCESSING");
         console.log("⏳ Pagamento em processamento:", body.data.id);
         break;
-      case "order.canceled":
+      case "order.payment.canceled":
         const transactionId4 = body.data?.id;
         const result4 = await atualizarStatusCompra(transactionId4, "FAILED");
         console.log("⚠️ Pedido cancelado:", body.data.id);
