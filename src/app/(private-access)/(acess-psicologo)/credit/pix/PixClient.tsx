@@ -7,12 +7,63 @@ import { useAccessControl } from "@/app/context/AcessControl"
 
 
 
+
+
 export default function PixClient({ brcode }: { brcode: string }) {
   const { userID } = useAccessControl()
   const router = useRouter()
   const qrCodeUrl = decodeURIComponent(brcode)
   const [secondsLeft, setSecondsLeft] = useState(180)
 
+ //pegar a ordem da query string (?order=...)
+  const [ordem, setOrdem] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const ordemParam = searchParams.get("order");
+      setOrdem(ordemParam);
+    }
+  }, []);
+
+
+  // Chama a API e verifica o status da compra a cada segundo
+  useEffect(() => {
+    if (!ordem || !userID) return;
+
+    let intervalId: NodeJS.Timeout;
+
+    const checkStatus = async () => {
+      try {
+        const res = await fetch(`/api/internal/payments/compra-status?userId=${userID}&paymentId=${ordem}`);
+        const data = await res.json();
+         if(data.status==='PENDING'){
+          //router.push(`/credit/${userID}`)
+        } 
+         
+        // Se quiser tratar outros status, adicione aqui
+      } catch (err) {
+        // Silencia erros para não poluir o usuário
+        // console.error("Erro ao checar status da compra:", err);
+      }
+    };
+
+    intervalId = setInterval(checkStatus, 1000);
+
+    // Checa imediatamente ao montar
+    checkStatus();
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [ordem, userID, router]);
+ 
+
+
+ 
+
+
+  
   useEffect(() => {
     const timer = setInterval(() => {
       setSecondsLeft((prev) => {
@@ -23,7 +74,7 @@ export default function PixClient({ brcode }: { brcode: string }) {
         }
         return prev - 1
       })
-    }, 1800000) //1800000 = 30 minutos
+    }, 120000) // 2 minutoa
 
     return () => clearInterval(timer)
   }, [router])

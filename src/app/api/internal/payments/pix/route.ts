@@ -160,6 +160,7 @@ export async function POST(req: NextRequest) {
     });
 
     const orderResult = await orderResponse.json();
+    
 
     if (!orderResponse.ok) {
       return NextResponse.json({ error: orderResult }, { status: orderResponse.status });

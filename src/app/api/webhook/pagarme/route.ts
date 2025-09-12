@@ -6,6 +6,10 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 
+
+
+
+//funçã opara entrega de credito
 async function EntregaCredito(transactionId: string) {
   try {
     // Busca a compra no banco de dados usando o transactionId (que é o paymentId da compra)
@@ -60,7 +64,10 @@ async function EntregaCredito(transactionId: string) {
 }
 
 
-async function atualizarStatusCompra(transactionId: string, status: "PENDING" | "FAILED" | "PAID"|'entregue') {
+
+
+//função para atualizar compra
+async function atualizarStatusCompra(transactionId: string, status: "PENDING" | "FAILED" | "PAID"|'PROCESSING'|'entregue') {
   // Atualiza o status da compra no banco de dados
   try {
     const compra = await prisma.compra.update({
@@ -106,17 +113,19 @@ export async function POST(req: NextRequest) {
         // Supondo que o ID da transação está em body.data.charges[0].last_transaction.id
         let ordem1 = body.data?.id; // Pega o id da ordem (order)
         const result1 = await atualizarStatusCompra(ordem1, "PAID");
-        await  EntregaCredito(ordem1)
+        await  EntregaCredito(ordem1) 
      
         break;
       case "order.payment_failed":
         console.log("❌ Pagamento recusado:", body.data.id);
         const transactionId2 = body.data?.id;
         const result2 = await atualizarStatusCompra(transactionId2, "FAILED");
+        //preciso redirecionar o usuario para a pagina de creditos aqui
+        
         break;
       case "order.payment_processing":
         const transactionId3 = body.data?.id;
-        const result3 = await atualizarStatusCompra(transactionId3, "PENDING");
+        const result3 = await atualizarStatusCompra(transactionId3, "PROCESSING");
         console.log("⏳ Pagamento em processamento:", body.data.id);
         break;
       case "order.canceled":

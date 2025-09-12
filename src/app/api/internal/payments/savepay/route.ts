@@ -3,6 +3,11 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+
+
+
+
+
 //retorna as compras do usuario
 // GET /api/internal/payments/savepay?userId=...
 export async function GET(req: Request) {
